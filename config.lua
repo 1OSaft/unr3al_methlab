@@ -80,23 +80,57 @@ Config.Methlabs = {
 Config.Recipes = {
     ['standard'] = {
         ['easy'] = { --Needs to be unique, is also the label shown ingame
-            ['acetone'] = 1,
-            ['lithium'] = 1
+            Ingredients = {
+                ["acetone"] = 1,
+                ["lithium"] = 1,
+            },
+            Meth = {
+                ItemName = 'meth',
+                Chance = {
+                    Min = 2,
+                    Max = 4
+                },
+            }
         },
         ['medium'] = {
-            ['acetone'] = 5,
-            ['lithium'] = 5
+            Ingredients = {
+                ["acetone"] = 5,
+                ["lithium"] = 5,
+            },
+            Meth = {
+                ItemName = 'meth',
+                Chance = {
+                    Min = 5,
+                    Max = 10
+                },
+            }
         },
         ['hard'] = {
-            ['acetone'] = 10,
-            ['lithium'] = 10
+            Ingredients = {
+                ["acetone"] = 10,
+                ["lithium"] = 10,
+            },
+            Meth = {
+                ItemName = 'meth',
+                Chance = {
+                    Min = 10,
+                    Max = 20
+                },
+            }
         },
     },
     ['special'] = {
-        ['easy'] = {
-            ['acetone'] = 1,
-            ['lithium'] = 1
+        Ingredients = {
+            ["acetone"] = 1,
+            ["lithium"] = 1,
         },
+        Meth = {
+            ItemName = 'meth',
+            Chance = {
+                Min = 2,
+                Max = 4
+            },
+        }
     }
 }
 

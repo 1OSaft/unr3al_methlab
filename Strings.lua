@@ -6,6 +6,7 @@ Strings = {
     CantBuy = 'You couldnt buy this lab!',
     UpgradedStorage = 'Successfully upgraded your storage',
     UpgradedSecurity =  'Successfully upgraded your security',
+    LabelForChemicalPouring = 'Pouring chemicals',
 
     UnlockedLab = 'Unlocked lab',
     LockedLab = 'Locked lab'

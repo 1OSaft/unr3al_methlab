@@ -1,4 +1,4 @@
-local currentlab = {}
+currentlab = {}
 
 --Finished
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
@@ -13,6 +13,7 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
         xPlayer.setCoords(vector3(997.24, -3200.67, -36.39))
         print("set entity coords")
         currentlab[src] = methlabId
+        TriggerEvent('unr3al_methlab:server:updatePlayer', src, methlabId, netId, false)
     else
         TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Strings.LabLocked)
     end
@@ -27,7 +28,7 @@ RegisterNetEvent('unr3al_methlab:server:leave', function(methlabId, netId)
     SetPlayerRoutingBucket(src, 0)
     local coords = Config.Methlabs[currentlab[src]].Coords
     xPlayer.setCoords(vector3(coords.x, coords.y, coords.z))
-    currentlab[src] = nil
+    TriggerEvent('unr3al_methlab:server:updatePlayer', src, methlabId, netId, true)
 end)
 
 --Finished
@@ -126,99 +127,81 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     })
 end)
 
+-- Finished
+RegisterNetEvent('unr3al_methlab:server:updatePlayer', function(source, methlabId, netId, toDelete)
+	local entity = NetworkGetEntityFromNetworkId(netId)
+	local src = source
+	if not DoesEntityExist(entity) or currentlab[src] ~= methlabId then return end
+    local xPlayer = ESX.GetPlayerFromId(src)
+
+    if not toDelete then
+        local id = MySQL.insert.await('INSERT INTO unr3al_methlab_people (id, identifier) VALUES (?, ?)', {
+            methlabId, xPlayer.identifier,
+        })
+         
+        print(id)
+    else
+        MySQL.query.await('DELETE FROM unr3al_methlab_people WHERE identifier = @identifier', {
+            ['@identifier'] = xPlayer.identifier
+        })
+        currentlab[src] = nil
+    end
+end)
+
+-- Finished
+AddEventHandler('esx:playerLoaded',function(xPlayer, isNew, skin)
+    if xPlayer and not isNew then
+        response = MySQL.single.await('SELECT id unr3al_methlab_people WHERE identifier = @identifier', {
+            ['@identifier'] = xPlayer.identifier
+        })
+        if response ~= nil then
+            currentlab[src] = response
+        end
+    end
+end)
+
+
+
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
     local lab = currentlab[src]
-    print(lab)
-    local recipe = Config.Methlabs[1].Recipes
-    print(tostring(recipe))
+    local recipe = Config.Methlabs[lab].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getMethType', src, netId, recipe)
-    print(tostring(input))
-
-end)
-
-
-
-lib.callback.register('unr3al_methlab:server:isLabOwned', function(source, methlabId)
-    print("currentlab: "..methlabId)
-    local returnval = 0
-    local response = MySQL.single.await('SELECT `owned` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId})
-    if response then
-        if response.owned == 1 then
-            returnval = 1
-        end
-        print("Owned: "..response.owned)
-    end
-    return returnval
-end)
-
-lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] ~= nil then return end
-    
-    local canBuy = true
-    for itenName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-        if canBuy then
-            local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-            if item < itemCount then
-                canBuy = false
+    print("1"..tostring(input))
+    if not input then return end
+    if Config.Recipes[recipe][input] ~= nil then
+        local canBuy = true
+        for itenName, itemCount in pairs(Config.Recipes['standard']['easy'].Ingredients) do
+            if canBuy then
+                local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
+                if item < itemCount then
+                    canBuy = false
+                end
             end
         end
-    end
-    local owner = ESX.GetPlayerFromId(src).getJob().name
-    local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
-    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
-    print(response[1]["COUNT(id)"])
-    if response[1]["COUNT(id)"] < Config.MaxLabs and canBuy then
-        for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-            exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
-        end
-        local newOwner
-        if Config.Methlabs[methlabId].Purchase.Type == 'society' then
-            newOwner = ESX.GetPlayerFromId(src).getJob().name
+        if canBuy then
+            for itemName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
+                exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
+            end
+            print("yippie")
+            local animationComplete = lib.callback.await('unr3al_methlab:client:startAnimation', src, netId)
+            if animationComplete then
+                print("tewstdfhdgfg")
+            end
         else
-            newOwner = ESX.GetPlayerFromId(src).getIdentifier()
+            print("not yippie")
+            return
         end
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
-            newOwner, methlabId
-        })
-        if updateOwner == 1 then
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Strings.BoughtLab)
-            TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
-        end
-    else
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Strings.CantBuy)
     end
-end)
 
-lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
-    local src = source
-    local owner = ESX.GetPlayerFromId(src).getJob().name
-    local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
-    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
-    print(response[1]["COUNT(id)"])
-    if response[1]["COUNT(id)"] < Config.MaxLabs then
-        return true
-    else
-        return false
-    end
-end)
 
-lib.callback.register('unr3al_methlab:server:getStorage', function(source, netId)
-    local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
-    return MySQL.single.await('SELECT `storage` FROM `unr3al_methlab` WHERE `id` = ?', {currentlab[src]}).storage
-end)
 
-lib.callback.register('unr3al_methlab:server:getSecurity', function(source, netId)
-    local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
-    return MySQL.single.await('SELECT `security` FROM `unr3al_methlab` WHERE `id` = ?', {currentlab[src]}).security
+
+
+
+
 end)
 
 
@@ -270,7 +253,7 @@ AddEventHandler('onResourceStart', function(resourceName)
         end
         local secondaryTableBuild = MySQL.query.await([[CREATE TABLE IF NOT EXISTS unr3al_methlab_people (
         `id` int(11) NOT NULL,
-        `owner` varchar(46) DEFAULT NULL
+        `identifier` varchar(46) DEFAULT NULL
         )]])
         if secondaryTableBuild.warningStatus == 0 then
             Unr3al.Logging('info', 'Database Build for secondary table complete')

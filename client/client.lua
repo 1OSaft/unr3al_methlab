@@ -8,6 +8,7 @@ local currentLab = 0
 local cam = nil
 local objects = {}
 
+
 RegisterNetEvent('unr3al_methlab:client:notify', function(notitype, message)
 	notifications(notitype, message)
 end)
@@ -178,9 +179,9 @@ local methMarker = lib.points.new({
     interactPoint = nil,
     nearby = function()
         local marker = Config.Marker
-        -- if not cam then
-        --     DrawMarker(marker.type, 1005.77, -3200.40, -38.52, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-        -- end
+        if not cam then
+            DrawMarker(marker.type, 1005.77, -3200.40, -38.52, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
+        end
     end,
     onEnter = function(self)
         if self.interactPoint then return end
@@ -191,52 +192,6 @@ local methMarker = lib.points.new({
                 if IsControlJustReleased(0, 51) then
                     lib.hideTextUI()
                     TriggerServerEvent('unr3al_methlab:server:startprod', NetworkGetNetworkIdFromEntity(cache.ped))
-
-                    -- local ped = PlayerPedId()
-                    -- SetEntityCoords(ped, 1005.773, -3200.402, -38.524, 0, 0, 0, 0)
-                    
-
-                    -- --cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 1008.0, -3199.0, -36.5, -20.0, 0.0, 120.0, 70.0)
-                    -- cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 561.3, 301.3, 63.0, 0.0, 0.0, 0.0, 90.0)
-
-
-                    -- SetCamActive(cam, true)
-                    -- RenderScriptCams(true, true, 1000, true, true)
-
-                    -- local anim = 'anim@amb@business@meth@meth_monitoring_cooking@cooking@'
-                
-                    -- lib.requestAnimDict(anim)
-                    -- lib.requestModel(`bkr_prop_meth_sacid`)
-                    -- lib.requestModel(`bkr_prop_meth_ammonia`)
-                    -- lib.requestModel(`bkr_prop_fakeid_clipboard_01a`)
-                    -- lib.requestModel(`prop_pencil_01`)
-                
-                    -- local targetPosition = GetEntityCoords(ped)
-                    
-                    -- local sacid = CreateObject(`bkr_prop_meth_sacid`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
-                    -- objects[1] = sacid
-                
-                    -- local ammonia = CreateObject(`bkr_prop_meth_ammonia`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
-                    -- objects[2] = ammonia
-                
-                    -- local clipboard = CreateObject(`bkr_prop_fakeid_clipboard_01a`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
-                    -- objects[3] = clipboard
-                
-                    -- local pencil = CreateObject(`prop_pencil_01`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
-                    -- objects[4] = pencil
-                
-                    -- local scenePos, sceneRot = vector3(1010.656, -3198.445, -38.925), vector3(0.0, 0.0, 0.0) -- 353200l
-                    -- local scene = CreateSynchronizedScene(scenePos.x, scenePos.y, scenePos.z, sceneRot.x, sceneRot.y, sceneRot.z, 2)
-                    -- TaskSynchronizedScene(PlayerPedId(), scene, anim, 'chemical_pour_long_cooker', 1.5, -4.0, 1, 16, 1148846080, 0)
-                    -- PlaySynchronizedEntityAnim(sacid, scene, 'chemical_pour_long_sacid', anim, 4.0, -8.0, 1, 1148846080)
-                    -- PlaySynchronizedEntityAnim(ammonia, scene, 'chemical_pour_long_ammonia', anim, 4.0, -8.0, 1, 1148846080)
-                    -- PlaySynchronizedEntityAnim(clipboard, scene, 'chemical_pour_long_clipboard', anim, 4.0, -8.0, 1, 1148846080)
-                    -- PlaySynchronizedEntityAnim(pencil, scene, 'chemical_pour_long_pencil', anim, 4.0, -8.0, 1, 1148846080)
-                    -- DetachSynchronizedScene(scene)
-
-                    -- RenderScriptCams(false, true, 0, true, false)
-                    -- DestroyCam(cam, false)
-                    -- cam = nil
                 end
             end,
             onEnter = function()
@@ -255,6 +210,87 @@ local methMarker = lib.points.new({
         self.interactPoint = nil
     end,
 })
+
+
+lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
+	local entity = NetworkGetEntityFromNetworkId(netId)
+	if not DoesEntityExist(entity) then return end
+    TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
+    local ped = PlayerPedId()
+    SetEntityCoords(ped, 1005.773, -3200.402, -38.524, 0, 0, 0, 0)
+
+    cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 1008.0, -3199.0, -36.5, -20.0, 0.0, 120.0, 70.0)
+    SetCamActive(cam, true)
+    RenderScriptCams(true, true, 1000, true, true)
+
+    local anim = 'anim@amb@business@meth@meth_monitoring_cooking@cooking@'
+
+    lib.requestAnimDict(anim)
+    lib.requestModel(`bkr_prop_meth_sacid`)
+    lib.requestModel(`bkr_prop_meth_ammonia`)
+    lib.requestModel(`bkr_prop_fakeid_clipboard_01a`)
+    lib.requestModel(`prop_pencil_01`)
+
+    local targetPosition = GetEntityCoords(ped)
+    
+    local sacid = CreateObject(`bkr_prop_meth_sacid`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
+    objects[1] = sacid
+
+    local ammonia = CreateObject(`bkr_prop_meth_ammonia`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
+    objects[2] = ammonia
+
+    local clipboard = CreateObject(`bkr_prop_fakeid_clipboard_01a`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
+    objects[3] = clipboard
+
+    local pencil = CreateObject(`prop_pencil_01`, targetPosition.x, targetPosition.y, targetPosition.z, 0, 0, 0)
+    objects[4] = pencil
+
+    local scenePos, sceneRot = vector3(1010.656, -3198.445, -38.925), vector3(0.0, 0.0, 0.0) -- 353200l
+    local scene = CreateSynchronizedScene(scenePos.x, scenePos.y, scenePos.z, sceneRot.x, sceneRot.y, sceneRot.z, 2)
+    TaskSynchronizedScene(PlayerPedId(), scene, anim, 'chemical_pour_long_cooker', 1.5, -4.0, 1, 16, 1148846080, 0)
+    PlaySynchronizedEntityAnim(sacid, scene, 'chemical_pour_long_sacid', anim, 4.0, -8.0, 1, 1148846080)
+    PlaySynchronizedEntityAnim(ammonia, scene, 'chemical_pour_long_ammonia', anim, 4.0, -8.0, 1, 1148846080)
+    PlaySynchronizedEntityAnim(clipboard, scene, 'chemical_pour_long_clipboard', anim, 4.0, -8.0, 1, 1148846080)
+    PlaySynchronizedEntityAnim(pencil, scene, 'chemical_pour_long_pencil', anim, 4.0, -8.0, 1, 1148846080)
+
+    if lib.progressBar({
+        duration = 150000,
+        label = Strings.LabelForChemicalPouring,
+        useWhileDead = false,
+        allowRagdoll = false,
+        allowCuffed = false,
+        allowFalling = false,
+        canCancel = true,
+        disable = {
+            move = true,
+            car = true,
+            combat = true,
+            mouse = true
+        }
+    }) then
+        for i=1, #objects do
+            DeleteObject(objects[i])
+        end
+        objects = {}
+        DetachSynchronizedScene(scene)
+        ClearPedTasksImmediately(PlayerPedId())
+        RenderScriptCams(false, true, 0, true, false)
+        DestroyCam(cam, false)
+        cam = nil
+        return true
+    else
+        for i=1, #objects do
+            DeleteObject(objects[i])
+        end
+        objects = {}
+        DetachSynchronizedScene(scene)
+        ClearPedTasksImmediately(PlayerPedId())
+        RenderScriptCams(false, true, 0, true, false)
+        DestroyCam(cam, false)
+        cam = nil
+        return false
+    end
+end)
 
 lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recipe)
     local recipeType = recipe
@@ -358,6 +394,20 @@ Citizen.CreateThread(function()
 end)
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 RegisterCommand('meth1', function()
     local ped = PlayerPedId()
     SetEntityCoords(ped, 1005.773, -3200.402, -38.524, 0, 0, 0, 0)
@@ -392,6 +442,7 @@ RegisterCommand('meth1', function()
     PlaySynchronizedEntityAnim(pencil, scene, 'chemical_pour_long_pencil', anim, 4.0, -8.0, 1, 1148846080)
     DetachSynchronizedScene(scene)
 end, false)
+
 RegisterCommand('stopmeth1', function()
     for i=1, #objects do
         DeleteObject(objects[i])
@@ -400,11 +451,12 @@ RegisterCommand('stopmeth1', function()
     ClearPedTasksImmediately(PlayerPedId())
 end, false)
 
-
--- RegisterCommand('togglecam', function(source, args)
---     if args[1] then
---         toggleCam(true)
---     else
---         toggleCam(false)
---     end
--- end, false)
+RegisterCommand('methtest', function()
+    local ped = PlayerPedId()
+    SetEntityCoords(ped, 1005.773, -3200.402, -38.524, 0, 0, 0, 0)
+    local anim = 'anim@amb@business@coc@coc_packing_hi@'
+    local scenePos, sceneRot = vector3(1010.656, -3198.445, -38.925), vector3(0.0, 0.0, 0.0) -- 353200l
+    local scene = CreateSynchronizedScene(scenePos.x, scenePos.y, scenePos.z, sceneRot.x, sceneRot.y, sceneRot.z, 2)
+    TaskSynchronizedScene(PlayerPedId(), scene, anim, 'base_scoop')
+    
+end, false)
