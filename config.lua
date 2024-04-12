@@ -4,6 +4,12 @@ Config.Locale = 'en'
 Config.checkForUpdates = true
 Config.Debug = true
 ----------------------------------------------------------------
+Config.LoggingTypes = {
+    ['info'] = '[^4Info^0]',
+    ['debug'] = '[^3DEBUG^0]',
+    ['error'] = '[^1ERROR^0]',
+}
+----------------------------------------------------------------
 
 Config.Marker = {
     type = 20,
@@ -21,7 +27,7 @@ Config.Marker = {
 Config.MaxLabs = 4
 
 Config.Methlabs = {
-    [1] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
+    [1] = { --Routingbucket id, standart Routingbucket is 0, so dont use it. first lab is 1, second 2, third 3 and so on!
         Coords = vector3(-57.60, -1228.61, 28.79),
         Purchase = {
             Type = 'society', --society owned or player owned
@@ -72,8 +78,8 @@ Config.Methlabs = {
 }
 
 Config.Recipes = {
-    ['standart'] = {
-        ['easy'] = {
+    ['standard'] = {
+        ['easy'] = { --Needs to be unique, is also the label shown ingame
             ['acetone'] = 1,
             ['lithium'] = 1
         },
@@ -84,6 +90,12 @@ Config.Recipes = {
         ['hard'] = {
             ['acetone'] = 10,
             ['lithium'] = 10
+        },
+    },
+    ['special'] = {
+        ['easy'] = {
+            ['acetone'] = 1,
+            ['lithium'] = 1
         },
     }
 }
