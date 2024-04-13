@@ -2,7 +2,7 @@ Config, Locales = {}, {}
 ----------------------------------------------------------------
 Config.Locale = 'en'
 Config.checkForUpdates = true
-Config.Debug = true
+Config.Debug = false
 ----------------------------------------------------------------
 Config.LoggingTypes = {
     ['info'] = '[^4Info^0]',
@@ -24,7 +24,7 @@ Config.Marker = {
     distance = 2
 }
 
-Config.MaxLabs = 4
+Config.MaxLabs = 2
 
 Config.Methlabs = {
     [1] = { --Routingbucket id, standart Routingbucket is 0, so dont use it. first lab is 1, second 2, third 3 and so on!
@@ -32,8 +32,8 @@ Config.Methlabs = {
         Purchase = {
             Type = 'society', --society owned or player owned
             Price = {
-                ['money'] = 1,
-                ['bread'] = 1
+                ['money'] = 100000,
+                ['metal'] = 100,
             },
             Raidable = true
         },
@@ -44,8 +44,8 @@ Config.Methlabs = {
         Purchase = {
             Type = 'society', --society owned or player owned
             Price = {
-                ['money'] = 1,
-                ['bread'] = 1
+                ['money'] = 100000,
+                ['metal'] = 100,
             },
             Raidable = true
         },
@@ -56,8 +56,8 @@ Config.Methlabs = {
     Purchase = {
         Type = 'society', --society owned or player owned
         Price = {
-            ['money'] = 1,
-            ['bread'] = 1
+            ['money'] = 100000,
+            ['metal'] = 100,
         },
         Raidable = true
     },
@@ -68,8 +68,8 @@ Config.Methlabs = {
     Purchase = {
         Type = 'society', --society owned or player owned
         Price = {
-            ['money'] = 1,
-            ['bread'] = 1
+            ['money'] = 100000,
+            ['metal'] = 100,
         },
         Raidable = true
     },
@@ -79,13 +79,13 @@ Config.Methlabs = {
 
 Config.Recipes = {
     ['standard'] = {
-        ['easy'] = { --Needs to be unique, is also the label shown ingame
+        ['meth'] = { --Needs to be unique, is also the label shown ingame
             Ingredients = {
                 ["acetone"] = 1,
                 ["lithium"] = 1,
             },
             Meth = {
-                ItemName = 'meth',
+                ItemName = 'methslurry',
                 Chance = {
                     Min = 2,
                     Max = 4
@@ -134,6 +134,24 @@ Config.Recipes = {
     }
 }
 
+Config.Refinery = {
+    ['standard'] = {
+        ['methslurry'] = { --label
+            Ingredients = {
+                ["methslurry"] = 5, --input item
+            },
+            Output = {
+                ItemName = 'meth',
+                Chance = {
+                    Min = 2,
+                    Max = 4
+                },
+            }
+        }
+    }
+}
+
+
 Config.Upgrades = {
     Storage = {
         [1] = {
@@ -169,6 +187,8 @@ Config.Upgrades = {
             }
         },
     },
+
+    -- Doesnt do anything at the moment!
     Security = {
         [1] = {
             NeedOnline = 2, --Players that own this lab needed online for raiding, only works if society owned

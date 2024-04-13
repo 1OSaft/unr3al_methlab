@@ -1,24 +1,68 @@
 Locales ['en'] = {
-    ['Production_Stoped'] = 'Production stopped...',
-    ['Production_Starting'] = 'Starting production',
-    ['Production_Started'] = 'Started production',
-    ['Production_Finish'] = 'Production finished',
+    ['LabLocked'] = 'You can enter this lab, its locked',
+    ['BoughtLab'] = 'You just bought the meth lab',
+    ['CantBuy'] = 'You couldnt buy this lab!',
 
-    ['Help_Text'] = 'Start Cooking Meth',
+----------------------------------------------------------------
+    --General
+    ['MissingResources'] = 'Your missing: ',
+    ['ToMuchLabsBought'] = 'You have exeeded the limits for methlabs',
+    ['CanceledProduction'] = 'Canceled production',
 
-    --Errors
-    ['Seat_Occupied'] = 'The car is already occupied',
-    ['Near_City'] = 'You are too close to the city, head further up north to begin meth production',
-    ['Not_Enough_Cops'] = 'There are not enough Cops currently online',
-    ['Failed_Start'] = 'The propane pipe snaped, you messed up...',
-    ['Not_Supplies'] = "Not enough supplies to start producing this quantity of meth",
+----------------------------------------------------------------
+    --AlertDialog
+    ['AlertDialogHeader'] = 'Buy methlab',
+    ['AlertDialogHeaderDesc'] = 'Do you want to buy this lab?',
 
-    --Updates
-    ['Update1'] = 'Meth production: ',
-    ['Update2'] = '%',
+    --TextUI
+    ['PouringTextUI'] = '[E] Pour chemicals',
+    ['RefineryTextUI'] = '[E] Refine chemical slurry',
+    ['NormalMenuTextUI'] = '[E] Open methlab menu',
+    ['StorageTextUI'] = '[E] Open methlab storage',
 
-    ['Input_Title'] = "Meth recipe",
-    ['Input_Easy'] = "Easy",
-    ['Input_Medium'] = "Medium",
-    ['Input_Hard'] = 'Hard',
+    --InputDialog
+    ['RecipeDialogHeader'] = 'Chemical mixer',
+    ['SelectRecipeDialog'] = 'Select meth recipe',
+    ['SelectRecipeDialogDesc'] = '',
+
+    ['SlurryDialogHeader'] = 'Solidifier',
+    ['SelectSlurryRecipeDialog'] = 'Select slurry recipe',
+    ['SelectSlurryRecipeDialogDesc'] = '',
+
+----------------------------------------------------------------
+    --Progressbar
+    ['ChemicalPouringProgress'] = 'Pouring chemicals',
+    ['SlurryRefineryProgress'] = 'Checking temperature',
+
+----------------------------------------------------------------
+--Menus
+    ['EnterContextmarker'] = 'Methlab menu',
+
+    ['EnterLabel'] = 'Enter lab',
+    ['EnterLabelDesc'] = 'Enter this methlab',
+
+    ['LockLabel'] = 'Lock lab',
+    ['LockLabelDesc'] = 'Lock this methlab',
+        ['CantLockLab'] = 'You cant lock a lab without its key!',
+        ['UnlockedLab'] = 'Unlocked lab',
+        ['LockedLab'] = 'Locked lab',
+
+    ['RaidLabel'] = 'Raid lab',
+    ['RaidLabelDesc'] = 'Raid this methlab',
+
+    ['LeaveLab'] = 'Leave lab',
+    ['LeaveLabDesc'] = 'Leave this methlab',
+
+    ['UpgradeLab'] = 'Upgrade methlab',
+    ['UpgradeLabDesc'] = 'Upgrade this methlab',
+
+    ['UpgradeStorage'] = 'Storage upgrade',
+        ['UpgradedStorage'] = 'Successfully upgraded your storage',
+    ['UpgradeSecurity'] = 'Security upgrade',
+        ['UpgradedSecurity'] =  'Successfully upgraded your security',
+    ['CurrentLevel'] = 'Current level: ',
 }
+
+
+
+

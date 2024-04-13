@@ -1,12 +1,10 @@
 lib.callback.register('unr3al_methlab:server:isLabOwned', function(source, methlabId)
-    print("currentlab: "..methlabId)
     local returnval = 0
     local response = MySQL.single.await('SELECT `owned` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId})
     if response then
         if response.owned == 1 then
             returnval = 1
         end
-        print("Owned: "..response.owned)
     end
     return returnval
 end)
@@ -17,38 +15,51 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
 	if not DoesEntityExist(entity) or currentlab[src] ~= nil then return end
     
     local canBuy = true
+    local missingItems = {}
     for itenName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-        if canBuy then
-            local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-            if item < itemCount then
-                canBuy = false
+        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
+        if item < itemCount then
+            canBuy = false
+            table.insert(missingItems, {itenName, itemCount - item})
+        end
+    end
+    if canBuy then
+        local owner = ESX.GetPlayerFromId(src).getJob().name
+        local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
+        local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
+        if response[1]["COUNT(id)"] < Config.MaxLabs then
+            for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
+                exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
             end
-        end
-    end
-    local owner = ESX.GetPlayerFromId(src).getJob().name
-    local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
-    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
-    print(response[1]["COUNT(id)"])
-    if response[1]["COUNT(id)"] < Config.MaxLabs and canBuy then
-        for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-            exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
-        end
-        local newOwner
-        if Config.Methlabs[methlabId].Purchase.Type == 'society' then
-            newOwner = ESX.GetPlayerFromId(src).getJob().name
+            local newOwner
+            if Config.Methlabs[methlabId].Purchase.Type == 'society' then
+                newOwner = ESX.GetPlayerFromId(src).getJob().name
+            else
+                newOwner = ESX.GetPlayerFromId(src).getIdentifier()
+            end
+            local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
+                newOwner, methlabId
+            })
+            if updateOwner == 1 then
+                TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
+                TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
+            end
         else
-            newOwner = ESX.GetPlayerFromId(src).getIdentifier()
+            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
         end
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
-            newOwner, methlabId
-        })
-        if updateOwner == 1 then
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Strings.BoughtLab)
-            TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
-        end
+
     else
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Strings.CantBuy)
+        local itemarray = {}
+        for i, item in ipairs(missingItems) do
+            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
+            local itemString = string.format("%sx %s", item[2], itemData)
+            table.insert(itemarray, itemString)
+        end
+        local joinedItems = table.concat(itemarray, ", ")
+        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
+        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
     end
+
 end)
 
 lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
@@ -56,7 +67,6 @@ lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
     local owner = ESX.GetPlayerFromId(src).getJob().name
     local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
     local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
-    print(response[1]["COUNT(id)"])
     if response[1]["COUNT(id)"] < Config.MaxLabs then
         return true
     else
