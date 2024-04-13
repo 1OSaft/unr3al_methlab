@@ -5,6 +5,9 @@
 - Customizable items and meth recipes
 - Compatibility for ESX
 
+# Preview
+https://youtu.be/W-vucp3fcWQ
+
 ## Installation
 
 - Download this script
