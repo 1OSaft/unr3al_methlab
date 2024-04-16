@@ -161,8 +161,8 @@ if not Config.OXTarget then
             distance = 20,
             interactPoint = nil,
             nearby = function()
-                local marker = Config.Marker
                 if not cam then
+                    local marker = Config.Marker
                     DrawMarker(marker.type, methCoords.x, methCoords.y, methCoords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
                 end
             end,
@@ -229,4 +229,6 @@ if not Config.OXTarget then
             end,
         })
     end)
+else
+
 end
