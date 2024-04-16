@@ -3,7 +3,7 @@ player = nil
 
 if Config.Framework == 'ESX' then
     ESX = exports["es_extended"]:getSharedObject()
-else
+elseif Config.Framework == 'qb' then
     QBCore = exports['qb-core']:GetCoreObject()
 end
 
@@ -31,7 +31,6 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
-
     local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId})
     if response.locked == 0 then
         SetPlayerRoutingBucket(src, methlabId)
@@ -174,7 +173,7 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     if Config.Framework == 'ESX' then
         possibleOwner = xPlayer.getJob().name
         possibleOwner2 = xPlayer.getIdentifier()
-    else
+    elseif Config.Framework == 'qb' then
         possibleOwner = xPlayer.PlayerData.job.name
         possibleOwner2 = xPlayer.Functions.GetIdentifier
     end
@@ -201,33 +200,33 @@ end)
 
 if Config.Framework == 'ESX' then
     --Finished
-AddEventHandler('esx:playerLoaded',function(source, xPlayer, isNew)
-    local src = source
-    if xPlayer and not isNew then
-        local response = MySQL.single.await('SELECT id FROM unr3al_methlab_people WHERE identifier = @identifier', {
-            ['@identifier'] = xPlayer.identifier
-        })
-        if response ~= nil then
-            currentlab[src] = response.id
-            MySQL.query.await('DELETE FROM unr3al_methlab_people WHERE identifier = @identifier', {
+    AddEventHandler('esx:playerLoaded',function(source, xPlayer, isNew)
+        local src = source
+        if xPlayer and not isNew then
+            local response = MySQL.single.await('SELECT id FROM unr3al_methlab_people WHERE identifier = @identifier', {
                 ['@identifier'] = xPlayer.identifier
             })
+            if response ~= nil then
+                currentlab[src] = response.id
+                MySQL.query.await('DELETE FROM unr3al_methlab_people WHERE identifier = @identifier', {
+                    ['@identifier'] = xPlayer.identifier
+                })
+            end
         end
-    end
-end)
+    end)
 
---Finished
-RegisterNetEvent('esx:playerDropped', function(playerId, reason)
-    local src = playerId
-    local xPlayer = player(src)
-    if currentlab[src] ~= nil then
-        local lab = currentlab[src]
-        local id = MySQL.insert.await('INSERT INTO unr3al_methlab_people (id, identifier) VALUES (?, ?)', {
-            currentlab[src], xPlayer.identifier,
-        })
-        currentlab[src] = nil
-    end
-end)
+    --Finished
+    RegisterNetEvent('esx:playerDropped', function(playerId, reason)
+        local src = playerId
+        local xPlayer = player(src)
+        if currentlab[src] ~= nil then
+            local lab = currentlab[src]
+            local id = MySQL.insert.await('INSERT INTO unr3al_methlab_people (id, identifier) VALUES (?, ?)', {
+                currentlab[src], xPlayer.identifier,
+            })
+            currentlab[src] = nil
+        end
+    end)
 end
 
 

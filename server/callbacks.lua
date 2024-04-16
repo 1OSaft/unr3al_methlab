@@ -29,7 +29,7 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
         if Config.Framework == 'ESX' then
             owner = xPlayer.getJob().name
             owner2 = xPlayer.getIdentifier()
-        else
+        elseif Config.Framework == 'qb' then
             owner = xPlayer.PlayerData.job.name
             owner2 = xPlayer.Functions.GetIdentifier
         end
@@ -42,13 +42,13 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
             if Config.Methlabs[methlabId].Purchase.Type == 'society' then
                 if Config.Framework == 'ESX' then
                     newOwner = xPlayer.getJob().name
-                else
+                elseif Config.Framework == 'qb' then
                     newOwner = xPlayer.PlayerData.job.name
                 end
-            else
+            elseif Config.Methlabs[methlabId].Purchase.Type == 'player' then
                 if Config.Framework == 'ESX' then
                     newOwner = xPlayer.getIdentifier()
-                else
+                elseif Config.Framework == 'qb' then
                     newOwner = xPlayer.Functions.GetIdentifier
                 end
             end
@@ -84,7 +84,7 @@ lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
     if Config.Framework == 'ESX' then
         owner = xPlayer.getJob().name
         owner2 = xPlayer.getIdentifier()
-    else
+    elseif Config.Framework == 'qb' then
         owner = xPlayer.PlayerData.job.name
         owner2 = xPlayer.Functions.GetIdentifier
     end

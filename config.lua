@@ -2,7 +2,7 @@ Config = {}
 ----------------------------------------------------------------
 Config.Locale = 'en'
 Config.checkForUpdates = true
-Config.Debug = false
+Config.Debug = true
 Config.Framework = 'ESX' --Currently only ESX but at some point it will support qb and ox
 ----------------------------------------------------------------
 Config.LoggingTypes = {
