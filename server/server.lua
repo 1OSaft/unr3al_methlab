@@ -199,7 +199,8 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     end
 end)
 
---Finished
+if Config.Framework == 'ESX' then
+    --Finished
 AddEventHandler('esx:playerLoaded',function(source, xPlayer, isNew)
     local src = source
     if xPlayer and not isNew then
@@ -226,7 +227,9 @@ RegisterNetEvent('esx:playerDropped', function(playerId, reason)
         })
         currentlab[src] = nil
     end
-  end)
+end)
+end
+
 
 --Finished
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)

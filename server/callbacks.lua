@@ -12,6 +12,7 @@ end)
 lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
+    local xPlayer = player(src)
 	if not DoesEntityExist(entity) or currentlab[src] ~= nil then return end
     
     local canBuy = true
@@ -24,8 +25,14 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
         end
     end
     if canBuy then
-        local owner = ESX.GetPlayerFromId(src).getJob().name
-        local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
+        local owner, owner2 = nil, nil
+        if Config.Framework == 'ESX' then
+            owner = xPlayer.getJob().name
+            owner2 = xPlayer.getIdentifier()
+        else
+            owner = xPlayer.PlayerData.job.name
+            owner2 = xPlayer.Functions.GetIdentifier
+        end
         local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
         if response[1]["COUNT(id)"] < Config.MaxLabs then
             for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
@@ -33,9 +40,17 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
             end
             local newOwner
             if Config.Methlabs[methlabId].Purchase.Type == 'society' then
-                newOwner = ESX.GetPlayerFromId(src).getJob().name
+                if Config.Framework == 'ESX' then
+                    newOwner = xPlayer.getJob().name
+                else
+                    newOwner = xPlayer.PlayerData.job.name
+                end
             else
-                newOwner = ESX.GetPlayerFromId(src).getIdentifier()
+                if Config.Framework == 'ESX' then
+                    newOwner = xPlayer.getIdentifier()
+                else
+                    newOwner = xPlayer.Functions.GetIdentifier
+                end
             end
             local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
                 newOwner, methlabId
@@ -64,8 +79,15 @@ end)
 
 lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
     local src = source
-    local owner = ESX.GetPlayerFromId(src).getJob().name
-    local owner2 = ESX.GetPlayerFromId(src).getIdentifier()
+    local xPlayer = player(src)
+    local owner, owner2 = nil, nil
+    if Config.Framework == 'ESX' then
+        owner = xPlayer.getJob().name
+        owner2 = xPlayer.getIdentifier()
+    else
+        owner = xPlayer.PlayerData.job.name
+        owner2 = xPlayer.Functions.GetIdentifier
+    end
     local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
     if response[1]["COUNT(id)"] < Config.MaxLabs then
         return true
