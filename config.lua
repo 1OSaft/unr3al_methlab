@@ -1,8 +1,9 @@
-Config, Locales = {}, {}
+Config = {}
 ----------------------------------------------------------------
 Config.Locale = 'en'
 Config.checkForUpdates = true
 Config.Debug = false
+Config.Framework = 'ESX' --Currently only ESX but at some point it will support qb and ox
 ----------------------------------------------------------------
 Config.LoggingTypes = {
     ['info'] = '[^4Info^0]',
@@ -10,6 +11,8 @@ Config.LoggingTypes = {
     ['error'] = '[^1ERROR^0]',
 }
 ----------------------------------------------------------------
+
+Config.OXTarget = false --Not Done °_° LEAVE IT FALSE
 
 Config.Marker = {
     type = 20,
@@ -219,12 +222,20 @@ Config.Noti = {
     warning = 'warning',
 }
 
-function notifications(notitype, message)
-    --Change this trigger for your notification system keeping the variables
-    lib.notify({
-        title = 'Meth lab',
-        description = message,
-        type = notitype,
-        duration = 5000
-    })
+Config.Notification = function(source, notitype, message)
+    if IsDuplicityVersion() then -- serverside
+        TriggerClientEvent('ox_lib:notify', source, {
+            title = 'Meth lab',
+            description = message,
+            type = notitype,
+            duration = 5000
+        })
+    else -- clientside
+        lib.notify({
+            title = 'Meth lab',
+            description = message,
+            type = notitype,
+            duration = 5000
+        })
+    end
 end

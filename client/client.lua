@@ -1,242 +1,19 @@
 ESX = exports["es_extended"]:getSharedObject()
 
+Config = {}
+CreateThread(function()
+    TriggerEvent('unr3al_methlab:client:getConfig')
+end)
+
+RegisterNetEvent('unr3al_methlab:client:getConfig', function()
+    Config = lib.callback.await('unr3al_methlab:server:getConfig', false)
+end)
 
 --------------------------------------------------------------------------------------------------------------
 
-local currentLab = nil
+currentLab = nil
 local cam = nil
 local objects = {}
-
-
-
-
-RegisterNetEvent('unr3al_methlab:client:notify', function(notitype, message)
-	notifications(notitype, message)
-end)
-
-for methlabID, methlabMarker in pairs(Config.Methlabs) do
-    local coords = methlabMarker.Coords
-    local enterMarker = lib.points.new({
-        coords = coords,
-        distance = 20,
-        interactPoint = nil,
-        nearby = function()
-            local marker = Config.Marker
-            DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-        end,
-        onEnter = function(self)
-            if self.interactPoint then return end
-            self.interactPoint = lib.points.new({
-                coords = coords,
-                distance = 1,
-                nearby = function()
-                    if IsControlJustReleased(0, 51) then
-                        currentLab = methlabID
-                        local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, currentLab)
-                        if owned == 1 then
-                            lib.showContext("methlab_Menu_Enter")
-                        else
-                            local alert = lib.alertDialog({
-                                header = Locales[Config.Locale]['AlertDialogHeader'],
-                                content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
-                                centered = true,
-                                cancel = true
-                            })
-                            if alert == 'confirm' then
-                                local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                            end
-                        end
-                    end
-                end,
-                onEnter = function()
-                    lib.showTextUI(Locales[Config.Locale]['NormalMenuTextUI'])
-                end,
-                onExit = function()
-                    lib.hideTextUI()
-                end
-            })
-        end,
-        onExit = function(self)
-            if not self.interactPoint then return end
-            self.interactPoint:remove()
-            self.interactPoint = nil
-        end,
-    })
-end
-
-local exitmarker = lib.points.new({
-    coords = vector3(997.24, -3200.67, -36.39),
-    distance = 20,
-    interactPoint = nil,
-    nearby = function()
-        local marker = Config.Marker
-        DrawMarker(marker.type, 997.24, -3200.67, -36.39, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-    end,
-    onEnter = function(self)
-        if self.interactPoint then return end
-        self.interactPoint = lib.points.new({
-            coords = vector3(997.24, -3200.67, -36.39),
-            distance = 2,
-            nearby = function()
-                if IsControlJustReleased(0, 51) then
-                    local methStorage = lib.callback.await('unr3al_methlab:server:getStorage', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                    local storageMax
-                    if methStorage == #Config.Upgrades.Storage then
-                        storageMax = true
-                    end
-                    local methSecurity = lib.callback.await('unr3al_methlab:server:getSecurity', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                    local securityMax
-                    if methSecurity == #Config.Upgrades.Security then
-                        securityMax = true
-                    end
-                    lib.registerContext({
-                        id = 'methlab_Menu_Upgrade',
-                        title = Locales[Config.Locale]['UpgradeLab'],
-                        menu = 'methlab_Menu_Leave',
-                        options = {
-                            {
-                                title = Locales[Config.Locale]['UpgradeStorage'],
-                                description = Locales[Config.Locale]['CurrentLevel']..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
-                                icon = 'box',
-                                disabled = storageMax,
-                                onSelect = function()
-                                    TriggerServerEvent('unr3al_methlab:server:upgradeStorage', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                end,
-                            },
-                            {
-                                title = Locales[Config.Locale]['UpgradeSecurity'],
-                                description = Locales[Config.Locale]['CurrentLevel']..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
-                                icon = 'box',
-                                --disabled = securityMax,
-                                disabled = true,
-                                onSelect = function()
-                                    TriggerServerEvent('unr3al_methlab:server:upgradeSecurity', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                end,
-                            },
-                        }
-                    })
-                    lib.showContext("methlab_Menu_Leave")
-                end
-            end,
-            onEnter = function()
-                lib.showTextUI(Locales[Config.Locale]['NormalMenuTextUI'])
-            end,
-            onExit = function()
-                lib.hideTextUI()
-            end
-        })
-    end,
-    onExit = function(self)
-        if not self.interactPoint then return end
-        self.interactPoint:remove()
-        self.interactPoint = nil
-    end,
-})
-
-local storageMarker = lib.points.new({
-    coords = vector3(1016.56, -3200.13, -38.99),
-    distance = 20,
-    interactPoint = nil,
-    nearby = function()
-        local marker = Config.Marker
-        DrawMarker(marker.type, 1016.56, -3200.13, -38.99, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-    end,
-    onEnter = function(self)
-        if self.interactPoint then return end
-        self.interactPoint = lib.points.new({
-            coords = vector3(1016.56, -3200.13, -38.99),
-            distance = 1,
-            nearby = function()
-                if IsControlJustReleased(0, 51) then
-                    TriggerServerEvent('unr3al_methlab:server:openStorage', NetworkGetNetworkIdFromEntity(cache.ped))
-                end
-            end,
-            onEnter = function()
-                lib.showTextUI(Locales[Config.Locale]['StorageTextUI'])
-            end,
-            onExit = function()
-                lib.hideTextUI()
-            end
-        })
-    end, 
-    onExit = function(self)
-        if not self.interactPoint then return end
-        self.interactPoint:remove()
-        self.interactPoint = nil
-    end,
-})
-
-local methMarker = lib.points.new({
-    coords = vector3(1005.77, -3200.40, -38.52),
-    distance = 20,
-    interactPoint = nil,
-    nearby = function()
-        local marker = Config.Marker
-        if not cam then
-            DrawMarker(marker.type, 1005.77, -3200.40, -38.52, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-        end
-    end,
-    onEnter = function(self)
-        if self.interactPoint then return end
-        self.interactPoint = lib.points.new({
-            coords = vector3(1005.77, -3200.40, -38.52),
-            distance = 1,
-            nearby = function()
-                if IsControlJustReleased(0, 51) then
-                    lib.hideTextUI()
-                    TriggerServerEvent('unr3al_methlab:server:startprod', NetworkGetNetworkIdFromEntity(cache.ped))
-                end
-            end,
-            onEnter = function()
-                lib.showTextUI(Locales[Config.Locale]['PouringTextUI'])
-            end,
-            onExit = function()
-                lib.hideTextUI()
-            end
-        })
-    end,
-    onExit = function(self)
-        if not self.interactPoint then return end
-        self.interactPoint:remove()
-        self.interactPoint = nil
-    end,
-})
-
-local methRefinery1 = lib.points.new({
-    coords = vector3(1006.43, -3197.65, -39.0),
-    distance = 20,
-    interactPoint = nil,
-    nearby = function()
-        local marker = Config.Marker
-        if not cam then
-            DrawMarker(marker.type, 1006.43, -3197.65, -39.0, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-        end
-    end,
-    onEnter = function(self)
-        if self.interactPoint then return end
-        self.interactPoint = lib.points.new({
-            coords = vector3(1006.43, -3197.65, -39.0),
-            distance = 1,
-            nearby = function()
-                if IsControlJustReleased(0, 51) then
-                    lib.hideTextUI()
-                    TriggerServerEvent('unr3al_methlab:server:startSlurryRefinery', NetworkGetNetworkIdFromEntity(cache.ped))
-                end
-            end,
-            onEnter = function()
-                lib.showTextUI(Locales[Config.Locale]['RefineryTextUI'])
-            end,
-            onExit = function()
-                lib.hideTextUI()
-            end
-        })
-    end,
-    onExit = function(self)
-        if not self.interactPoint then return end
-        self.interactPoint:remove()
-        self.interactPoint = nil
-    end,
-})
 
 lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
@@ -399,6 +176,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
     if(GetCurrentResourceName() ~= resourceName) then
         return
     else
+        Config = lib.callback.await('unr3al_methlab:server:getConfig', false, NetworkGetNetworkIdFromEntity(cache.ped))
         lib.registerContext({
             id = 'methlab_Menu_Enter',
             title = Locales[Config.Locale]['EnterContextmarker'],

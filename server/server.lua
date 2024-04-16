@@ -1,22 +1,38 @@
 currentlab = {}
+player = nil
+
+function player(src)
+    if Config.Framework == 'ESX' then
+        return ESX.GetPlayerFromId(src)
+    elseif Config.Framework == 'qb' then
+        return QBCore.Functions.GetPlayer(src)
+    end
+end
+function getPlayerName(src)
+    if Config.Framework == 'ESX' then
+        return ESX.GetPlayerFromId(src).getName()
+    elseif Config.Framework == 'qb' then
+        return QBCore.Functions.GetPlayer(src).PlayerData.name
+    end
+    
+end
 
 --Finished
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-    local xPlayer = ESX.GetPlayerFromId(src)
 	if not DoesEntityExist(entity) or currentlab[src] ~= nil then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to enter Lab'..methlabId..' without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
 
-    local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId}).locked
-    if response == 0 then
+    local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId})
+    if response.locked == 0 then
         SetPlayerRoutingBucket(src, methlabId)
-        xPlayer.setCoords(vector3(997.24, -3200.67, -36.39))
+        SetEntityCoords(entity, 997.24, -3200.67, -36.39, true, false, false, false)
         currentlab[src] = methlabId
     else
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['LabLocked'])
+        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['LabLocked'])
     end
 end)
 
@@ -24,14 +40,13 @@ end)
 RegisterNetEvent('unr3al_methlab:server:leave', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-    local xPlayer = ESX.GetPlayerFromId(src)
 	if not DoesEntityExist(entity) or currentlab[src] == nil then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to leave Lab'..methlabId..' without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to leave Lab'..methlabId..' without perms')
         return
     end
     SetPlayerRoutingBucket(src, 0)
     local coords = Config.Methlabs[currentlab[src]].Coords
-    xPlayer.setCoords(vector3(coords.x, coords.y, coords.z))
+    SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
     currentlab[src] = nil
 end)
 
@@ -40,7 +55,7 @@ RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to open storage without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to open storage without perms')
         return
     end
     exports.ox_inventory:forceOpenInventory(src, 'stash', 'Methlab_Storage_'..currentlab[src])
@@ -51,7 +66,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to upgrade storage of Lab '..methlabId..' without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade storage of Lab '..methlabId..' without perms')
         return
     end
 
@@ -75,7 +90,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
         })
         if updateOwner == 1 then
             exports.ox_inventory:RegisterStash('Methlab_Storage_'..methlabId, 'Methlab storage', Config.Upgrades.Storage[storageLevel+1].Slots, Config.Upgrades.Storage[storageLevel+1].MaxWeight, false)
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
         end
     else
         local itemarray = {}
@@ -86,7 +101,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
         end
         local joinedItems = table.concat(itemarray, ", ")
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
+        Config.Notification(src, Config.Noti.error, notification)
     end
 end)
 
@@ -95,7 +110,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to upgrade security of Lab '..methlabId..' without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade security of Lab '..methlabId..' without perms')
         return
     end
 
@@ -120,7 +135,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
             securityLevel+1, methlabId
         })
         if updateOwner == 1 then
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
         end
     else
         local itemarray = {}
@@ -131,7 +146,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
         end
         local joinedItems = table.concat(itemarray, ", ")
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
+        Config.Notification(src, Config.Noti.error, notification)
     end
 end)
 
@@ -139,9 +154,9 @@ end)
 RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-    local xPlayer = ESX.GetPlayerFromId(src)
+    local xPlayer = player(src)
     if not DoesEntityExist(entity) then
-        Unr3al.Logging('info', 'Player '..xPlayer.getName()..' tried to lock Lab'..methlabId..' without perms')
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to lock Lab'..methlabId..' without perms')
         return
     end
     local labId = methlabId
@@ -149,22 +164,32 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
         labId = currentlab[src]
     end
     local isOwner = MySQL.single.await('SELECT owner FROM unr3al_methlab WHERE id = ?', {methlabId}).owner
-    local possibleOwner = ESX.GetPlayerFromId(src).getJob().name
-    local possibleOwner2 = ESX.GetPlayerFromId(src).getIdentifier()
+    local possibleOwner, possibleOwner2 = nil, nil
+    if Config.Framework == 'ESX' then
+        possibleOwner = xPlayer.getJob().name
+        possibleOwner2 = xPlayer.getIdentifier()
+    else
+        possibleOwner = xPlayer.PlayerData.job.name
+        possibleOwner2 = xPlayer.Functions.GetIdentifier
+    end
+
+
     if isOwner == possibleOwner or isOwner == possibleOwner2 then
         local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId}).locked
         local newlocked = 1
         if response == 1 then
             newlocked = 0
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['UnlockedLab'])
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UnlockedLab'])
+
         else
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['LockedLab'])
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['LockedLab'])
         end
         local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = ? WHERE id = ?', {
             newlocked, labId
         })
     else
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['CantLockLab'])
+        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockLab'])
+
     end
 end)
 
@@ -187,7 +212,7 @@ end)
 --Finished
 RegisterNetEvent('esx:playerDropped', function(playerId, reason)
     local src = playerId
-    local xPlayer = ESX.GetPlayerFromId(src)
+    local xPlayer = player(src)
     if currentlab[src] ~= nil then
         local lab = currentlab[src]
         local id = MySQL.insert.await('INSERT INTO unr3al_methlab_people (id, identifier) VALUES (?, ?)', {
@@ -225,7 +250,8 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                 local count = math.random(Config.Recipes[recipe][input].Meth.Chance.Min, Config.Recipes[recipe][input].Meth.Chance.Max)
                 exports.ox_inventory:AddItem(src, Config.Recipes[recipe][input].Meth.ItemName, count)
             else
-                TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
+                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
+
             end
         else
             local itemarray = {}
@@ -236,7 +262,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
             end
             local joinedItems = table.concat(itemarray, ", ")
             local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
+            Config.Notification(src, Config.Noti.error, notification)
         end
     end
 end)
@@ -267,7 +293,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
             local count = math.random(Config.Refinery[recipe][input].Output.Chance.Min, Config.Refinery[recipe][input].Output.Chance.Max)
             exports.ox_inventory:AddItem(src, Config.Refinery[recipe][input].Output.ItemName, count)
         else
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
+            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
         end
     else
         local itemarray = {}
@@ -278,7 +304,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
         end
         local joinedItems = table.concat(itemarray, ", ")
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
+        Config.Notification(src, Config.Noti.error, notification)
     end
 end)
 

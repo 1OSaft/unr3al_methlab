@@ -41,11 +41,11 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
                 newOwner, methlabId
             })
             if updateOwner == 1 then
-                TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
+                Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
                 TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
             end
         else
-            TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
+            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
         end
 
     else
@@ -57,7 +57,7 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
         end
         local joinedItems = table.concat(itemarray, ", ")
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        TriggerClientEvent('unr3al_methlab:client:notify', src, Config.Noti.error, notification)
+        Config.Notification(src, Config.Noti.error, notification)
     end
 
 end)
@@ -86,4 +86,8 @@ lib.callback.register('unr3al_methlab:server:getSecurity', function(source, netI
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
     return MySQL.single.await('SELECT `security` FROM `unr3al_methlab` WHERE `id` = ?', {currentlab[src]}).security
+end)
+
+lib.callback.register('unr3al_methlab:server:getConfig', function(source)
+    return Config
 end)

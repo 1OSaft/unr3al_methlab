@@ -1,4 +1,5 @@
 Unr3al = {}
+Locales = {}
 Unr3al.Logging = function(code, ...)
     if not Unr3al.TableContains({'error', 'debug', 'info'}, code) then
         if not Config.Debug and code == 'debug' then return end
