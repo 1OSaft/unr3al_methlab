@@ -11,7 +11,6 @@ dependencies {'es_extended', 'ox_lib', 'oxmysql', 'bob74_ipl'}
 
 server_scripts {
     '@oxmysql/lib/MySQL.lua',
-    '@es_extended/imports.lua',
     '@ox_lib/init.lua',
     'config.lua',
     'config.target.lua',
@@ -20,7 +19,6 @@ server_scripts {
 }
 
 client_scripts {
-    '@es_extended/imports.lua',
     '@ox_lib/init.lua',
     -- 'client/client.lua',
     -- 'client/marker.lua',

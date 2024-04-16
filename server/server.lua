@@ -1,6 +1,12 @@
 currentlab = {}
 player = nil
 
+if Config.Framework == 'ESX' then
+    ESX = exports["es_extended"]:getSharedObject()
+else
+    QBCore = exports['qb-core']:GetCoreObject()
+end
+
 function player(src)
     if Config.Framework == 'ESX' then
         return ESX.GetPlayerFromId(src)

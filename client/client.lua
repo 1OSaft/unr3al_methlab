@@ -1,5 +1,3 @@
-ESX = exports["es_extended"]:getSharedObject()
-
 Config = {}
 CreateThread(function()
     TriggerEvent('unr3al_methlab:client:getConfig')
