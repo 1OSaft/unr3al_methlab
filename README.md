@@ -12,7 +12,7 @@ https://youtu.be/W-vucp3fcWQ
 
 - Download this script
 - Put script in your `resources` directory
-- ensure `unr3al_methlab` *after* `ox_lib`, `ox_inventory`, `es_extended` and `bob74_ipl`
+- ensure `unr3al_methlab` *after* `ox_lib`, `ox_inventory`, `framework` and `bob74_ipl`
 
 # Dependencies
  - ox_lib
