@@ -106,8 +106,14 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
 	local methType = lib.inputDialog(Locales[Config.Locale]['RecipeDialogHeader'], {
 		{type = 'select', label = Locales[Config.Locale]['SelectRecipeDialog'], description = Locales[Config.Locale]['SelectRecipeDialogDesc'], required = true, options = options},
 	})
+    local returnvalv = nil
+    if methType then
+        returnvalv = methType[1]
+    else
+        returnvalv = nil
+    end
 	if Config.Debug and methType then print("Meth type: "..tostring(methType[1])) end
-	return methType[1] or 0
+	return returnvalv
 end)
 
 lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, recipe)
@@ -127,7 +133,7 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
     if methType then
         returnvalv = methType[1]
     else
-        returnvalv = 0
+        returnvalv = nil
     end
 	if Config.Debug and methType then print("Slurry type: "..tostring(methType[1])) end
 	return returnvalv

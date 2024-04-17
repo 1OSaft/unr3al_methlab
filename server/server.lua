@@ -241,7 +241,10 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
     currentMethProduction[lab] = true
     local recipe = Config.Methlabs[lab].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getMethType', src, netId, recipe)
-    if not input then return end
+    if not input then
+        currentMethProduction[lab] = nil
+        return
+    end
     if Config.Recipes[recipe][input] ~= nil then
         local canBuy = true
         local missingItems = {}
@@ -276,7 +279,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
             Config.Notification(src, Config.Noti.error, notification)
         end
     end
-    currentMethProduction[lab] = nil
+    currentMethProduction[currentlab[src]] = nil
 end)
 
 RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
@@ -287,7 +290,10 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
     currentSlurryProduction[currentlab[src]] = true
     local recipe = Config.Methlabs[currentlab[src]].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getSlurryType', src, netId, recipe)
-    if not input then return end
+    if not input then
+        currentSlurryProduction[currentlab[src]] = nil
+        return
+    end
     local canBuy = true
     local missingItems = {}
     for itenName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
@@ -319,7 +325,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
         Config.Notification(src, Config.Noti.error, notification)
     end
-    currentSlurryProduction[currentlab[src]]= false
+    currentSlurryProduction[currentlab[src]] = nil
 end)
 
 
