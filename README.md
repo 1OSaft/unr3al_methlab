@@ -3,7 +3,7 @@
 <b>Features:</b>
 - Create unlimited methlabs
 - Customizable items and meth recipes
-- Compatibility for ESX
+- Compatibility for ESX and qb
 
 # Preview
 https://youtu.be/W-vucp3fcWQ
