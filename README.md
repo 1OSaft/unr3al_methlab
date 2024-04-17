@@ -17,7 +17,7 @@ https://youtu.be/W-vucp3fcWQ
 # Dependencies
  - ox_lib
  - ox_inventory
- - es_extended
+ - es_extended or qb-core
  - bob74_ipl
 
 # Support
