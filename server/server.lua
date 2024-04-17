@@ -1,4 +1,6 @@
 currentlab = {}
+currentMethProduction = {}
+currentSlurryProduction = {}
 player = nil
 
 if Config.Framework == 'ESX' then
@@ -234,8 +236,9 @@ end
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
+	if not DoesEntityExist(entity) or currentlab[src] == nil or currentMethProduction[currentlab[src]] ~= nil then return end
     local lab = currentlab[src]
+    currentMethProduction[lab] = true
     local recipe = Config.Methlabs[lab].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getMethType', src, netId, recipe)
     if not input then return end
@@ -273,13 +276,15 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
             Config.Notification(src, Config.Noti.error, notification)
         end
     end
+    currentMethProduction[lab] = nil
 end)
 
 RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
     local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
+	if not DoesEntityExist(entity) or currentlab[src] == nil or currentSlurryProduction[currentlab[src]] ~= nil then return end
 
+    currentSlurryProduction[currentlab[src]] = true
     local recipe = Config.Methlabs[currentlab[src]].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getSlurryType', src, netId, recipe)
     if not input then return end
@@ -314,6 +319,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
         Config.Notification(src, Config.Noti.error, notification)
     end
+    currentSlurryProduction[currentlab[src]]= false
 end)
 
 
