@@ -4,7 +4,7 @@ lua54 'yes'
 
 author '1OSaft'
 description 'Advanced meth lab script'
-version '1.0.3'
+version '1.0.4'
 
 dependencies {'ox_lib', 'oxmysql', 'bob74_ipl'}
 

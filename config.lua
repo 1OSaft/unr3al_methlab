@@ -3,7 +3,7 @@ Config = {}
 Config.Locale = 'en'
 Config.checkForUpdates = true
 Config.Debug = false
-Config.Framework = 'ESX' --Currently only ESX but at some point it will support qb and ox
+Config.Framework = 'ESX' --Currently only ESX and qb
 ----------------------------------------------------------------
 Config.LoggingTypes = {
     ['info'] = '[^4Info^0]',
@@ -12,7 +12,7 @@ Config.LoggingTypes = {
 }
 ----------------------------------------------------------------
 
-Config.OXTarget = false --Not Done °_° LEAVE IT FALSE
+Config.OXTarget = false
 
 Config.Marker = {
     type = 20,
