@@ -8,31 +8,26 @@ Citizen.CreateThread(function()
                 distance = 20,
                 interactPoint = nil,
                 nearby = function()
-                    local marker = Config.Marker
-                    DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
+                    if not Config.UsePed.Enabled then
+                        local marker = Config.Marker
+                        DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
+                    end
                 end,
                 onEnter = function(self)
                     if self.interactPoint then return end
+                    if Config.UsePed.Enabled then
+                        lib.requestModel(Config.UsePed.Model)
+                        local ped = CreatePed(CIVMALE, GetHashKey(Config.UsePed.Model), coords.x, coords.y, coords.z - 1, methlabMarker.HeadingPed, false, true)
+                        FreezeEntityPosition(ped, true)
+                        SetEntityInvincible(ped, true)
+                        SetBlockingOfNonTemporaryEvents(ped, true)
+                    end
                     self.interactPoint = lib.points.new({
                         coords = coords,
                         distance = 1,
                         nearby = function()
                             if IsControlJustReleased(0, 51) then
-                                currentLab = methlabID
-                                local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, currentLab)
-                                if owned == 1 then
-                                    lib.showContext("methlab_Menu_Enter")
-                                else
-                                    local alert = lib.alertDialog({
-                                        header = Locales[Config.Locale]['AlertDialogHeader'],
-                                        content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
-                                        centered = true,
-                                        cancel = true
-                                    })
-                                    if alert == 'confirm' then
-                                        local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                    end
-                                end
+                                TriggerEvent('unr3al_methlab:client:doEnterStuff', methlabID)
                             end
                         end,
                         onEnter = function()
@@ -45,6 +40,9 @@ Citizen.CreateThread(function()
                 end,
                 onExit = function(self)
                     if not self.interactPoint then return end
+                    if Config.UsePed.Enabled then
+                        DeletePed(ped)
+                    end
                     self.interactPoint:remove()
                     self.interactPoint = nil
                 end,
@@ -67,42 +65,6 @@ Citizen.CreateThread(function()
                     distance = 2,
                     nearby = function()
                         if IsControlJustReleased(0, 51) then
-                            local methStorage = lib.callback.await('unr3al_methlab:server:getStorage', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                            local storageMax
-                            if methStorage == #Config.Upgrades.Storage then
-                                storageMax = true
-                            end
-                            local methSecurity = lib.callback.await('unr3al_methlab:server:getSecurity', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                            local securityMax
-                            if methSecurity == #Config.Upgrades.Security then
-                                securityMax = true
-                            end
-                            lib.registerContext({
-                                id = 'methlab_Menu_Upgrade',
-                                title = Locales[Config.Locale]['UpgradeLab'],
-                                menu = 'methlab_Menu_Leave',
-                                options = {
-                                    {
-                                        title = Locales[Config.Locale]['UpgradeStorage'],
-                                        description = Locales[Config.Locale]['CurrentLevel']..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
-                                        icon = 'box',
-                                        disabled = storageMax,
-                                        onSelect = function()
-                                            TriggerServerEvent('unr3al_methlab:server:upgradeStorage', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                        end,
-                                    },
-                                    {
-                                        title = Locales[Config.Locale]['UpgradeSecurity'],
-                                        description = Locales[Config.Locale]['CurrentLevel']..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
-                                        icon = 'box',
-                                        --disabled = securityMax,
-                                        disabled = true,
-                                        onSelect = function()
-                                            TriggerServerEvent('unr3al_methlab:server:upgradeSecurity', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                        end,
-                                    },
-                                }
-                            })
                             lib.showContext("methlab_Menu_Leave")
                         end
                     end,
@@ -232,30 +194,16 @@ Citizen.CreateThread(function()
         for methlabID, methlabMarker in pairs(Config.Methlabs) do
             exports.ox_target:addSphereZone({
                 coords = methlabMarker.Coords,
-                radius = Config.Target.Radius,
+                radius = Config.Target.EnterPoint.TargetSize,
                 debug = Config.Debug,
                 drawSprite = Config.Debug,
                 options = {
                     {
                         name = 'methLabEnterPoint'..methlabID,
                         label = Locales[Config.Locale]['NormalMenuTextUI'],
-
+                        distance = Config.Target.EnterPoint.InteractDistance,
                         onSelect = function(data)
-                            currentLab = methlabID
-                            local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, currentLab)
-                            if owned == 1 then
-                                lib.showContext("methlab_Menu_Enter")
-                            else
-                                local alert = lib.alertDialog({
-                                    header = Locales[Config.Locale]['AlertDialogHeader'],
-                                    content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
-                                    centered = true,
-                                    cancel = true
-                                })
-                                if alert == 'confirm' then
-                                    local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                end
-                            end
+                            TriggerEvent('unr3al_methlab:client:doEnterStuff', methlabID)
                         end,
                     }
                 }
@@ -270,45 +218,8 @@ Citizen.CreateThread(function()
                 {
                     name = 'methExitPoint',
                     label = Locales[Config.Locale]['NormalMenuTextUI'],
-                    distance = 3,
-
+                    distance = Config.Target.ExitPoint.InteractDistance,
                     onSelect = function(data)
-                        local methStorage = lib.callback.await('unr3al_methlab:server:getStorage', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                        local storageMax
-                        if methStorage == #Config.Upgrades.Storage then
-                            storageMax = true
-                        end
-                        local methSecurity = lib.callback.await('unr3al_methlab:server:getSecurity', false, NetworkGetNetworkIdFromEntity(cache.ped))
-                        local securityMax
-                        if methSecurity == #Config.Upgrades.Security then
-                            securityMax = true
-                        end
-                        lib.registerContext({
-                            id = 'methlab_Menu_Upgrade',
-                            title = Locales[Config.Locale]['UpgradeLab'],
-                            menu = 'methlab_Menu_Leave',
-                            options = {
-                                {
-                                    title = Locales[Config.Locale]['UpgradeStorage'],
-                                    description = Locales[Config.Locale]['CurrentLevel']..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
-                                    icon = 'box',
-                                    disabled = storageMax,
-                                    onSelect = function()
-                                        TriggerServerEvent('unr3al_methlab:server:upgradeStorage', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                    end,
-                                },
-                                {
-                                    title = Locales[Config.Locale]['UpgradeSecurity'],
-                                    description = Locales[Config.Locale]['CurrentLevel']..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
-                                    icon = 'box',
-                                    --disabled = securityMax,
-                                    disabled = true,
-                                    onSelect = function()
-                                        TriggerServerEvent('unr3al_methlab:server:upgradeSecurity', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                                    end,
-                                },
-                            }
-                        })
                         lib.showContext("methlab_Menu_Leave")
                     end,
                 }
@@ -316,14 +227,14 @@ Citizen.CreateThread(function()
         })
         exports.ox_target:addSphereZone({
             coords = vector3(1005.80, -3201.60, -38.57),
-            radius = 1.2,
+            radius = Config.Target.MethPoint.TargetSize,
             debug = Config.Debug,
             drawSprite = Config.Debug,
             options = {
                 {
                     name = 'methMakerPoint',
                     label = Locales[Config.Locale]['PouringTextUI'],
-                    distance = 1.5,
+                    distance = Config.Target.MethPoint.InteractDistance,
 
                     onSelect = function(data)
                         TriggerServerEvent('unr3al_methlab:server:startprod', NetworkGetNetworkIdFromEntity(cache.ped))
@@ -341,7 +252,7 @@ Citizen.CreateThread(function()
                 {
                     name = 'methSlurryPoint',
                     label = Locales[Config.Locale]['RefineryTextUI'],
-                    distance = 1.5,
+                    distance = Config.Target.SlurryPoint.InteractDistance,
 
                     onSelect = function(data)
                         TriggerServerEvent('unr3al_methlab:server:startSlurryRefinery', NetworkGetNetworkIdFromEntity(cache.ped))
@@ -358,13 +269,33 @@ Citizen.CreateThread(function()
                 {
                     name = 'methStoragePoint',
                     label = Locales[Config.Locale]['StorageTextUI'],
-                    distance = 3,
+                    distance = Config.Target.StoragePoint.InteractDistance,
 
                     onSelect = function(data)
-                        TriggerServerEvent('unr3al_methlab:server:startSlurryRefinery', NetworkGetNetworkIdFromEntity(cache.ped))
+                        TriggerServerEvent('unr3al_methlab:server:openStorage', NetworkGetNetworkIdFromEntity(cache.ped))
                     end,
                 }
             }
         })
+    end
+end)
+
+
+
+RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
+    currentLab = methlabID
+    local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, currentLab)
+    if owned == 1 then
+        lib.showContext("methlab_Menu_Enter")
+    else
+        local alert = lib.alertDialog({
+            header = Locales[Config.Locale]['AlertDialogHeader'],
+            content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
+            centered = true,
+            cancel = true
+        })
+        if alert == 'confirm' then
+            local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+        end
     end
 end)

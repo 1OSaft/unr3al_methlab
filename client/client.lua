@@ -1,10 +1,11 @@
-Config = {}
+Config, Locales = {}, {}
+
 CreateThread(function()
     TriggerEvent('unr3al_methlab:client:getConfig')
 end)
 
 RegisterNetEvent('unr3al_methlab:client:getConfig', function()
-    Config = lib.callback.await('unr3al_methlab:server:getConfig', false)
+    Config, Locales = lib.callback.await('unr3al_methlab:server:getConfig', false)
 end)
 
 --------------------------------------------------------------------------------------------------------------
@@ -177,16 +178,109 @@ lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
     end
 end)
 
+-- lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, duration, coords)
+--     local entity = NetworkGetEntityFromNetworkId(netId)
+-- 	if not DoesEntityExist(entity) then return end
+--     TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
 
+--     -- ["weld"] = {
+--     --     "Scenario",
+--     --     "WORLD_HUMAN_WELDING",
+--     --     "Weld"
+--     -- }
+--     -- local anim = 'Scenario'
 
+--     -- lib.requestAnimDict(anim)
 
+--     -- local playerPed = PlayerPedId()
+
+--     -- TaskPlayAnim(playerPed, 'Scenario', 'WORLD_HUMAN_WELDING', 8.0, -8.0, -1, 0, 0, false, false, false)
+
+--     local playerPed = PlayerPedId()
+--     --TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_WELDING', 5000, false)
+--     TaskStartScenarioAtPosition(playerPed, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z, coords.w, duration, false, true)
+
+--     Wait(5000)
+--     ClearPedTasksImmediately(playerPed)
+
+--     Wait(2000)
+--     if lib.progressBar({
+--         duration = duration,
+--         label = Locales[Config.Locale]['SlurryRefineryProgress'],
+--         useWhileDead = false,
+--         allowRagdoll = false,
+--         allowCuffed = false,
+--         allowFalling = false,
+--         canCancel = true,
+--         disable = {
+--             move = true,
+--             car = true,
+--             combat = true,
+--             mouse = true
+--         },
+--         anim = {
+--             dict = 'missfam4',
+--             clip = 'base'
+--         },
+--         prop = {
+--             model = `p_amb_clipboard_01`,
+--             bone = 36029,
+--             pos = vec3(0.16, 0.08, 0.1),
+--             rot = vec3(-130.0, -50.0, 0.0)
+--         },
+--     }) then
+--         local success = lib.skillCheck({'easy','easy','easy','easy'}, {'e'})
+--         return success
+--     else
+--         return false
+--     end
+-- end)
+
+RegisterNetEvent('unr3al_methlab:client:updateUpgradeMenu', function()
+    local methStorage = lib.callback.await('unr3al_methlab:server:getStorage', false, NetworkGetNetworkIdFromEntity(cache.ped))
+    local storageMax
+    if methStorage == #Config.Upgrades.Storage then
+        storageMax = true
+    end
+    local methSecurity = lib.callback.await('unr3al_methlab:server:getSecurity', false, NetworkGetNetworkIdFromEntity(cache.ped))
+    local securityMax
+    if methSecurity == #Config.Upgrades.Security then
+        securityMax = true
+    end
+    lib.registerContext({
+        id = 'methlab_Menu_Upgrade',
+        title = Locales[Config.Locale]['UpgradeLab'],
+        menu = 'methlab_Menu_Leave',
+        options = {
+            {
+                title = Locales[Config.Locale]['UpgradeStorage'],
+                description = Locales[Config.Locale]['CurrentLevel']..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
+                icon = 'box',
+                disabled = storageMax,
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:upgradeStorage', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+                end,
+            },
+            {
+                title = Locales[Config.Locale]['UpgradeSecurity'],
+                description = Locales[Config.Locale]['CurrentLevel']..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
+                icon = 'box',
+                disabled = securityMax,
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:upgradeSecurity', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+                end,
+            },
+        }
+    })
+    lib.showContext("methlab_Menu_Upgrade")
+end)
 
 
 AddEventHandler('onClientResourceStart', function (resourceName)
     if(GetCurrentResourceName() ~= resourceName) then
         return
     else
-        Config = lib.callback.await('unr3al_methlab:server:getConfig', false, NetworkGetNetworkIdFromEntity(cache.ped))
+        Wait(1000)
         lib.registerContext({
             id = 'methlab_Menu_Enter',
             title = Locales[Config.Locale]['EnterContextmarker'],
@@ -212,7 +306,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                     description = Locales[Config.Locale]['RaidLabelDesc'],
                     icon = 'screwdriver-wrench',
                     onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                        TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
                     end,
                     disabled = true
                 },
@@ -243,7 +337,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                     title = Locales[Config.Locale]['UpgradeLab'],
                     description = Locales[Config.Locale]['UpgradeLabDesc'],
                     icon = 'wrench',
-                    menu = 'methlab_Menu_Upgrade',
+                    event = 'unr3al_methlab:client:updateUpgradeMenu',
                     arrow = true,
                 },
             }

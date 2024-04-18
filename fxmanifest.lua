@@ -4,7 +4,7 @@ lua54 'yes'
 
 author '1OSaft'
 description 'Advanced meth lab script'
-version '1.0.6'
+version '1.0.7'
 
 dependencies {'ox_lib', 'oxmysql', 'bob74_ipl'}
 
@@ -14,6 +14,7 @@ server_scripts {
     '@ox_lib/init.lua',
     'config.lua',
     'config.target.lua',
+    'locales/*.*',
     'server/*.lua',
     'logs/config.log.lua'
 }
@@ -26,5 +27,4 @@ client_scripts {
 
 shared_scripts {
     'shared/common.lua',
-    'locales/*.*',
 }

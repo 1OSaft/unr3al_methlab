@@ -111,5 +111,5 @@ lib.callback.register('unr3al_methlab:server:getSecurity', function(source, netI
 end)
 
 lib.callback.register('unr3al_methlab:server:getConfig', function(source)
-    return Config
+    return Config, Locales
 end)

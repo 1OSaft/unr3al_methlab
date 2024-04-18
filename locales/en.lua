@@ -62,7 +62,3 @@ Locales ['en'] = {
         ['UpgradedSecurity'] =  'Successfully upgraded your security',
     ['CurrentLevel'] = 'Current level: ',
 }
-
-
-
-

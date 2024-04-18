@@ -1,6 +1,7 @@
 currentlab = {}
 currentMethProduction = {}
 currentSlurryProduction = {}
+currentLabRaid = {}
 player = nil
 
 if Config.Framework == 'ESX' then
@@ -98,6 +99,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
         if updateOwner == 1 then
             exports.ox_inventory:RegisterStash('Methlab_Storage_'..methlabId, 'Methlab storage', Config.Upgrades.Storage[storageLevel+1].Slots, Config.Upgrades.Storage[storageLevel+1].MaxWeight, false)
             Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
+            TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
         end
     else
         local itemarray = {}
@@ -143,6 +145,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
         })
         if updateOwner == 1 then
             Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
+            TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
         end
     else
         local itemarray = {}
@@ -199,6 +202,28 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 
     end
 end)
+
+-- RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
+-- 	local entity = NetworkGetEntityFromNetworkId(netId)
+-- 	local src = source
+-- 	if not DoesEntityExist(entity) or currentlab[src] ~= nil or currentLabRaid[methlabId] ~= nil then
+--         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to raid lab without perms')
+--         return
+--     end
+--     currentLabRaid[methlabId] = true
+
+--     local secLevel = MySQL.single.await('SELECT security FROM unr3al_methlab WHERE id = @methlabId', {
+--         ['@methlabId'] = methlabId
+--     }).security
+
+--     local coords = Config.Methlabs[methlabId].Purchase.RaidCoords
+--     SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
+--     SetEntityHeading(entity, coords.w)
+--     FreezeEntityPosition(entity, true)
+--     lib.callback.await('unr3al_methlab:client:startRaidAnima', src, netId, Config.Upgrades.Security[secLevel].Time, coords)
+--     Citizen.Wait(1000)
+--     FreezeEntityPosition(entity, false)
+-- end)
 
 if Config.Framework == 'ESX' then
     --Finished
