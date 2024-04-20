@@ -9,6 +9,50 @@ lib.callback.register('unr3al_methlab:server:isLabOwned', function(source, methl
     return returnval
 end)
 
+function canRaidLabOwner(methlabId, secLevel)
+    local returnval = false
+    
+    if Config.Methlabs[methlabId].Purchase.Raidable then
+        local response = MySQL.single.await('SELECT `owner` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId}).owner
+        if Config.Methlabs[methlabId].Purchase.Type == 'society' then
+            local onlinePlayersJob = #ESX.GetExtendedPlayers('job', response)
+            if onlinePlayersJob >= Config.Upgrades.Security[secLevel].NeedOnline then
+                returnval = true
+            else
+                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
+                returnval = false
+            end
+        else
+            local player = ESX.GetPlayerFromIdentifier(response)
+            if player ~= nil then
+                returnval = true
+            else
+                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
+                returnval = false
+            end
+        end
+    else
+        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
+        returnval = false
+    end
+    return returnval
+end
+
+function NotifyPeople(methlabId)
+    local response = MySQL.single.await('SELECT `owner` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId}).owner
+    if Config.Methlabs[methlabId].Purchase.Type == 'society' then
+        local onlinePlayersJob = ESX.GetExtendedPlayers('job', response)
+        for _, player in pairs(onlinePlayersJob) do
+            Config.Notification(player.source, Config.Noti.warning, "RAID!")
+            TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
+        end
+    else
+        local player = ESX.GetPlayerFromIdentifier(response)
+        Config.Notification(player.source, Config.Noti.warning, "RAID!")
+        TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
+    end
+end
+
 lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source

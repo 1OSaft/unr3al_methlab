@@ -9,6 +9,16 @@ Locales ['en'] = {
     ['ToMuchLabsBought'] = 'You have exeeded the limits for methlabs',
     ['CanceledProduction'] = 'Canceled production',
 
+
+----------------------------------------------------------------
+    --Raidtext
+    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
+    ['FailedRaid'] = 'You idiot broke the tool',
+    ['CantRaid'] = 'This lab cant be raided currently, try again later',
+    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+
+    ['BlipText'] = 'Your lab is currently being raided',
+
 ----------------------------------------------------------------
     --AlertDialog
     ['AlertDialogHeader'] = 'Buy methlab',
@@ -33,6 +43,7 @@ Locales ['en'] = {
     --Progressbar
     ['ChemicalPouringProgress'] = 'Pouring chemicals',
     ['SlurryRefineryProgress'] = 'Checking temperature',
+    ['RaidProgress'] = 'Cutting the lock...',
 
 ----------------------------------------------------------------
 --Menus

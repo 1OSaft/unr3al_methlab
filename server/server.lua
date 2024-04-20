@@ -169,6 +169,10 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to lock Lab'..methlabId..' without perms')
         return
     end
+    if currentLabRaid[methlabId] ~= nil then
+        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockWhileRaid'])
+        return
+    end
     local labId = methlabId
     if currentlab[src] ~= nil then
         labId = currentlab[src]
@@ -203,27 +207,73 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     end
 end)
 
--- RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
--- 	local entity = NetworkGetEntityFromNetworkId(netId)
--- 	local src = source
--- 	if not DoesEntityExist(entity) or currentlab[src] ~= nil or currentLabRaid[methlabId] ~= nil then
---         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to raid lab without perms')
---         return
---     end
---     currentLabRaid[methlabId] = true
+RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
+	local entity = NetworkGetEntityFromNetworkId(netId)
+	local src = source
+	if not DoesEntityExist(entity) or currentlab[src] ~= nil then
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to raid lab without perms')
+        return
+    end
+    if currentLabRaid[methlabId] ~= nil then
+        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
+        return
+    end
+    if not Config.Framework == 'ESX' then
+        return
+    end
+    currentLabRaid[methlabId] = true
 
---     local secLevel = MySQL.single.await('SELECT security FROM unr3al_methlab WHERE id = @methlabId', {
---         ['@methlabId'] = methlabId
---     }).security
+    local secLevel = MySQL.single.await('SELECT security FROM unr3al_methlab WHERE id = @methlabId', {
+        ['@methlabId'] = methlabId
+    }).security
+    local canRaidLab = canRaidLabOwner(methlabId, secLevel)
+    if not canRaidLab then
+        return
+    end
 
---     local coords = Config.Methlabs[methlabId].Purchase.RaidCoords
---     SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
---     SetEntityHeading(entity, coords.w)
---     FreezeEntityPosition(entity, true)
---     lib.callback.await('unr3al_methlab:client:startRaidAnima', src, netId, Config.Upgrades.Security[secLevel].Time, coords)
---     Citizen.Wait(1000)
---     FreezeEntityPosition(entity, false)
--- end)
+    local canBuy = true
+    local missingItems = {}
+    for itenName, itemData in pairs(Config.Upgrades.Security[secLevel].RaidGear) do
+        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
+        if item < itemData.Amount then
+            canBuy = false
+            table.insert(missingItems, {itenName, itemData.Amount - item})
+        end
+    end
+    NotifyPeople(methlabId)
+    if canBuy then
+        for itemName, itemData in pairs(Config.Upgrades.Security[1].RaidGear) do
+            if Config.Upgrades.Security[1].RaidGear[itemName].Remove then
+                exports.ox_inventory:RemoveItem(src, itemName, itemData.Amount, false, false, true)
+            end
+        end
+        local coords = Config.Methlabs[methlabId].Purchase.RaidCoords
+        SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
+        SetEntityHeading(entity, coords.w)
+        FreezeEntityPosition(entity, true)
+        local animationReturn = lib.callback.await('unr3al_methlab:client:startRaidAnima', src, netId, Config.Upgrades.Security[secLevel].Time, coords)
+        FreezeEntityPosition(entity, false)
+        if animationReturn == true then
+            local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 0 WHERE id = @methlabId', {['@methlabId'] = methlabId})
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['SuccessfullyRaided'])
+        else
+            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['FailedRaid'])
+        end
+        Wait(Config.RaidCooldown)
+        currentLabRaid[methlabId] = nil
+    else
+        local itemarray = {}
+        for i, item in ipairs(missingItems) do
+            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
+            local itemString = string.format("%sx %s", item[2], itemData)
+            table.insert(itemarray, itemString)
+        end
+        local joinedItems = table.concat(itemarray, ", ")
+        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
+        Config.Notification(src, Config.Noti.error, notification)
+        currentLabRaid[methlabId] = nil
+    end
+end)
 
 if Config.Framework == 'ESX' then
     --Finished
@@ -404,8 +454,69 @@ AddEventHandler('onResourceStart', function(resourceName)
         )]])
         if secondaryTableBuild.warningStatus == 0 then
             Unr3al.Logging('info', 'Database Build for secondary table complete')
-        else if secondaryTableBuild.warningStatus ~= 1 then
+        elseif secondaryTableBuild.warningStatus ~= 1 then
             Unr3al.Logging('error', 'Couldnt build secondary table')
-        end end
+        end
+
+        if Config.Debug then
+            local allItems = {}
+            for item, data in pairs(exports.ox_inventory:Items()) do
+                allItems[item] = data.name
+            end
+            for labID, labData in pairs(Config.Methlabs) do
+                local purchasePrice = labData.Purchase and labData.Purchase.Price or {}
+                for itemName in pairs(purchasePrice) do
+                    if not lib.table.contains(allItems, itemName) then
+                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for lab: ' .. labID .. ' doesn\'t exist!')
+                    end
+                end
+            end
+
+            for recipeType in pairs(Config.Recipes) do
+                for recipeName in pairs(Config.Recipes[recipeType]) do
+                    for itemName in pairs(Config.Recipes[recipeType][recipeName]) do
+                        if itemName ~= 'Ingredients' and itemName ~= 'Meth' then
+                            if not lib.table.contains(allItems, itemName) then
+                                Unr3al.Logging('error', 'Ingredient item ('..itemName..') for recipe: '..recipeName..' doesnt exist!')
+                            end
+                        end
+                    end
+                    local itemexists = lib.table.contains(allItems, Config.Recipes[recipeType][recipeName].Meth.ItemName)
+                    if not itemexists then
+                        Unr3al.Logging('error', 'Product item ('..Config.Recipes[recipeType][recipeName].Meth.ItemName..') for recipe: '..recipeName..' doesnt exist!')
+                    end
+                end
+            end
+            
+            for slurryType in pairs(Config.Refinery) do
+                for recipeName in pairs(Config.Refinery[slurryType]) do
+                    for itemName in pairs(Config.Refinery[slurryType][recipeName].Ingredients) do
+                        if not lib.table.contains(allItems, itemName) then
+                            Unr3al.Logging('error', 'Ingredient item ('..itemName..') for slurry recipe: '..recipeName..' doesnt exist!')
+                        end
+                    end
+                    local itemexists = lib.table.contains(allItems, Config.Refinery[slurryType][recipeName].Output.ItemName)
+                    if not itemexists then
+                        Unr3al.Logging('error', 'Product item ('..Config.Refinery[slurryType][recipeName].Output.ItemName..') for slurry recipe: '..recipeName..' doesnt exist!')
+                    end
+                end
+            end
+
+            for upgradeLevel, upgradeData in pairs(Config.Upgrades.Storage) do
+                for itemName in pairs(upgradeData.Price) do
+                    if not lib.table.contains(allItems, itemName) then
+                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for storage upgrade: ' .. upgradeLevel .. ' doesn\'t exist!')
+                    end
+                end
+            end
+            for upgradeLevel, upgradeData in pairs(Config.Upgrades.Security) do
+                for itemName in pairs(upgradeData.Price) do
+                    if not lib.table.contains(allItems, itemName) then
+                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for security upgrade: ' .. upgradeLevel .. ' doesn\'t exist!')
+                    end
+                end
+            end
+
+        end
     end
 end)

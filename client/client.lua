@@ -178,63 +178,59 @@ lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
     end
 end)
 
--- lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, duration, coords)
---     local entity = NetworkGetEntityFromNetworkId(netId)
--- 	if not DoesEntityExist(entity) then return end
---     TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
+lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, duration, coords)
+    local entity = NetworkGetEntityFromNetworkId(netId)
+	if not DoesEntityExist(entity) then return end
+    TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
+    Wait(500)
 
---     -- ["weld"] = {
---     --     "Scenario",
---     --     "WORLD_HUMAN_WELDING",
---     --     "Weld"
---     -- }
---     -- local anim = 'Scenario'
+    TaskStartScenarioAtPosition(cache.ped, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z+1, coords.w, duration, false, true)
+    local returnvalv
+    if lib.progressBar({
+        duration = duration,
+        label = Locales[Config.Locale]['RaidProgress'],
+        useWhileDead = false,
+        allowRagdoll = false,
+        allowCuffed = false,
+        allowFalling = false,
+        canCancel = true,
+        disable = {
+            move = true,
+            car = true,
+            combat = true,
+            mouse = true
+        },
+    }) then
+        local success = lib.skillCheck({'easy','easy','easy','easy'}, {'e'})
+        ClearPedTasksImmediately(cache.ped)
+        return success
+    else
+        ClearPedTasksImmediately(cache.ped)
+        return false
+    end
+end)
 
---     -- lib.requestAnimDict(anim)
+RegisterNetEvent('unr3al_methlab:client:raidBlip', function(methlabId)
+    local coords = Config.Methlabs[methlabId].Coords
+    local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(blip, 119)
+    SetBlipScale(blip, 1.0)
+    SetBlipColour(blip, 1)
 
---     -- local playerPed = PlayerPedId()
+    local blipBack = AddBlipForCoord(coords.x, coords.y, coords.z)
+    SetBlipSprite(blipBack, 161)
+    SetBlipScale(blipBack, 2.0)
+    SetBlipColour(blipBack, 1)
 
---     -- TaskPlayAnim(playerPed, 'Scenario', 'WORLD_HUMAN_WELDING', 8.0, -8.0, -1, 0, 0, false, false, false)
+    AddTextEntry('methlabRaidBlip', Locales[Config.Locale]['BlipText'])
+    BeginTextCommandSetBlipName('methlabRaidBlip')
+    EndTextCommandSetBlipName(blipBack)
 
---     local playerPed = PlayerPedId()
---     --TaskStartScenarioInPlace(playerPed, 'WORLD_HUMAN_WELDING', 5000, false)
---     TaskStartScenarioAtPosition(playerPed, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z, coords.w, duration, false, true)
-
---     Wait(5000)
---     ClearPedTasksImmediately(playerPed)
-
---     Wait(2000)
---     if lib.progressBar({
---         duration = duration,
---         label = Locales[Config.Locale]['SlurryRefineryProgress'],
---         useWhileDead = false,
---         allowRagdoll = false,
---         allowCuffed = false,
---         allowFalling = false,
---         canCancel = true,
---         disable = {
---             move = true,
---             car = true,
---             combat = true,
---             mouse = true
---         },
---         anim = {
---             dict = 'missfam4',
---             clip = 'base'
---         },
---         prop = {
---             model = `p_amb_clipboard_01`,
---             bone = 36029,
---             pos = vec3(0.16, 0.08, 0.1),
---             rot = vec3(-130.0, -50.0, 0.0)
---         },
---     }) then
---         local success = lib.skillCheck({'easy','easy','easy','easy'}, {'e'})
---         return success
---     else
---         return false
---     end
--- end)
+    BeginTextCommandSetBlipName('methlabRaidBlip')
+    EndTextCommandSetBlipName(blip)
+    --SetBlipRoute(blip, true)
+    --SetBlipAsMissionCreatorBlip(blip, true)
+end)
 
 RegisterNetEvent('unr3al_methlab:client:updateUpgradeMenu', function()
     local methStorage = lib.callback.await('unr3al_methlab:server:getStorage', false, NetworkGetNetworkIdFromEntity(cache.ped))
@@ -275,12 +271,15 @@ RegisterNetEvent('unr3al_methlab:client:updateUpgradeMenu', function()
     lib.showContext("methlab_Menu_Upgrade")
 end)
 
-
 AddEventHandler('onClientResourceStart', function (resourceName)
     if(GetCurrentResourceName() ~= resourceName) then
         return
     else
-        Wait(1000)
+        Wait(5000)
+        local isESX = false
+        if Config.Framework == 'ESX' then
+            isESX = true
+        end
         lib.registerContext({
             id = 'methlab_Menu_Enter',
             title = Locales[Config.Locale]['EnterContextmarker'],
@@ -306,9 +305,9 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                     description = Locales[Config.Locale]['RaidLabelDesc'],
                     icon = 'screwdriver-wrench',
                     onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                        TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
                     end,
-                    disabled = true
+                    disabled = isESX
                 },
             }
         })
@@ -356,8 +355,9 @@ end)
 
 if Config.Debug then
     Citizen.CreateThread(function()
+        Wait(5000)
         for k,v in pairs(Config.Methlabs) do
-            local blip = AddBlipForCoord(v.Coords)
+            local blip = AddBlipForCoord(v.Coords.x, v.Coords.y, v.Coords.z)
             SetBlipSprite(blip, 499)
             SetBlipScale(blip, 0.5)
             SetBlipColour(blip, 1)

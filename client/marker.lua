@@ -1,6 +1,9 @@
 Citizen.CreateThread(function()
-    Wait(1000)
-    if not Config.OXTarget then
+    Wait(5000)
+    local value = lib.waitFor(function()
+        if Config ~= nil then return true end
+    end)
+    if not Config.OXTarget and value then
         for methlabID, methlabMarker in pairs(Config.Methlabs) do
             local coords = methlabMarker.Coords
             local enterMarker = lib.points.new({

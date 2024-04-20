@@ -2,7 +2,7 @@ Config, Locales = {}, {}
 ----------------------------------------------------------------
 Config.Locale = 'en'
 Config.checkForUpdates = true
-Config.Debug = false
+Config.Debug = true
 Config.Framework = 'ESX' --Currently only ESX and qb
 ----------------------------------------------------------------
 Config.LoggingTypes = {
@@ -13,6 +13,8 @@ Config.LoggingTypes = {
 ----------------------------------------------------------------
 
 Config.MaxLabs = 2
+
+Config.RaidCooldown = 100000 -- in ms
 
 Config.Methlabs = {
     [1] = { --Routingbucket id, standart Routingbucket is 0, so dont use it. first lab is 1, second 2, third 3 and so on!
@@ -33,7 +35,7 @@ Config.Methlabs = {
         Coords = vector3(-65.40, -1226.72, 28.79),
         HeadingPed = 233, --For ped if you use it
         Purchase = {
-            Type = 'society', --society owned or player owned
+            Type = 'player', --society owned or player owned
             Price = {
                 ['money'] = 100000,
                 ['metal'] = 100,
@@ -116,17 +118,19 @@ Config.Recipes = {
         },
     },
     ['special'] = {
-        Ingredients = {
-            ["acetone"] = 1,
-            ["lithium"] = 1,
-        },
-        Meth = {
-            ItemName = 'meth',
-            Chance = {
-                Min = 2,
-                Max = 4
+        ['example'] = {
+            Ingredients = {
+                ["acetone"] = 10,
+                ["lithium"] = 10,
             },
-        }
+            Meth = {
+                ItemName = 'meth',
+                Chance = {
+                    Min = 10,
+                    Max = 20
+                },
+            }
+        },
     }
 }
 
@@ -147,12 +151,12 @@ Config.Refinery = {
     }
 }
 
-
 Config.Upgrades = {
     Storage = {
         [1] = {
             Slots = 10,
-            MaxWeight = 20000
+            MaxWeight = 20000,
+            Price = {} --Dont touch this or everything is broken :)
         },
         [2] = {
             Slots = 20,
@@ -188,13 +192,36 @@ Config.Upgrades = {
     Security = {
         [1] = {
             NeedOnline = 0, --Players that own this lab needed online for raiding, only works if society owned
-            Time = 5000 --In ms
+            Time = 5000, --In ms
+            Price = {}, --Dont touch this or everything is broken :)
+            
+            RaidGear = {
+                ['lockpick'] = {
+                    Remove = true,
+                    Amount = 1
+                },
+            },
+            Skillcheck = {
+                Difficulty = {'easy', 'easy', 'easy', 'easy'}, --to disable it, do Difficulty = nil
+                Keys = {'e'}
+            }
         },
         [2] = {
             NeedOnline = 2,
             Time = 10000,
             Price = {
                 ['money'] = 10000
+            },
+
+            RaidGear = {
+                ['weldtool'] = {
+                    Remove = true,
+                    Amount = 1
+                },
+            },
+            Skillcheck = {
+                Difficulty = {'easy', 'easy', 'medium', 'medium'}, --to disable it, do Difficulty = nil
+                Keys = {'e'}
             }
         },
         [3] = {
@@ -202,6 +229,17 @@ Config.Upgrades = {
             Time = 20000,
             Price = {
                 ['money'] = 10000
+            },
+
+            RaidGear = {
+                ['weldtool'] = {
+                    Remove = true,
+                    Amount = 2
+                },
+            },
+            Skillcheck = {
+                Difficulty = {'easy', 'medium', 'medium', 'hard'}, --to disable it, do Difficulty = nil
+                Keys = {'e'}
             }
         },
     }

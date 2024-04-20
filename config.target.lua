@@ -1,4 +1,4 @@
-Config.OXTarget = true
+Config.OXTarget = false
 
 Config.Target = {
     EnterPoint = {
@@ -36,6 +36,6 @@ Config.Marker = {
 
 Config.UsePed = {
     -- If you enable this, the enter marker is replaced with a ped
-    Enabled = true,
+    Enabled = false,
     Model = 'mp_f_meth_01'
 }
