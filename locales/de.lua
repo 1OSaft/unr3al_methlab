@@ -3,21 +3,34 @@ Locales ['de'] = {
     ['BoughtLab'] = 'Du hast gerade das Meth-Labor gekauft',
     ['CantBuy'] = 'Du konntest dieses Labor nicht kaufen!',
 
+----------------------------------------------------------------
     --General
     ['MissingResources'] = 'Dir fehlen: ',
     ['ToMuchLabsBought'] = 'Du hast die Grenzen für Meth-Labore überschritten',
     ['CanceledProduction'] = 'Produktion abgebrochen',
+----------------------------------------------------------------
 
+    --Raidtext
+    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
+    ['FailedRaid'] = 'You idiot broke the tool',
+    ['CantRaid'] = 'This lab cant be raided currently, try again later',
+    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+
+    ['BlipText'] = 'Your lab is currently being raided',
+
+----------------------------------------------------------------
     --AlertDialog
     ['AlertDialogHeader'] = 'Meth-Labor kaufen',
     ['AlertDialogHeaderDesc'] = 'Möchtest du dieses Labor kaufen?',
 
+----------------------------------------------------------------
     --TextUI
     ['PouringTextUI'] = '[E] Chemikalien gießen',
     ['RefineryTextUI'] = '[E] Chemikalien-Schlamm raffinieren',
     ['NormalMenuTextUI'] = '[E] Meth-Labor-Menü öffnen',
     ['StorageTextUI'] = '[E] Meth-Lager öffnen',
 
+----------------------------------------------------------------
     --InputDialog
     ['RecipeDialogHeader'] = 'Chemikalienmischer',
     ['SelectRecipeDialog'] = 'Wähle Meth-Rezept',
@@ -27,10 +40,13 @@ Locales ['de'] = {
     ['SelectSlurryRecipeDialog'] = 'Wähle Schlamm-Rezept',
     ['SelectSlurryRecipeDialogDesc'] = '',
 
+----------------------------------------------------------------
     --Progressbar
     ['ChemicalPouringProgress'] = 'Chemikalien gießen',
     ['SlurryRefineryProgress'] = 'Temperatur überprüfen',
+    ['RaidProgress'] = 'Schneide das Schloss durch...',
 
+----------------------------------------------------------------
     --Menus
     ['EnterContextmarker'] = 'Meth-Labor-Menü',
 
