@@ -74,3 +74,5 @@ Locales ['de'] = {
     ['UpgradedSecurity'] =  'Deine Sicherheit wurde erfolgreich aufgerüstet',
     ['CurrentLevel'] = 'Aktuelles Level: ',
 }
+
+-- Translated By: ItssJxstn
