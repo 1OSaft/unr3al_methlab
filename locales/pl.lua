@@ -58,4 +58,4 @@ Locales['pl'] = {
     ['UpgradedSecurity'] = 'Pomyślnie ulepszono zabezpieczenia',
     ['CurrentLevel'] = 'Aktualny poziom: ',
 }
--- transalted by stepan_valic#0
+-- translated by stepan_valic#0

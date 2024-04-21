@@ -58,4 +58,4 @@ Locales['fr'] = {
     ['UpgradedSecurity'] = 'Votre sécurité a été améliorée avec succès',
     ['CurrentLevel'] = 'Niveau actuel : ',
 }
--- transalted by stepan_valic#0
+-- translated by stepan_valic#0

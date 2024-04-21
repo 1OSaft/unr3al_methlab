@@ -58,4 +58,4 @@ Locales['sk'] = {
     ['UpgradedSecurity'] = 'Úspešne ste vylepšili svoje zabezpečenie',
     ['CurrentLevel'] = 'Aktuálna úroveň: ',
 }
--- transalted by stepan_valic#0
+-- translated by stepan_valic#0
