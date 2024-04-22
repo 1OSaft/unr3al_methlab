@@ -404,15 +404,37 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
 end)
 
 
+lib.addCommand('setlab', {
+    help = 'Sets you in a specific lab',
+    params = {
+        {
+            name = 'methlabId',
+            type = 'number',
+            help = 'Target id of the lab',
+        },
+    },
+    restricted = 'group.admin'
+}, function(source, args, raw)
+    if args.methlabId then
+        currentlab[source] = 1
+    end
+end)
 
-
-
-if Config.Debug then
-    RegisterCommand("setlab", function(source, args)
-        local src = source
-        currentlab[src] = 1
-    end, true)
-end
+lib.addCommand('resetlab', {
+    help = 'Resets a lab back to its orgininal state',
+    params = {
+        {
+            name = 'methlabId',
+            type = 'number',
+            help = 'Target id of the lab',
+        },
+    },
+    restricted = 'group.admin'
+}, function(source, args, raw)
+    if args.methlabId then
+        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 1, security = 1, storage = 1, owned = 0, owner = NULL WHERE id = @methlabId', {['@methlabId'] = args.methlabId})
+    end
+end)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
