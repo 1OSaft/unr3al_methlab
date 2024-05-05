@@ -291,14 +291,24 @@ RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
     if owned == 1 then
         lib.showContext("methlab_Menu_Enter")
     else
-        local alert = lib.alertDialog({
-            header = Locales[Config.Locale]['AlertDialogHeader'],
-            content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
-            centered = true,
-            cancel = true
-        })
-        if alert == 'confirm' then
-            local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+        if Config.Methlabs[methlabID].Purchase.Type == 'both' then
+            local methType = lib.inputDialog(Locales[Config.Locale]['AlertDialogHeader'], {
+                {type = 'select', label = Locales[Config.Locale]['AlertDialogHeaderBuy'], required = true, options = {{ label = Locales[Config.Locale]['BuyOptionPlayer'], value = 1}, { label = Locales[Config.Locale]['BuyOptionSociety'], value = 2}}},
+            })
+            if methType ~= null then
+                lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped), methType[1])
+            end
+            print(json.encode(methType, {indent=true}))
+        else
+            local alert = lib.alertDialog({
+                header = Locales[Config.Locale]['AlertDialogHeader'],
+                content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
+                centered = true,
+                cancel = true
+            })
+            if alert == 'confirm' then
+                local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+            end
         end
     end
 end)

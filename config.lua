@@ -21,7 +21,7 @@ Config.Methlabs = {
         Coords = vector3(-57.60, -1228.61, 28.79),
         HeadingPed = 45.5, --For ped if you use it
         Purchase = {
-            Type = 'society', --society owned or player owned
+            Type = 'both', --"society" owned or "player" owned, "both" if the player can decide
             Price = {
                 ['money'] = 100000,
                 ['metal'] = 100,
@@ -31,11 +31,12 @@ Config.Methlabs = {
         },
         Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
     },
+
     [2] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
         Coords = vector3(-65.40, -1226.72, 28.79),
         HeadingPed = 233, --For ped if you use it
         Purchase = {
-            Type = 'player', --society owned or player owned
+            Type = 'player', --"society" owned or "player" owned, "both" if the player can decide
             Price = {
                 ['money'] = 100000,
                 ['metal'] = 100,
@@ -45,11 +46,12 @@ Config.Methlabs = {
         },
         Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
     },
+
     [3] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
     Coords = vector3(-61.07, -1233.11, 28.79),
     HeadingPed = 45.5, --For ped if you use it
     Purchase = {
-        Type = 'society', --society owned or player owned
+        Type = 'society', --"society" owned or "player" owned, "both" if the player can decide
         Price = {
             ['money'] = 100000,
             ['metal'] = 100,
@@ -59,11 +61,12 @@ Config.Methlabs = {
     },
     Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
     },
+    
     [4] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
     Coords = vector3(-66.53, -1239.11, 28.79),
     HeadingPed = 45.5, --For ped if you use it
     Purchase = {
-        Type = 'society', --society owned or player owned
+        Type = 'society', --"society" owned or "player" owned, "both" if the player can decide
         Price = {
             ['money'] = 100000,
             ['metal'] = 100,
@@ -77,39 +80,39 @@ Config.Methlabs = {
 
 Config.Recipes = {
     ['standard'] = {
-        ['meth'] = { --Needs to be unique, is also the label shown ingame
+        ['Ammonia and sodium (simple)'] = { --Needs to be unique, is also the label shown ingame
             Ingredients = {
-                ["acetone"] = 1,
-                ["lithium"] = 1,
+                ["ammonia"] = 1,
+                ["sodium"] = 1,
             },
             Meth = {
-                ItemName = 'methslurry',
+                ItemName = 'chemicalbarrel',
                 Chance = {
                     Min = 2,
                     Max = 4
                 },
             }
         },
-        ['medium'] = {
+        ['Ammonia and sodium (5x)'] = {
             Ingredients = {
-                ["acetone"] = 5,
-                ["lithium"] = 5,
+                ["ammonia"] = 5,
+                ["sodium"] = 5,
             },
             Meth = {
-                ItemName = 'meth',
+                ItemName = 'chemicalbarrel',
                 Chance = {
                     Min = 5,
                     Max = 10
                 },
             }
         },
-        ['hard'] = {
+        ['Ammonia and sodium (10x)'] = {
             Ingredients = {
-                ["acetone"] = 10,
-                ["lithium"] = 10,
+                ["ammonia"] = 10,
+                ["sodium"] = 10,
             },
             Meth = {
-                ItemName = 'meth',
+                ItemName = 'chemicalbarrel',
                 Chance = {
                     Min = 10,
                     Max = 20
@@ -136,9 +139,9 @@ Config.Recipes = {
 
 Config.Refinery = {
     ['standard'] = {
-        ['methslurry'] = { --label
+        ['Refine 5l of slurry'] = { --label
             Ingredients = {
-                ["methslurry"] = 5, --input item
+                ["chemicalbarrel"] = 5, --input item
             },
             Output = {
                 ItemName = 'meth',
@@ -149,6 +152,22 @@ Config.Refinery = {
             }
         }
     }
+}
+
+Config.Items = {
+    ['chemicalbarrel'] = {
+        MaxFillage = 50, --How much the barrel can hold in liters
+        WeightPerFillage = 500 --In gramms
+    },
+
+    ['ammonia'] = {
+        MaxFillage = 10, --How much the barrel can hold in liters
+        WeightPerFillage = 200 --In gramms
+    },
+    ['sodium'] = {
+        MaxFillage = 5, --How much the barrel can hold in liters
+        WeightPerFillage = 200 --In gramms
+    },
 }
 
 Config.Upgrades = {

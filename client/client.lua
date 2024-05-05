@@ -110,10 +110,10 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
     local returnvalv = nil
     if methType then
         returnvalv = methType[1]
+        Unr3al.Logging('debug', 'Meth type: '..returnvalv)
     else
         returnvalv = nil
     end
-	if Config.Debug and methType then print("Meth type: "..tostring(methType[1])) end
 	return returnvalv
 end)
 
@@ -133,10 +133,10 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
     local returnvalv = nil
     if methType then
         returnvalv = methType[1]
+        Unr3al.Logging('debug', 'Slurry type: '..returnvalv)
     else
         returnvalv = nil
     end
-	if Config.Debug and methType then print("Slurry type: "..tostring(methType[1])) end
 	return returnvalv
 end)
 
@@ -280,6 +280,12 @@ AddEventHandler('onClientResourceStart', function (resourceName)
         if Config.Framework == 'ESX' then
             isESX = true
         end
+        exports.ox_inventory:displayMetadata({
+            methquality = 'Quality',
+            methamount = 'Liters',
+            chemicalname = 'Chemical',
+            chemicalfill = 'Liters'
+        })
         lib.registerContext({
             id = 'methlab_Menu_Enter',
             title = Locales[Config.Locale]['EnterContextmarker'],

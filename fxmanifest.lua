@@ -15,13 +15,15 @@ server_scripts {
     'config.lua',
     'config.target.lua',
     'locales/*.*',
+    'bridge/server.lua',
     'server/*.lua',
-    'logs/config.log.lua'
+    'logs/config.log.lua',
 }
 
 client_scripts {
     '@ox_lib/init.lua',
     'client/*.lua',
+    'bridge/client.lua',
 }
 
 

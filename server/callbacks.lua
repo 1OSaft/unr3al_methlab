@@ -53,11 +53,11 @@ function NotifyPeople(methlabId)
     end
 end
 
-lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId)
+lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId, type)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-    local xPlayer = player(src)
-	if not DoesEntityExist(entity) or currentlab[src] ~= nil then return end
+    local jobName, playerIdentifier = getPlayerJobName(src), getPlayerIdentifier(src)
+	if not DoesEntityExist(entity) or currentlab[src] ~= nil or not jobName or not playerIdentifier then return end
     
     local canBuy = true
     local missingItems = {}
@@ -69,32 +69,16 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
         end
     end
     if canBuy then
-        local owner, owner2 = nil, nil
-        if Config.Framework == 'ESX' then
-            owner = xPlayer.getJob().name
-            owner2 = xPlayer.getIdentifier()
-        elseif Config.Framework == 'qb' then
-            owner = xPlayer.PlayerData.job.name
-            owner2 = xPlayer.Functions.GetIdentifier
-        end
-        local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
+        local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {jobName, playerIdentifier})
         if response[1]["COUNT(id)"] < Config.MaxLabs then
             for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
                 exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
             end
             local newOwner
-            if Config.Methlabs[methlabId].Purchase.Type == 'society' then
-                if Config.Framework == 'ESX' then
-                    newOwner = xPlayer.getJob().name
-                elseif Config.Framework == 'qb' then
-                    newOwner = xPlayer.PlayerData.job.name
-                end
-            elseif Config.Methlabs[methlabId].Purchase.Type == 'player' then
-                if Config.Framework == 'ESX' then
-                    newOwner = xPlayer.getIdentifier()
-                elseif Config.Framework == 'qb' then
-                    newOwner = xPlayer.Functions.GetIdentifier
-                end
+            if Config.Methlabs[methlabId].Purchase.Type == 'society' or (Config.Methlabs[methlabId].Purchase.Type == 'both' and type == 2) then
+                newOwner = jobName
+            elseif Config.Methlabs[methlabId].Purchase.Type == 'player' or (Config.Methlabs[methlabId].Purchase.Type == 'both' and type == 1) then
+                newOwner = playerIdentifier
             end
             local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
                 newOwner, methlabId
@@ -102,11 +86,11 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
             if updateOwner == 1 then
                 Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
                 TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
+                lib.logger(playerIdentifier, 'Bought methlab id: '..methlabId, 'Bought for: '..newOwner)
             end
         else
             Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
         end
-
     else
         local itemarray = {}
         for i, item in ipairs(missingItems) do
@@ -118,21 +102,12 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
         local notification = Locales[Config.Locale]['MissingResources']..joinedItems
         Config.Notification(src, Config.Noti.error, notification)
     end
-
 end)
 
 lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
     local src = source
-    local xPlayer = player(src)
-    local owner, owner2 = nil, nil
-    if Config.Framework == 'ESX' then
-        owner = xPlayer.getJob().name
-        owner2 = xPlayer.getIdentifier()
-    elseif Config.Framework == 'qb' then
-        owner = xPlayer.PlayerData.job.name
-        owner2 = xPlayer.Functions.GetIdentifier
-    end
-    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {owner, owner2})
+    local jobName, playerIdentifier = getPlayerJobName(src), getPlayerIdentifier(src)
+    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {jobName, playerIdentifier})
     if response[1]["COUNT(id)"] < Config.MaxLabs then
         return true
     else

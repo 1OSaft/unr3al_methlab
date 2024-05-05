@@ -23,6 +23,9 @@ Locales ['en'] = {
     --AlertDialog
     ['AlertDialogHeader'] = 'Buy methlab',
     ['AlertDialogHeaderDesc'] = 'Do you want to buy this lab?',
+    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
+    ['BuyOptionPlayer'] = 'I am the owner',
+    ['BuyOptionSociety'] = 'My gang is the owner?',
 
     --TextUI
     ['PouringTextUI'] = '[E] Pour chemicals',

@@ -3,28 +3,9 @@ currentMethProduction = {}
 currentSlurryProduction = {}
 currentLabRaid = {}
 player = nil
+ox_inventory = exports.ox_inventory
 
-if Config.Framework == 'ESX' then
-    ESX = exports["es_extended"]:getSharedObject()
-elseif Config.Framework == 'qb' then
-    QBCore = exports['qb-core']:GetCoreObject()
-end
 
-function player(src)
-    if Config.Framework == 'ESX' then
-        return ESX.GetPlayerFromId(src)
-    elseif Config.Framework == 'qb' then
-        return QBCore.Functions.GetPlayer(src)
-    end
-end
-function getPlayerName(src)
-    if Config.Framework == 'ESX' then
-        return ESX.GetPlayerFromId(src).getName()
-    elseif Config.Framework == 'qb' then
-        return QBCore.Functions.GetPlayer(src).PlayerData.name
-    end
-    
-end
 
 --Finished
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
@@ -256,6 +237,7 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
         if animationReturn == true then
             local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 0 WHERE id = @methlabId', {['@methlabId'] = methlabId})
             Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['SuccessfullyRaided'])
+            lib.logger(getPlayerIdentifier(src), 'Raided methlab id: '..methlabId, 'Time of complete: '..os.time)
         else
             Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['FailedRaid'])
         end
@@ -312,35 +294,163 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
 	if not DoesEntityExist(entity) or currentlab[src] == nil or currentMethProduction[currentlab[src]] ~= nil then return end
+
+    
     local lab = currentlab[src]
-    currentMethProduction[lab] = true
     local recipe = Config.Methlabs[lab].Recipes
+    currentMethProduction[lab] = true
+
     local input = lib.callback.await('unr3al_methlab:client:getMethType', src, netId, recipe)
-    if not input then
-        currentMethProduction[lab] = nil
-        return
-    end
+    if not input then currentMethProduction[lab] = nil return end
+
+    local count = math.random(Config.Recipes[recipe][input].Meth.Chance.Min, Config.Recipes[recipe][input].Meth.Chance.Max)
     if Config.Recipes[recipe][input] ~= nil then
-        local canBuy = true
-        local missingItems = {}
-        for itenName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
-            local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-            if item < itemCount then
+        local canBuy, enoughSpace, barrelItem, missingItems = true, false, nil, {}
+
+        for itemName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
+            local hasEnoughAlready = false
+            local item = exports.ox_inventory:GetItemCount(src, itemName, false, false)
+            if item >= itemCount then
+                local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+                local chemcount = 0
+                for i, itemData in ipairs(item) do
+                    if not hasEnoughAlready then
+                        local chemicalName = itemData.metadata['chemicalname']
+                        local chemicalLevel = itemData.metadata['chemicalfill']
+                        local itemString = itemName:lower():gsub("^%l", string.upper)
+                        if chemicalName == itemString then
+                            if (chemicalLevel - itemCount) >= 0 then
+                                canBuy, hasEnoughAlready, chemcount = true, true, chemicalLevel
+                            else
+                                chemcount = chemcount + chemicalLevel
+                            end
+                        end
+                    end
+                end
+                if chemcount >= itemCount then
+                    canBuy = true
+                else
+                    table.insert(missingItems, {itemName, 1})
+                    canBuy = false
+                end
+            else
                 canBuy = false
-                table.insert(missingItems, {itenName, itemCount - item})
+                table.insert(missingItems, {itemName, itemCount - item})
             end
         end
+
+        -- local itemName = Config.Recipes[recipe][input].Meth.ItemName
+        -- if Config.Recipes[recipe][input].Meth.metadata and canBuy then
+        --     local item = exports.ox_inventory:GetItemCount(src, itemName, nil, false)
+        --     if item >= 1 then
+        --         local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+        --         for i, itemData in ipairs(item) do
+        --             local chemicalName = itemData.metadata['chemicalname']
+        --             local chemicalLevel = itemData.metadata['chemicalfill']
+        --             if chemicalName == 'Empty' or chemicalName == 'Methslurry' then
+        --                 if (chemicalLevel + count) <= Config.Items[itemName].MaxFillage then
+        --                     if exports.ox_inventory:CanCarryItem(source, itemName, 1, {weight=count*Config.Items[itemName].WeightPerFillage}) then
+        --                         enoughSpace = true
+        --                         if not barrelItem then
+        --                             barrelItem = itemData
+        --                         end
+        --                     end
+        --                 end
+        --             end
+        --         end
+        --         if not enoughSpace then
+        --             canBuy = false
+        --             table.insert(missingItems, {itemName, 1})
+        --         end
+        --     else
+        --         canBuy = false
+        --         table.insert(missingItems, {itemName, 1})
+        --     end
+        -- end
+
+        if canBuy then
+            local itemName = Config.Recipes[recipe][input].Meth.ItemName
+            local hasEnoughAlready = false
+
+            local item = exports.ox_inventory:GetItemCount(src, itemName, false, false)
+            if item >= 1 then
+                local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+                local chemcount = 0
+                for i, itemData in ipairs(item) do
+                    if not hasEnoughAlready then
+                        local chemicalName = itemData.metadata['chemicalname']
+                        local chemicalLevel = itemData.metadata['chemicalfill']
+                        local itemString = itemName:lower():gsub("^%l", string.upper)
+                        if chemicalName == itemString then
+                            if (chemicalLevel + count) <= Config.Items[itemName].MaxFillage then
+                                hasEnoughAlready, chemcount = true, chemicalLevel
+                            else
+                                chemcount = chemcount + chemicalLevel
+                            end
+                        end
+                    end
+                end
+                if chemcount <= count then
+                else
+                    table.insert(missingItems, {itemName, 1})
+                    canBuy = false
+                end
+            else
+                canBuy = false
+                table.insert(missingItems, {itemName, itemCount - item})
+            end
+        end
+
         if canBuy then
             for itemName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
-                exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
+                local alreadyRemoved = false
+                local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+                for i, itemData in ipairs(item) do
+                    if not alreadyRemoved then
+                        local chemicalName = itemData.metadata['chemicalname']:lower():gsub("^%l", string.upper)
+                        local chemicalLevel = itemData.metadata['chemicalfill']
+                        exports.ox_inventory:RemoveItem(src, itemName, 1, false, itemData.slot, false)
+                        if chemicalLevel >= itemCount then
+                            alreadyRemoved = true
+                            if chemicalLevel - itemCount == 0 then
+                                chemicalName ='Empty'
+                                exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = chemicalName, weight = itemData.weight-itemCount*Config.Items[itemName].WeightPerFillage}, itemData.slot)
+                            else
+                                exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = chemicalName, chemicalfill = chemicalLevel - itemCount, weight = itemData.weight-itemCount*Config.Items[itemName].WeightPerFillage}, itemData.slot)
+                            end
+                        end
+                    end
+                end
+
             end
             local animationComplete = lib.callback.await('unr3al_methlab:client:startAnimation', src, netId)
             if animationComplete then
-                local count = math.random(Config.Recipes[recipe][input].Meth.Chance.Min, Config.Recipes[recipe][input].Meth.Chance.Max)
-                exports.ox_inventory:AddItem(src, Config.Recipes[recipe][input].Meth.ItemName, count)
+                local itemName = Config.Recipes[recipe][input].Meth.ItemName
+                local hasEnoughAlready = false
+    
+                local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+                local chemcount = 0
+                for i, itemData in ipairs(item) do
+                    local chemicalLevel = itemData.metadata['chemicalfill'] or 0
+                    if not hasEnoughAlready and chemicalLevel < Config.Items[itemName].MaxFillage then
+                        local chemicalName = itemData.metadata['chemicalname']
+                        local itemString = itemName:lower():gsub("^%l", string.upper)
+                        if chemicalName == chemicalName or chemicalName == 'Empty' then
+                            if (chemicalLevel + count - chemcount) <= Config.Items[itemName].MaxFillage then
+                                exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
+                                exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = chemicalLevel + count - chemcount, weight = itemData.weight+count*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
+                
+                                hasEnoughAlready, chemcount = true, chemicalLevel + count - chemcount
+                            else
+                                exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
+                                exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = Config.Items[itemName].MaxFillage, weight = Config.Items[itemName].MaxFillage*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
+                                chemcount = chemcount + (Config.Items[itemName].MaxFillage - chemicalLevel)
+                            end
+                        end
+                    end
+                end
             else
                 Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
-
             end
         else
             local itemarray = {}
@@ -371,16 +481,63 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
     end
     local canBuy = true
     local missingItems = {}
-    for itenName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemCount then
+
+    for itemName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
+        local hasEnoughAlready = false
+        local item = exports.ox_inventory:GetItemCount(src, itemName, false, false)
+        if item >= 1 then
+            local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+            local chemcount = 0
+            for i, itemData in ipairs(item) do
+                if not hasEnoughAlready then
+                    local chemicalName = itemData.metadata['chemicalname']
+                    print(chemicalName)
+                    local chemicalLevel = itemData.metadata['chemicalfill']
+                    print(chemicalLevel)
+                    --local itemString = itemName:lower():gsub("^%l", string.upper)
+                    if chemicalName == 'Methslurry' then
+                        print("Opfer")
+                        if (chemicalLevel - itemCount) >= 0 then
+                            print('Opfer 2')
+                            canBuy, hasEnoughAlready, chemcount = true, true, chemicalLevel
+                        else
+                            print('Opfer 3')
+                            chemcount = chemcount + chemicalLevel
+                        end
+                    end
+                end
+            end
+            if chemcount >= itemCount then
+                canBuy = true
+            else
+                table.insert(missingItems, {itemName, 1})
+                canBuy = false
+            end
+        else
             canBuy = false
-            table.insert(missingItems, {itenName, itemCount - item})
+            table.insert(missingItems, {itemName, itemCount - item})
         end
     end
     if canBuy then
-        for itenName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
-            exports.ox_inventory:RemoveItem(src, itenName, itemCount, false, false, true)
+        for itemName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
+            local alreadyRemoved = false
+            local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+            for i, itemData in ipairs(item) do
+                if not alreadyRemoved then
+                    local chemicalName = itemData.metadata['chemicalname']:lower():gsub("^%l", string.upper)
+                    local chemicalLevel = itemData.metadata['chemicalfill'] or 0
+                    exports.ox_inventory:RemoveItem(src, itemName, 1, false, itemData.slot, false)
+                    if chemicalLevel >= itemCount then
+                        alreadyRemoved = true
+                        if chemicalLevel - itemCount == 0 then
+                            chemicalName ='Empty'
+                            exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = chemicalName, weight = itemData.weight-itemCount*Config.Items[itemName].WeightPerFillage}, itemData.slot)
+                        else
+                            exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = chemicalName, chemicalfill = chemicalLevel - itemCount, weight = itemData.weight-itemCount*Config.Items[itemName].WeightPerFillage}, itemData.slot)
+                        end
+                    end
+                end
+            end
         end
         local animationComplete = lib.callback.await('unr3al_methlab:client:startSlurryAnima', src, netId)
         if animationComplete then
@@ -435,6 +592,7 @@ lib.addCommand('resetlab', {
         local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 1, security = 1, storage = 1, owned = 0, owner = NULL WHERE id = @methlabId', {['@methlabId'] = args.methlabId})
     end
 end)
+
 
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
@@ -540,5 +698,80 @@ AddEventHandler('onResourceStart', function(resourceName)
             end
 
         end
+        if Config.LoggingTypes.Discord.Enabled then
+            Unr3al.Logging('error', 'Dont use discord as a logging service :D')
+        end
     end
 end)
+
+
+
+-- lib.addCommand('testoutput', {
+--     help = 'nono',
+--     restricted = 'group.admin',
+--     params = {
+--         {
+--             name = 'count',
+--             type = 'number',
+--             help = 'Amount of slurry',
+--         },
+--     },
+-- }, function(source, args, raw)
+--     local src = source
+--     local count = args.count or 3
+--     local itemName = Config.Recipes['standard']['Ammonia and sodium'].Meth.ItemName
+--     local hasEnoughAlready = false
+    
+--     local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+--     local chemcount = 0
+--     for i, itemData in ipairs(item) do
+--         local chemicalLevel = itemData.metadata['chemicalfill'] or 0
+--         if not hasEnoughAlready and chemicalLevel < Config.Items[itemName].MaxFillage then
+--             local chemicalName = itemData.metadata['chemicalname']
+--             local itemString = itemName:lower():gsub("^%l", string.upper)
+--             if chemicalName == chemicalName or chemicalName == 'Empty' then
+--                 if (chemicalLevel + count - chemcount) <= Config.Items[itemName].MaxFillage then
+--                     exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
+--                     exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = itemData.metadata.chemicalfill + count - chemcount, weight = itemData.weight+count*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
+    
+--                     hasEnoughAlready, chemcount = true, chemicalLevel + count - chemcount
+--                 else
+--                     exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
+--                     exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = Config.Items[itemName].MaxFillage, weight = Config.Items[itemName].MaxFillage*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
+--                     chemcount = chemcount + (Config.Items[itemName].MaxFillage - chemicalLevel)
+--                 end
+--             end
+--         end
+--     end
+--     if chemcount >= count then
+--         print('yay enough')
+--     else
+--         print('nope not enough')
+--     end
+-- end)
+
+
+
+function DiscordLogs(name, title, color, fields)
+    local webHook = Config.DiscordLogs.Webhooks[name]
+    if webHook ~= 'WEEBHOCKED' then
+        local embedData = {{
+            ['title'] = title,
+            ['color'] = Config.DiscordLogs.Colors[color],
+            ['footer'] = {
+                ['text'] = "| Unr3al Meth | " .. os.date(),
+                ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
+            },
+            ['fields'] = fields,
+            ['author'] = {
+                ['name'] = "Meth Car",
+                ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
+            }
+        }}
+        PerformHttpRequest(webHook, nil, 'POST', json.encode({
+            embeds = embedData
+        }), {
+            ['Content-Type'] = 'application/json'
+        })
+    end
+end
