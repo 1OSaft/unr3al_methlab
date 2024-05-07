@@ -8,9 +8,20 @@ Locales['sk'] = {
     ['ToMuchLabsBought'] = 'Prekročili ste limit pre laboratóriá na výrobu metamfetamínu',
     ['CanceledProduction'] = 'Produkcia zrušená',
 
+    --Raidtext
+    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
+    ['FailedRaid'] = 'You idiot broke the tool',
+    ['CantRaid'] = 'This lab cant be raided currently, try again later',
+    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+
+    ['BlipText'] = 'Your lab is currently being raided',
+
     -- Upozornenia na dialógových oknách
     ['AlertDialogHeader'] = 'Kúpa laboratória na výrobu metamfetamínu',
     ['AlertDialogHeaderDesc'] = 'Chcete kúpiť toto laboratórium?',
+    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
+    ['BuyOptionPlayer'] = 'I am the owner',
+    ['BuyOptionSociety'] = 'My gang is the owner?',
 
     -- Textové rozhrania pre používateľa
     ['PouringTextUI'] = '[E] Nalejte chemikálie',
@@ -30,6 +41,7 @@ Locales['sk'] = {
     -- Pruhové lišty prebehov
     ['ChemicalPouringProgress'] = 'Nalejú sa chemikálie',
     ['SlurryRefineryProgress'] = 'Kontrola teploty',
+    ['RaidProgress'] = 'Cutting the lock...',
 
     -- Menu položky
     ['EnterContextmarker'] = 'Menu laboratória na výrobu metamfetamínu',

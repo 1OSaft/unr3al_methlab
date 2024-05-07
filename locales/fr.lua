@@ -8,9 +8,20 @@ Locales['fr'] = {
     ['ToMuchLabsBought'] = 'Vous avez dépassé les limites des laboratoires de méthamphétamine',
     ['CanceledProduction'] = 'Production annulée',
 
+    --Raidtext
+    ['SuccessfullyRaided'] = 'Vous avez bien coupé le verrou, vous pouvez rentrer désormais', 
+    ['FailedRaid'] = 'Espèce d\'idiot tu as cassé l\'outil',
+    ['CantRaid'] = 'Ce bâtiment ne peut pas être perquisitionné pour l\'instant, réessayer plus tard',
+    ['CantLockWhileRaid'] = 'Vous ne pouvez pas verrouiller votre laboratoire pendant une perquisition',
+
+    ['BlipText'] = 'Votre laboratoire se fait perquisitionner',
+
     -- Boîte de dialogue
     ['AlertDialogHeader'] = 'Acheter un laboratoire de meth',
     ['AlertDialogHeaderDesc'] = 'Voulez-vous acheter ce laboratoire ?',
+    ['AlertDialogHeaderBuy'] = 'Qui devrais être le propriétaire ?',
+    ['BuyOptionPlayer'] = 'Je souhaite être le propriétaire',
+    ['BuyOptionSociety'] = 'Je souhaite que mon gang soit le propriétaire',
 
     -- Interfaces textuelles
     ['PouringTextUI'] = '[E] Verser les produits chimiques',
@@ -30,6 +41,7 @@ Locales['fr'] = {
     -- Barres de progression
     ['ChemicalPouringProgress'] = 'Verser les produits chimiques',
     ['SlurryRefineryProgress'] = 'Vérification de la température',
+    ['RaidProgress'] = 'Découpage du verrou...',
 
     -- Menus
     ['EnterContextmarker'] = 'Menu du laboratoire de meth',
@@ -58,4 +70,4 @@ Locales['fr'] = {
     ['UpgradedSecurity'] = 'Votre sécurité a été améliorée avec succès',
     ['CurrentLevel'] = 'Niveau actuel : ',
 }
--- translated by stepan_valic#0
+-- translated by stepan_valic#0 & kentainfr

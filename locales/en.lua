@@ -9,7 +9,6 @@ Locales ['en'] = {
     ['ToMuchLabsBought'] = 'You have exeeded the limits for methlabs',
     ['CanceledProduction'] = 'Canceled production',
 
-
 ----------------------------------------------------------------
     --Raidtext
     ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',

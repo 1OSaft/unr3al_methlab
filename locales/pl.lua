@@ -8,9 +8,19 @@ Locales['pl'] = {
     ['ToMuchLabsBought'] = 'Przekroczyłeś limit laboratoriów do produkcji metamfetaminy',
     ['CanceledProduction'] = 'Produkcja anulowana',
 
+    --Raidtext
+    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
+    ['FailedRaid'] = 'You idiot broke the tool',
+    ['CantRaid'] = 'This lab cant be raided currently, try again later',
+    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+
+    ['BlipText'] = 'Your lab is currently being raided',
     -- Okna dialogowe
     ['AlertDialogHeader'] = 'Kup laboratorium do produkcji metamfetaminy',
     ['AlertDialogHeaderDesc'] = 'Czy chcesz kupić to laboratorium?',
+    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
+    ['BuyOptionPlayer'] = 'I am the owner',
+    ['BuyOptionSociety'] = 'My gang is the owner?',
 
     -- Interfejsy tekstowe
     ['PouringTextUI'] = '[E] Nalej chemikalia',
@@ -30,6 +40,7 @@ Locales['pl'] = {
     -- Paski postępu
     ['ChemicalPouringProgress'] = 'Nalewanie chemikaliów',
     ['SlurryRefineryProgress'] = 'Sprawdzanie temperatury',
+    ['RaidProgress'] = 'Cutting the lock...',
 
     -- Elementy menu
     ['EnterContextmarker'] = 'Menu laboratorium do produkcji metamfetaminy',

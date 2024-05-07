@@ -1,9 +1,6 @@
 Citizen.CreateThread(function()
     Wait(5000)
-    local value = lib.waitFor(function()
-        if Config ~= nil then return true end
-    end)
-    if not Config.OXTarget and value then
+    if not Config.OXTarget then
         for methlabID, methlabMarker in pairs(Config.Methlabs) do
             local coords = methlabMarker.Coords
             local enterMarker = lib.points.new({
@@ -293,7 +290,10 @@ RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
     else
         if Config.Methlabs[methlabID].Purchase.Type == 'both' then
             local methType = lib.inputDialog(Locales[Config.Locale]['AlertDialogHeader'], {
-                {type = 'select', label = Locales[Config.Locale]['AlertDialogHeaderBuy'], required = true, options = {{ label = Locales[Config.Locale]['BuyOptionPlayer'], value = 1}, { label = Locales[Config.Locale]['BuyOptionSociety'], value = 2}}},
+                {type = 'select', label = Locales[Config.Locale]['AlertDialogHeaderBuy'], required = true, options = {
+                    { label = Locales[Config.Locale]['BuyOptionPlayer'], value = 1},
+                    { label = Locales[Config.Locale]['BuyOptionSociety'], value = 2}
+                }},
             })
             if methType ~= null then
                 lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped), methType[1])
