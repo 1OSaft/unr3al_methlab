@@ -22,6 +22,9 @@ Locales ['da'] = {
     -- AlertDialog
     ['AlertDialogHeader'] = 'Køb meth-laboratorium',
     ['AlertDialogHeaderDesc'] = 'Vil du købe dette laboratorium?',
+    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
+    ['BuyOptionPlayer'] = 'I am the owner',
+    ['BuyOptionSociety'] = 'My gang is the owner?',
 
 ----------------------------------------------------------------
     -- TextUI

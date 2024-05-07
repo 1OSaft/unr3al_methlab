@@ -17,7 +17,7 @@ server_scripts {
     'locales/*.*',
     'bridge/server.lua',
     'server/*.lua',
-    'logs/config.log.lua',
+    'config.logs.lua',
 }
 
 client_scripts {
@@ -26,7 +26,10 @@ client_scripts {
     'bridge/client.lua',
 }
 
-
 shared_scripts {
-    'shared/common.lua',
+    'shared/*.lua',
+}
+
+files {
+    'database/*.json'
 }

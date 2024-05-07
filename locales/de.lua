@@ -11,17 +11,20 @@ Locales ['de'] = {
 ----------------------------------------------------------------
 
     --Raidtext
-    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
-    ['FailedRaid'] = 'You idiot broke the tool',
-    ['CantRaid'] = 'This lab cant be raided currently, try again later',
-    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+    ['SuccessfullyRaided'] = 'Du hasst das Schoss durchgeschnitten',
+    ['FailedRaid'] = 'Du hasst das Werkzeug kaputt gemacht, Idiot',
+    ['CantRaid'] = 'Das Labor kann aktuell nicht ausgeraubt werden, versuchs später!',
+    ['CantLockWhileRaid'] = 'Wer bist du? Abschließen während eines Raides geht nicht...',
 
-    ['BlipText'] = 'Your lab is currently being raided',
+    ['BlipText'] = 'Dein Labor wird gerade hochgenommen',
 
 ----------------------------------------------------------------
     --AlertDialog
     ['AlertDialogHeader'] = 'Meth-Labor kaufen',
     ['AlertDialogHeaderDesc'] = 'Möchtest du dieses Labor kaufen?',
+    ['AlertDialogHeaderBuy'] = 'Wer ist der besitzer??',
+    ['BuyOptionPlayer'] = 'Ich natürlich',
+    ['BuyOptionSociety'] = 'Meine Frak ist der besitzer',
 
 ----------------------------------------------------------------
     --TextUI

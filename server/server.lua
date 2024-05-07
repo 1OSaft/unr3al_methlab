@@ -257,38 +257,6 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     end
 end)
 
-if Config.Framework == 'ESX' then
-    --Finished
-    AddEventHandler('esx:playerLoaded',function(source, xPlayer, isNew)
-        local src = source
-        if xPlayer and not isNew then
-            local response = MySQL.single.await('SELECT id FROM unr3al_methlab_people WHERE identifier = @identifier', {
-                ['@identifier'] = xPlayer.identifier
-            })
-            if response ~= nil then
-                currentlab[src] = response.id
-                MySQL.query.await('DELETE FROM unr3al_methlab_people WHERE identifier = @identifier', {
-                    ['@identifier'] = xPlayer.identifier
-                })
-            end
-        end
-    end)
-
-    --Finished
-    RegisterNetEvent('esx:playerDropped', function(playerId, reason)
-        local src = playerId
-        local xPlayer = player(src)
-        if currentlab[src] ~= nil then
-            local lab = currentlab[src]
-            local id = MySQL.insert.await('INSERT INTO unr3al_methlab_people (id, identifier) VALUES (?, ?)', {
-                currentlab[src], xPlayer.identifier,
-            })
-            currentlab[src] = nil
-        end
-    end)
-end
-
-
 --Finished
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
@@ -305,7 +273,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
 
     local count = math.random(Config.Recipes[recipe][input].Meth.Chance.Min, Config.Recipes[recipe][input].Meth.Chance.Max)
     if Config.Recipes[recipe][input] ~= nil then
-        local canBuy, enoughSpace, barrelItem, missingItems = true, false, nil, {}
+        local canBuy, missingItems = true, {}
 
         for itemName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
             local hasEnoughAlready = false
@@ -320,7 +288,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                         local itemString = itemName:lower():gsub("^%l", string.upper)
                         if chemicalName == itemString then
                             if (chemicalLevel - itemCount) >= 0 then
-                                canBuy, hasEnoughAlready, chemcount = true, true, chemicalLevel
+                                hasEnoughAlready, chemcount = true, chemicalLevel
                             else
                                 chemcount = chemcount + chemicalLevel
                             end
@@ -338,36 +306,6 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                 table.insert(missingItems, {itemName, itemCount - item})
             end
         end
-
-        -- local itemName = Config.Recipes[recipe][input].Meth.ItemName
-        -- if Config.Recipes[recipe][input].Meth.metadata and canBuy then
-        --     local item = exports.ox_inventory:GetItemCount(src, itemName, nil, false)
-        --     if item >= 1 then
-        --         local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
-        --         for i, itemData in ipairs(item) do
-        --             local chemicalName = itemData.metadata['chemicalname']
-        --             local chemicalLevel = itemData.metadata['chemicalfill']
-        --             if chemicalName == 'Empty' or chemicalName == 'Methslurry' then
-        --                 if (chemicalLevel + count) <= Config.Items[itemName].MaxFillage then
-        --                     if exports.ox_inventory:CanCarryItem(source, itemName, 1, {weight=count*Config.Items[itemName].WeightPerFillage}) then
-        --                         enoughSpace = true
-        --                         if not barrelItem then
-        --                             barrelItem = itemData
-        --                         end
-        --                     end
-        --                 end
-        --             end
-        --         end
-        --         if not enoughSpace then
-        --             canBuy = false
-        --             table.insert(missingItems, {itemName, 1})
-        --         end
-        --     else
-        --         canBuy = false
-        --         table.insert(missingItems, {itemName, 1})
-        --     end
-        -- end
-
         if canBuy then
             local itemName = Config.Recipes[recipe][input].Meth.ItemName
             local hasEnoughAlready = false
@@ -593,6 +531,18 @@ lib.addCommand('resetlab', {
     end
 end)
 
+lib.addCommand('createlab', {
+    help = 'Creates a new lab',
+    restricted = 'group.admin'
+}, function(source, args, raw)
+    local src = source
+    local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff', src)
+    
+
+end)
+
+
+
 
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
@@ -698,7 +648,7 @@ AddEventHandler('onResourceStart', function(resourceName)
             end
 
         end
-        if Config.LoggingTypes.Discord.Enabled then
+        if LoggingService.Discord.Enabled then
             Unr3al.Logging('error', 'Dont use discord as a logging service :D')
         end
     end

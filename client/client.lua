@@ -274,80 +274,78 @@ end)
 AddEventHandler('onClientResourceStart', function (resourceName)
     if(GetCurrentResourceName() ~= resourceName) then
         return
-    else
-        Wait(5000)
-        local isESX = false
-        if Config.Framework == 'ESX' then
-            isESX = true
-        end
-        exports.ox_inventory:displayMetadata({
-            methquality = 'Quality',
-            methamount = 'Liters',
-            chemicalname = 'Chemical',
-            chemicalfill = 'Liters'
-        })
-        lib.registerContext({
-            id = 'methlab_Menu_Enter',
-            title = Locales[Config.Locale]['EnterContextmarker'],
-            options = {
-                {
-                    title = Locales[Config.Locale]['EnterLabel'],
-                    description = Locales[Config.Locale]['EnterLabelDesc'],
-                    icon = 'door-open',
-                    onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:enter', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()), GetPlayerServerId(PlayerId()))
-                    end,
-                },
-                {
-                    title = Locales[Config.Locale]['LockLabel'],
-                    description = Locales[Config.Locale]['LockLabelDesc'],
-                    icon = 'key',
-                    onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
-                    end
-                },
-                {
-                    title = Locales[Config.Locale]['RaidLabel'],
-                    description = Locales[Config.Locale]['RaidLabelDesc'],
-                    icon = 'screwdriver-wrench',
-                    onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
-                    end,
-                    disabled = isESX
-                },
-            }
-        })
-        lib.registerContext({
-            id = 'methlab_Menu_Leave',
-            title = Locales[Config.Locale]['EnterContextmarker'],
-            options = {
-                {
-                    title = Locales[Config.Locale]['LeaveLab'],
-                    description = Locales[Config.Locale]['LeaveLabDesc'],
-                    icon = 'door-open',
-                    onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:leave', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
-                        currentLab = nil
-                    end
-                },
-                {
-                    title = Locales[Config.Locale]['LockLabel'],
-                    description = Locales[Config.Locale]['LockLabelDesc'],
-                    icon = 'key',
-                    onSelect = function()
-                        TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
-                    end
-                },
-                {
-                    title = Locales[Config.Locale]['UpgradeLab'],
-                    description = Locales[Config.Locale]['UpgradeLabDesc'],
-                    icon = 'wrench',
-                    event = 'unr3al_methlab:client:updateUpgradeMenu',
-                    arrow = true,
-                },
-            }
-        })
     end
+    
+    Wait(5000)
+    local isnotESX = true
+    if Config.Framework == 'ESX' then
+        isnotESX = false
+    end
+    exports.ox_inventory:displayMetadata({
+        chemicalname = 'Chemical',
+        chemicalfill = 'Liters'
+    })
+    lib.registerContext({
+        id = 'methlab_Menu_Enter',
+        title = Locales[Config.Locale]['EnterContextmarker'],
+        options = {
+            {
+                title = Locales[Config.Locale]['EnterLabel'],
+                description = Locales[Config.Locale]['EnterLabelDesc'],
+                icon = 'door-open',
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:enter', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()), GetPlayerServerId(PlayerId()))
+                end,
+            },
+            {
+                title = Locales[Config.Locale]['LockLabel'],
+                description = Locales[Config.Locale]['LockLabelDesc'],
+                icon = 'key',
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                end
+            },
+            {
+                title = Locales[Config.Locale]['RaidLabel'],
+                description = Locales[Config.Locale]['RaidLabelDesc'],
+                icon = 'screwdriver-wrench',
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+                end,
+                disabled = isnotESX
+            },
+        }
+    })
+    lib.registerContext({
+        id = 'methlab_Menu_Leave',
+        title = Locales[Config.Locale]['EnterContextmarker'],
+        options = {
+            {
+                title = Locales[Config.Locale]['LeaveLab'],
+                description = Locales[Config.Locale]['LeaveLabDesc'],
+                icon = 'door-open',
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:leave', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                    currentLab = nil
+                end
+            },
+            {
+                title = Locales[Config.Locale]['LockLabel'],
+                description = Locales[Config.Locale]['LockLabelDesc'],
+                icon = 'key',
+                onSelect = function()
+                    TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                end
+            },
+            {
+                title = Locales[Config.Locale]['UpgradeLab'],
+                description = Locales[Config.Locale]['UpgradeLabDesc'],
+                icon = 'wrench',
+                event = 'unr3al_methlab:client:updateUpgradeMenu',
+                arrow = true,
+            },
+        }
+    })
 end)
 
 
