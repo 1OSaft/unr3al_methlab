@@ -1,74 +1,79 @@
 Locales['cs'] = {
-    ['LabLocked'] = 'Tento laboratoř je uzamčená',
-    ['BoughtLab'] = 'Právě jste zakoupili laboratoř na výrobu metamfetaminu',
-    ['CantBuy'] = 'Tuto laboratoř nelze zakoupit!',
-
-    -- Obecné
-    ['MissingResources'] = 'Chybí vám: ',
-    ['ToMuchLabsBought'] = 'Překročili jste limit pro počet laboratoří na výrobu metamfetaminu',
-    ['CanceledProduction'] = 'Výroba zrušena',
+    ['LabLocked'] = 'Tento laboratoř je zamčená, nemůžete do ní vstoupit.',
+    ['BoughtLab'] = 'Právě jste zakoupili metanovou laboratoř.',
+    ['CantBuy'] = 'Tuto laboratoř nemůžete koupit!',
 
 ----------------------------------------------------------------
-    --Raidtext
-    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
-    ['FailedRaid'] = 'You idiot broke the tool',
-    ['CantRaid'] = 'This lab cant be raided currently, try again later',
-    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
+    -- Obecné
+    ['MissingResources'] = 'Chybí vám: ',
+    ['ToMuchLabsBought'] = 'Překročili jste limit pro metanové laboratoře.',
+    ['CanceledProduction'] = 'Produkce zrušena.',
 
-    ['BlipText'] = 'Your lab is currently being raided',
+----------------------------------------------------------------
+    -- Text při útoku
+    ['SuccessfullyRaided'] = 'Úspěšně jste odřízl zámek, nyní můžete vstoupit.',
+    ['FailedRaid'] = 'Blbče, rozbil jsi nástroj.',
+    ['CantRaid'] = 'Tuto laboratoř nelze momentálně přepadnout, zkuste to později.',
+    ['CantLockWhileRaid'] = 'Nemůžete zamknout laboratoř, když je přepadána.',
 
-    -- Dialogová okna
-    ['AlertDialogHeader'] = 'Koupit laboratoř na výrobu metamfetaminu',
-    ['AlertDialogHeaderDesc'] = 'Chcete tuto laboratoř koupit?',
-    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
-    ['BuyOptionPlayer'] = 'I am the owner',
-    ['BuyOptionSociety'] = 'My gang is the owner?',
+    ['BlipText'] = 'Vaše laboratoř je momentálně přepadána.',
 
-    -- Textová uživatelská rozhraní
-    ['PouringTextUI'] = '[E] Nalijte chemikálie',
-    ['RefineryTextUI'] = '[E] Zpracovat chemickou kaši',
-    ['NormalMenuTextUI'] = '[E] Otevřít menu laboratoře',
-    ['StorageTextUI'] = '[E] Otevřít úložiště laboratoře',
+----------------------------------------------------------------
+    -- Dialog s upozorněním
+    ['AlertDialogHeader'] = 'Koupit metanovou laboratoř',
+    ['AlertDialogHeaderDesc'] = 'Chcete si tuto laboratoř koupit?',
+    ['AlertDialogHeaderBuy'] = 'Kdo by měl tuto laboratoř vlastnit?',
+    ['BuyOptionPlayer'] = 'Jsem vlastník',
+    ['BuyOptionSociety'] = 'Moje gang je vlastník?',
 
-    -- Dialogy pro vstup vstupních údajů
+    -- Text uživatelského rozhraní
+    ['PouringTextUI'] = '[E] Nalít chemikálie',
+    ['RefineryTextUI'] = '[E] Refinedovat chemický kašičkou',
+    ['NormalMenuTextUI'] = '[E] Otevřít menu metanové laboratoře',
+    ['StorageTextUI'] = '[E] Otevřít sklad metanové laboratoře',
+
+    -- Dialog s vstupem
     ['RecipeDialogHeader'] = 'Chemický míchač',
-    ['SelectRecipeDialog'] = 'Vyberte recept na metamfetamin',
+    ['SelectRecipeDialog'] = 'Vyberte recept na meth',
     ['SelectRecipeDialogDesc'] = '',
 
-    ['SlurryDialogHeader'] = 'Skládání tuhnoucí hmoty',
-    ['SelectSlurryRecipeDialog'] = 'Vyberte recept na tuhnoucí hmotu',
+    ['SlurryDialogHeader'] = 'Svazování',
+    ['SelectSlurryRecipeDialog'] = 'Vyberte recept na kašičku',
     ['SelectSlurryRecipeDialogDesc'] = '',
 
-    -- Progress bars
+----------------------------------------------------------------
+    -- Pokrok
     ['ChemicalPouringProgress'] = 'Nalévání chemikálií',
     ['SlurryRefineryProgress'] = 'Kontrola teploty',
-    ['RaidProgress'] = 'Cutting the lock...',
+    ['RaidProgress'] = 'Ořezávání zámku...',
 
-    -- Menu položky
-    ['EnterContextmarker'] = 'Menu laboratoře na výrobu metamfetaminu',
+----------------------------------------------------------------
+-- Menu
+    ['EnterContextmarker'] = 'Menu metanové laboratoře',
 
     ['EnterLabel'] = 'Vstoupit do laboratoře',
-    ['EnterLabelDesc'] = 'Vstoupit do této laboratoře na výrobu metamfetaminu',
+    ['EnterLabelDesc'] = 'Vstoupit do této metanové laboratoře',
 
     ['LockLabel'] = 'Zamknout laboratoř',
-    ['LockLabelDesc'] = 'Zamknout tuto laboratoř',
-    ['CantLockLab'] = 'Nelze zamknout laboratoř bez klíče!',
-    ['UnlockedLab'] = 'Laboratoř je odemčená',
-    ['LockedLab'] = 'Laboratoř je zamčená',
+    ['LockLabelDesc'] = 'Zamknout tuto metanovou laboratoř',
+        ['CantLockLab'] = 'Nemůžete zamknout laboratoř bez klíče!',
+        ['UnlockedLab'] = 'Odemčená laboratoř',
+        ['LockedLab'] = 'Zamčená laboratoř',
 
-    ['RaidLabel'] = 'Napadnout laboratoř',
-    ['RaidLabelDesc'] = 'Napadnout tuto laboratoř',
+    ['RaidLabel'] = 'Přepadnout laboratoř',
+    ['RaidLabelDesc'] = 'Přepadnout tuto metanovou laboratoř',
 
     ['LeaveLab'] = 'Opustit laboratoř',
-    ['LeaveLabDesc'] = 'Opustit tuto laboratoř',
+    ['LeaveLabDesc'] = 'Opustit tuto metanovou laboratoř',
 
-    ['UpgradeLab'] = 'Vylepšit laboratoř',
-    ['UpgradeLabDesc'] = 'Vylepšit tuto laboratoř',
+    ['UpgradeLab'] = 'Vylepšit metanovou laboratoř',
+    ['UpgradeLabDesc'] = 'Vylepšit tuto metanovou laboratoř',
 
-    ['UpgradeStorage'] = 'Vylepšení úložiště',
-    ['UpgradedStorage'] = 'Úspěšně jste vylepšili úložiště',
-    ['UpgradeSecurity'] = 'Vylepšení zabezpečení',
-    ['UpgradedSecurity'] = 'Úspěšně jste vylepšili zabezpečení',
-    ['CurrentLevel'] = 'Aktuální úroveň: ',
+    ['UpgradeStorage'] = 'Vylepšit sklad',
+        ['UpgradedStorage'] = 'Úspěšně jste vylepšili sklad',
+    ['UpgradeSecurity'] = 'Vylepšit bezpečnost',
+        ['UpgradedSecurity'] =  'Úspěšně jste vylepšili bezpečnost',
+    ['CurrentLevel'] = 'Současná úroveň: ',
 }
+
 -- translated by stepan_valic#0
