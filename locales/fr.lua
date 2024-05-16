@@ -1,79 +1,73 @@
 Locales['fr'] = {
-    ['LabLocked'] = 'Ce laboratoire est verrouillé, vous ne pouvez pas y entrer.',
-    ['BoughtLab'] = 'Vous venez d\'acheter le laboratoire de méthamphétamine.',
+    ['LabLocked'] = 'Ce laboratoire est verrouillé',
+    ['BoughtLab'] = 'Vous venez d\'acheter le laboratoire de meth',
     ['CantBuy'] = 'Vous ne pouvez pas acheter ce laboratoire !',
 
-----------------------------------------------------------------
     -- Général
-    ['MissingResources'] = 'Il vous manque : ',
-    ['ToMuchLabsBought'] = 'Vous avez dépassé les limites pour les laboratoires de méthamphétamine.',
-    ['CanceledProduction'] = 'Production annulée.',
+    ['MissingResources'] = 'Ressources manquantes : ',
+    ['ToMuchLabsBought'] = 'Vous avez dépassé les limites des laboratoires de méthamphétamine',
+    ['CanceledProduction'] = 'Production annulée',
 
-----------------------------------------------------------------
-    -- Texte d'attaque
-    ['SuccessfullyRaided'] = 'Vous avez réussi à couper le verrou, vous pouvez maintenant entrer.',
-    ['FailedRaid'] = 'Idiot, vous avez cassé l\'outil.',
-    ['CantRaid'] = 'Ce laboratoire ne peut pas être attaqué pour le moment, réessayez plus tard.',
-    ['CantLockWhileRaid'] = 'Vous ne pouvez pas verrouiller le laboratoire alors qu\'il est attaqué.',
+    --Raidtext
+    ['SuccessfullyRaided'] = 'Vous avez bien coupé le verrou, vous pouvez rentrer désormais', 
+    ['FailedRaid'] = 'Espèce d\'idiot tu as cassé l\'outil',
+    ['CantRaid'] = 'Ce bâtiment ne peut pas être perquisitionné pour l\'instant, réessayer plus tard',
+    ['CantLockWhileRaid'] = 'Vous ne pouvez pas verrouiller votre laboratoire pendant une perquisition',
 
-    ['BlipText'] = 'Votre laboratoire est actuellement attaqué.',
+    ['BlipText'] = 'Votre laboratoire se fait perquisitionner',
 
-----------------------------------------------------------------
-    -- Boîte de dialogue d'alerte
-    ['AlertDialogHeader'] = 'Acheter un laboratoire de méthamphétamine',
+    -- Boîte de dialogue
+    ['AlertDialogHeader'] = 'Acheter un laboratoire de meth',
     ['AlertDialogHeaderDesc'] = 'Voulez-vous acheter ce laboratoire ?',
-    ['AlertDialogHeaderBuy'] = 'Qui devrait posséder ce laboratoire ?',
-    ['BuyOptionPlayer'] = 'Je suis le propriétaire',
-    ['BuyOptionSociety'] = 'Mon gang est le propriétaire ?',
+    ['AlertDialogHeaderBuy'] = 'Qui devrais être le propriétaire ?',
+    ['BuyOptionPlayer'] = 'Je souhaite être le propriétaire',
+    ['BuyOptionSociety'] = 'Je souhaite que mon gang soit le propriétaire',
 
-    -- Interface utilisateur texte
-    ['PouringTextUI'] = '[E] Verser des produits chimiques',
-    ['RefineryTextUI'] = '[E] Raffiner la bouillie chimique',
-    ['NormalMenuTextUI'] = '[E] Ouvrir le menu du laboratoire de méthamphétamine',
-    ['StorageTextUI'] = '[E] Ouvrir le stockage du laboratoire de méthamphétamine',
+    -- Interfaces textuelles
+    ['PouringTextUI'] = '[E] Verser les produits chimiques',
+    ['RefineryTextUI'] = '[E] Raffiner le mélange chimique',
+    ['NormalMenuTextUI'] = '[E] Ouvrir le menu du laboratoire de meth',
+    ['StorageTextUI'] = '[E] Ouvrir le stockage du laboratoire de meth',
 
-    -- Boîte de dialogue de saisie
+    -- Boîtes de dialogue pour l'entrée de données
     ['RecipeDialogHeader'] = 'Mélangeur chimique',
-    ['SelectRecipeDialog'] = 'Sélectionnez la recette de méthamphétamine',
+    ['SelectRecipeDialog'] = 'Sélectionner la recette de meth',
     ['SelectRecipeDialogDesc'] = '',
 
     ['SlurryDialogHeader'] = 'Solidificateur',
-    ['SelectSlurryRecipeDialog'] = 'Sélectionnez la recette de bouillie',
+    ['SelectSlurryRecipeDialog'] = 'Sélectionner la recette de boue',
     ['SelectSlurryRecipeDialogDesc'] = '',
 
-----------------------------------------------------------------
-    -- Barre de progression
-    ['ChemicalPouringProgress'] = 'Versement de produits chimiques',
+    -- Barres de progression
+    ['ChemicalPouringProgress'] = 'Verser les produits chimiques',
     ['SlurryRefineryProgress'] = 'Vérification de la température',
-    ['RaidProgress'] = 'Coupe du verrou en cours...',
+    ['RaidProgress'] = 'Découpage du verrou...',
 
-----------------------------------------------------------------
--- Menus
-    ['EnterContextmarker'] = 'Menu du laboratoire de méthamphétamine',
+    -- Menus
+    ['EnterContextmarker'] = 'Menu du laboratoire de meth',
 
     ['EnterLabel'] = 'Entrer dans le laboratoire',
-    ['EnterLabelDesc'] = 'Entrer dans ce laboratoire de méthamphétamine',
+    ['EnterLabelDesc'] = 'Entrer dans ce laboratoire de meth',
 
     ['LockLabel'] = 'Verrouiller le laboratoire',
-    ['LockLabelDesc'] = 'Verrouiller ce laboratoire de méthamphétamine',
-        ['CantLockLab'] = 'Vous ne pouvez pas verrouiller un laboratoire sans sa clé !',
-        ['UnlockedLab'] = 'Laboratoire déverrouillé',
-        ['LockedLab'] = 'Laboratoire verrouillé',
+    ['LockLabelDesc'] = 'Verrouiller ce laboratoire de meth',
+    ['CantLockLab'] = 'Vous ne pouvez pas verrouiller un laboratoire sans sa clé !',
+    ['UnlockedLab'] = 'Laboratoire déverrouillé',
+    ['LockedLab'] = 'Laboratoire verrouillé',
 
-    ['RaidLabel'] = 'Attaquer le laboratoire',
-    ['RaidLabelDesc'] = 'Attaquer ce laboratoire de méthamphétamine',
+    ['RaidLabel'] = 'Raid du laboratoire',
+    ['RaidLabelDesc'] = 'Raid de ce laboratoire de meth',
 
     ['LeaveLab'] = 'Quitter le laboratoire',
-    ['LeaveLabDesc'] = 'Quitter ce laboratoire de méthamphétamine',
+    ['LeaveLabDesc'] = 'Quitter ce laboratoire de meth',
 
-    ['UpgradeLab'] = 'Améliorer le laboratoire de méthamphétamine',
-    ['UpgradeLabDesc'] = 'Améliorer ce laboratoire de méthamphétamine',
+    ['UpgradeLab'] = 'Améliorer le laboratoire de meth',
+    ['UpgradeLabDesc'] = 'Améliorer ce laboratoire de meth',
 
     ['UpgradeStorage'] = 'Améliorer le stockage',
-        ['UpgradedStorage'] = 'Stockage amélioré avec succès',
+    ['UpgradedStorage'] = 'Votre stockage a été amélioré avec succès',
     ['UpgradeSecurity'] = 'Améliorer la sécurité',
-        ['UpgradedSecurity'] =  'Sécurité améliorée avec succès',
+    ['UpgradedSecurity'] = 'Votre sécurité a été améliorée avec succès',
     ['CurrentLevel'] = 'Niveau actuel : ',
 }
-
--- translated by stepan_valic#0
+-- translated by stepan_valic#0 & kentainfr

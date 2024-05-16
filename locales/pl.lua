@@ -1,78 +1,72 @@
 Locales['pl'] = {
-    ['LabLocked'] = 'Ten laboratorium jest zamknięte, nie możesz wejść.',
-    ['BoughtLab'] = 'Właśnie zakupiłeś laboratorium mety.',
+    ['LabLocked'] = 'To laboratorium jest zamknięte',
+    ['BoughtLab'] = 'Właśnie zakupiłeś laboratorium do produkcji metamfetaminy',
     ['CantBuy'] = 'Nie możesz kupić tego laboratorium!',
 
-----------------------------------------------------------------
     -- Ogólne
-    ['MissingResources'] = 'Brakuje ci: ',
-    ['ToMuchLabsBought'] = 'Przekroczyłeś limit dla laboratoriów mety.',
-    ['CanceledProduction'] = 'Produkcja anulowana.',
+    ['MissingResources'] = 'Brakujące zasoby: ',
+    ['ToMuchLabsBought'] = 'Przekroczyłeś limit laboratoriów do produkcji metamfetaminy',
+    ['CanceledProduction'] = 'Produkcja anulowana',
 
-----------------------------------------------------------------
-    -- Tekst ataku
-    ['SuccessfullyRaided'] = 'Pomyślnie przecięto zamek, teraz możesz wejść.',
-    ['FailedRaid'] = 'Idioto, zepsułeś narzędzie.',
-    ['CantRaid'] = 'To laboratorium nie może być teraz zaatakowane, spróbuj ponownie później.',
-    ['CantLockWhileRaid'] = 'Nie możesz zablokować laboratorium, gdy jest atakowane.',
+    --Raidtext
+    ['SuccessfullyRaided'] = 'You successfully cutted the lock, you can enter now',
+    ['FailedRaid'] = 'You idiot broke the tool',
+    ['CantRaid'] = 'This lab cant be raided currently, try again later',
+    ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
 
-    ['BlipText'] = 'Twoje laboratorium jest obecnie atakowane.',
-
-----------------------------------------------------------------
-    -- Alert Dialog
-    ['AlertDialogHeader'] = 'Kup laboratorium mety',
+    ['BlipText'] = 'Your lab is currently being raided',
+    -- Okna dialogowe
+    ['AlertDialogHeader'] = 'Kup laboratorium do produkcji metamfetaminy',
     ['AlertDialogHeaderDesc'] = 'Czy chcesz kupić to laboratorium?',
-    ['AlertDialogHeaderBuy'] = 'Kto powinien być właścicielem tego laboratorium?',
-    ['BuyOptionPlayer'] = 'Jestem właścicielem',
-    ['BuyOptionSociety'] = 'Mój gang jest właścicielem?',
+    ['AlertDialogHeaderBuy'] = 'Who should own this lab?',
+    ['BuyOptionPlayer'] = 'I am the owner',
+    ['BuyOptionSociety'] = 'My gang is the owner?',
 
-    -- UI Tekst
-    ['PouringTextUI'] = '[E] Wylej chemikalia',
-    ['RefineryTextUI'] = '[E] Oczyszczanie chemicznej mieszaniny',
-    ['NormalMenuTextUI'] = '[E] Otwórz menu laboratorium mety',
-    ['StorageTextUI'] = '[E] Otwórz przechowalnię laboratorium mety',
+    -- Interfejsy tekstowe
+    ['PouringTextUI'] = '[E] Nalej chemikalia',
+    ['RefineryTextUI'] = '[E] Przetwórz mieszankę chemiczną',
+    ['NormalMenuTextUI'] = '[E] Otwórz menu laboratorium',
+    ['StorageTextUI'] = '[E] Otwórz magazyn laboratorium',
 
-    -- Dialog z wprowadzanymi danymi
-    ['RecipeDialogHeader'] = 'Mikser chemiczny',
-    ['SelectRecipeDialog'] = 'Wybierz przepis na meta',
+    -- Okna dialogowe wprowadzania danych
+    ['RecipeDialogHeader'] = 'Mieszalnik chemiczny',
+    ['SelectRecipeDialog'] = 'Wybierz przepis na metamfetaminę',
     ['SelectRecipeDialogDesc'] = '',
 
-    ['SlurryDialogHeader'] = 'Solidyfikator',
-    ['SelectSlurryRecipeDialog'] = 'Wybierz przepis na mieszaninę',
+    ['SlurryDialogHeader'] = 'Zagęszczarka',
+    ['SelectSlurryRecipeDialog'] = 'Wybierz przepis na mieszankę zagęszczającą',
     ['SelectSlurryRecipeDialogDesc'] = '',
 
-----------------------------------------------------------------
-    -- Pasek postępu
-    ['ChemicalPouringProgress'] = 'Wylewanie chemikaliów',
+    -- Paski postępu
+    ['ChemicalPouringProgress'] = 'Nalewanie chemikaliów',
     ['SlurryRefineryProgress'] = 'Sprawdzanie temperatury',
-    ['RaidProgress'] = 'Przecinanie zamka...',
+    ['RaidProgress'] = 'Cutting the lock...',
 
-----------------------------------------------------------------
--- Menu
-    ['EnterContextmarker'] = 'Menu laboratorium mety',
+    -- Elementy menu
+    ['EnterContextmarker'] = 'Menu laboratorium do produkcji metamfetaminy',
 
     ['EnterLabel'] = 'Wejdź do laboratorium',
-    ['EnterLabelDesc'] = 'Wejdź do tego laboratorium mety',
+    ['EnterLabelDesc'] = 'Wejdź do tego laboratorium do produkcji metamfetaminy',
 
     ['LockLabel'] = 'Zablokuj laboratorium',
-    ['LockLabelDesc'] = 'Zablokuj to laboratorium mety',
-        ['CantLockLab'] = 'Nie możesz zablokować laboratorium bez klucza!',
-        ['UnlockedLab'] = 'Odblokowane laboratorium',
-        ['LockedLab'] = 'Zablokowane laboratorium',
+    ['LockLabelDesc'] = 'Zablokuj to laboratorium',
+    ['CantLockLab'] = 'Nie możesz zablokować laboratorium bez klucza!',
+    ['UnlockedLab'] = 'Odblokowane laboratorium',
+    ['LockedLab'] = 'Zablokowane laboratorium',
 
-    ['RaidLabel'] = 'Atakuj laboratorium',
-    ['RaidLabelDesc'] = 'Atakuj to laboratorium mety',
+    ['RaidLabel'] = 'Napadnij laboratorium',
+    ['RaidLabelDesc'] = 'Napadnij na to laboratorium',
 
-    ['LeaveLab'] = 'Opuszczaj laboratorium',
-    ['LeaveLabDesc'] = 'Opuszczaj to laboratorium mety',
+    ['LeaveLab'] = 'Opóść laboratorium',
+    ['LeaveLabDesc'] = 'Opóść to laboratorium',
 
-    ['UpgradeLab'] = 'Ulepsz laboratorium mety',
-    ['UpgradeLabDesc'] = 'Ulepsz to laboratorium mety',
+    ['UpgradeLab'] = 'Ulepsz laboratorium',
+    ['UpgradeLabDesc'] = 'Ulepsz to laboratorium',
 
     ['UpgradeStorage'] = 'Ulepsz magazyn',
-        ['UpgradedStorage'] = 'Pomyślnie ulepszono magazyn',
+    ['UpgradedStorage'] = 'Pomyślnie ulepszono magazyn',
     ['UpgradeSecurity'] = 'Ulepsz zabezpieczenia',
-        ['UpgradedSecurity'] =  'Pomyślnie ulepszono zabezpieczenia',
-    ['CurrentLevel'] = 'Obecny poziom: ',
+    ['UpgradedSecurity'] = 'Pomyślnie ulepszono zabezpieczenia',
+    ['CurrentLevel'] = 'Aktualny poziom: ',
 }
 -- translated by stepan_valic#0

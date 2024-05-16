@@ -8,6 +8,9 @@ ox_inventory = exports.ox_inventory
 
 
 --Finished
+---@param methlabId string | integer
+---@param netId integer
+---@param source string
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -15,9 +18,8 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
-    local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId})
-    if response.locked == 0 then
-        SetPlayerRoutingBucket(src, methlabId)
+    if database[methlabId] == 0 then
+        SetPlayerRoutingBucket(src, database[labid].routingBucket)
         SetEntityCoords(entity, 997.24, -3200.67, -36.39, true, false, false, false)
         currentlab[src] = methlabId
     else
@@ -26,6 +28,8 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
 end)
 
 --Finished
+---@param methlabId string | integer
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:leave', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -34,12 +38,13 @@ RegisterNetEvent('unr3al_methlab:server:leave', function(methlabId, netId)
         return
     end
     SetPlayerRoutingBucket(src, 0)
-    local coords = Config.Methlabs[currentlab[src]].Coords
+    local coords = database[methlabId].Coords
     SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
     currentlab[src] = nil
 end)
 
 --Finished
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -51,6 +56,8 @@ RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
 end)
 
 --Finished
+---@param methlabId string | integer
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -59,43 +66,26 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
         return
     end
 
-    local storageLevel = MySQL.single.await('SELECT `storage` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId}).storage
-    if storageLevel == #Config.Upgrades.Storage then return end
-    local canBuy = true
-    local missingItems = {}
-    for itenName, itemCount in pairs(Config.Upgrades.Storage[storageLevel+1].Price) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemCount then
-            canBuy = false
-            table.insert(missingItems, {itenName, itemCount - item})
-        end
-    end
+    local storageLevel = database[tostring(currentlab[src])].Upgrades.Storage
+    if storageLevel >= #Config.Upgrades.Storage then return end
+
+    local canBuy, missingItems = true, {}
+    canBuy, missingItems = canBuyNormal(src, Config.Upgrades.Storage[storageLevel+1].Price, missingItems)
+
     if canBuy then
-        for itemName, itemCount in pairs(Config.Upgrades.Storage[storageLevel+1].Price) do
-            exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
-        end
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET storage = ? WHERE id = ?', {
-            storageLevel+1, methlabId
-        })
-        if updateOwner == 1 then
-            exports.ox_inventory:RegisterStash('Methlab_Storage_'..methlabId, 'Methlab storage', Config.Upgrades.Storage[storageLevel+1].Slots, Config.Upgrades.Storage[storageLevel+1].MaxWeight, false)
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
-            TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
-        end
+        removeNormal(src, Config.Upgrades.Storage[storageLevel+1].Price)
+        database[methlabId].Upgrades.Storage = storageLevel+1
+        saveDatabase(database)
+        Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
+        TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
     else
-        local itemarray = {}
-        for i, item in ipairs(missingItems) do
-            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-            local itemString = string.format("%sx %s", item[2], itemData)
-            table.insert(itemarray, itemString)
-        end
-        local joinedItems = table.concat(itemarray, ", ")
-        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        Config.Notification(src, Config.Noti.error, notification)
+        notifyMissingItems(src, missingItems)
     end
 end)
 
---Finished, only needs raid integration
+--Finished
+---@param methlabId string | integer
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -104,44 +94,26 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
         return
     end
 
-    local securityLevel = MySQL.single.await('SELECT `security` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId}).security
-    if securityLevel == #Config.Upgrades.Security then return end
+    local securityLevel = database[tostring(currentlab[src])].Upgrades.Security
+    if securityLevel >= #Config.Upgrades.Security then return end
 
-    local canBuy = true
-    local missingItems = {}
-    for itenName, itemCount in pairs(Config.Upgrades.Security[securityLevel+1].Price) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemCount then
-            canBuy = false
-            table.insert(missingItems, {itenName, itemCount - item})
-        end
-    end
+    local canBuy, missingItems = true, {}
+    canBuy, missingItems = canBuyNormal(src, Config.Upgrades.Security[securityLevel+1].Price, missingItems)
 
     if canBuy then
-        for itemName, itemCount in pairs(Config.Upgrades.Security[securityLevel+1].Price) do
-            exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
-        end
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET security = ? WHERE id = ?', {
-            securityLevel+1, methlabId
-        })
-        if updateOwner == 1 then
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
-            TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
-        end
+        removeNormal(src, Config.Upgrades.Security[securityLevel+1].Price)
+        database[methlabId].Upgrades.Security = securityLevel+1
+        saveDatabase(database)
+        Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
+        TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
     else
-        local itemarray = {}
-        for i, item in ipairs(missingItems) do
-            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-            local itemString = string.format("%sx %s", item[2], itemData)
-            table.insert(itemarray, itemString)
-        end
-        local joinedItems = table.concat(itemarray, ", ")
-        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        Config.Notification(src, Config.Noti.error, notification)
+        notifyMissingItems(src, missingItems)
     end
 end)
 
 --Finished
+---@param methlabId string | integer
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
@@ -154,37 +126,21 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
         Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockWhileRaid'])
         return
     end
-    local labId = methlabId
-    if currentlab[src] ~= nil then
-        labId = currentlab[src]
-    end
-    local isOwner = MySQL.single.await('SELECT owner FROM unr3al_methlab WHERE id = ?', {methlabId}).owner
-    local possibleOwner, possibleOwner2 = nil, nil
-    if Config.Framework == 'ESX' then
-        possibleOwner = xPlayer.getJob().name
-        possibleOwner2 = xPlayer.getIdentifier()
-    elseif Config.Framework == 'qb' then
-        possibleOwner = xPlayer.PlayerData.job.name
-        possibleOwner2 = xPlayer.Functions.GetIdentifier
-    end
 
+    local labOwner = database[tostring(methlabId)].owner
+    local jobName = getPlayerJobName(src)
+    local playerIdentifier = getPlayerIdentifier(src)
 
-    if isOwner == possibleOwner or isOwner == possibleOwner2 then
-        local response = MySQL.single.await('SELECT locked FROM unr3al_methlab WHERE id = ?', {methlabId}).locked
-        local newlocked = 1
-        if response == 1 then
-            newlocked = 0
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UnlockedLab'])
-
-        else
+    if jobName == labOwner or playerIdentifier == labOwner then
+        if database[tostring(methlabId)].locked == 0 then -- 0 = unlocked, 1 = locked
+            database[tostring(methlabId)].locked = 1
             Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['LockedLab'])
+        else
+            database[tostring(methlabId)].locked = 0
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UnlockedLab'])
         end
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = ? WHERE id = ?', {
-            newlocked, labId
-        })
     else
         Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockLab'])
-
     end
 end)
 
@@ -212,22 +168,13 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
         return
     end
 
-    local canBuy = true
-    local missingItems = {}
-    for itenName, itemData in pairs(Config.Upgrades.Security[secLevel].RaidGear) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemData.Amount then
-            canBuy = false
-            table.insert(missingItems, {itenName, itemData.Amount - item})
-        end
-    end
+    local canBuy, missingItems = true, {}
+    canBuy, missingItems = canBuyNormal(src, Config.Upgrades.Security[securityLevel+1].Price, missingItems)
+
     NotifyPeople(methlabId)
     if canBuy then
-        for itemName, itemData in pairs(Config.Upgrades.Security[1].RaidGear) do
-            if Config.Upgrades.Security[1].RaidGear[itemName].Remove then
-                exports.ox_inventory:RemoveItem(src, itemName, itemData.Amount, false, false, true)
-            end
-        end
+        removeNormal(src, Config.Upgrades.Security[securityLevel+1].Price)
+
         local coords = Config.Methlabs[methlabId].Purchase.RaidCoords
         SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
         SetEntityHeading(entity, coords.w)
@@ -244,15 +191,7 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
         Wait(Config.RaidCooldown)
         currentLabRaid[methlabId] = nil
     else
-        local itemarray = {}
-        for i, item in ipairs(missingItems) do
-            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-            local itemString = string.format("%sx %s", item[2], itemData)
-            table.insert(itemarray, itemString)
-        end
-        local joinedItems = table.concat(itemarray, ", ")
-        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        Config.Notification(src, Config.Noti.error, notification)
+        notifyMissingItems(src, missingItems)
         currentLabRaid[methlabId] = nil
     end
 end)
@@ -511,7 +450,7 @@ lib.addCommand('setlab', {
     restricted = 'group.admin'
 }, function(source, args, raw)
     if args.methlabId then
-        currentlab[source] = 1
+        currentlab[source] = args.methlabId
     end
 end)
 
@@ -537,8 +476,6 @@ lib.addCommand('createlab', {
 }, function(source, args, raw)
     local src = source
     local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff', src)
-    
-
 end)
 
 
@@ -546,48 +483,6 @@ end)
 
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
-        local mainTableBuild = MySQL.query.await([[CREATE TABLE IF NOT EXISTS unr3al_methlab (
-        `id` int(11) NOT NULL,
-        `owned` int(11) NOT NULL DEFAULT 0,
-        `owner` varchar(46) DEFAULT NULL,
-        `locked` int(11) DEFAULT 1,
-        `storage` int(11) NOT NULL DEFAULT 1,
-        `security` int(11) NOT NULL DEFAULT 1
-        )]])
-        if mainTableBuild.warningStatus == 0 then
-            Unr3al.Logging('info', 'Database Build for Lab table complete')
-        else if mainTableBuild.warningStatus ~= 1 then
-            Unr3al.Logging('error', 'Couldnt build Lab table')
-        end end
-        local response = MySQL.query.await('SELECT * FROM unr3al_methlab')
-        for i, methlabId in ipairs(Config.Methlabs) do
-            if not response[i] then
-                local id = MySQL.insert.await('INSERT INTO unr3al_methlab (id) VALUES (?)', {
-                    i
-                })
-                if id then
-                    Unr3al.Logging('debug', 'Inserted data for lab '..i..' into Database')
-                else
-                    Unr3al.Logging('error', 'Couldnt insert data. Lab: '..i)
-                end
-            end
-            local inventory = exports.ox_inventory:GetInventory('Methlab_Storage_'..i, false)
-            if not inventory then
-                local methLab = MySQL.single.await('SELECT storage FROM unr3al_methlab WHERE id = ?', {i})
-                exports.ox_inventory:RegisterStash('Methlab_Storage_'..i, 'Methlab storage', Config.Upgrades.Storage[methLab.storage].Slots, Config.Upgrades.Storage[methLab.storage].MaxWeight, false)
-                Unr3al.Logging('debug', 'Registered stash for lab:'..i)
-            end
-        end
-        local secondaryTableBuild = MySQL.query.await([[CREATE TABLE IF NOT EXISTS unr3al_methlab_people (
-        `id` int(11) NOT NULL,
-        `identifier` varchar(46) DEFAULT NULL
-        )]])
-        if secondaryTableBuild.warningStatus == 0 then
-            Unr3al.Logging('info', 'Database Build for secondary table complete')
-        elseif secondaryTableBuild.warningStatus ~= 1 then
-            Unr3al.Logging('error', 'Couldnt build secondary table')
-        end
-
         if Config.Debug then
             local allItems = {}
             for item, data in pairs(exports.ox_inventory:Items()) do
