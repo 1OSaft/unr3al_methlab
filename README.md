@@ -28,4 +28,3 @@ https://discord.gg/euewAxCAUN
 # To-do
 - logs
 - Machine weardown
-- Raiding system
