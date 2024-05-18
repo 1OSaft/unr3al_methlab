@@ -12,12 +12,6 @@ function notifyMissingItems(src, missingItems)
     Config.Notification(src, Config.Noti.error, notification)
 end
 
-
-
-
-
-
-
 ---@param src string
 ---@param itemTable table
 ---@param missingItems table
@@ -37,29 +31,28 @@ end
 ---@param src string
 ---@param itemTable table
 function removeNormal(src, itemTable)
-    local canBuy = true
-    for itenName, itemCount in pairs(itemTable) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemCount then
-            canBuy = false
-            table.insert(missingItems, {itenName, itemCount - item})
-        end
+    for itemName, itemCount in pairs(itemTable) do
+        exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
     end
 end
 
 ---@param methlabId string | integer
 function NotifyPeople(methlabId)
-    local response = MySQL.single.await('SELECT `owner` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId}).owner
-    if Config.Methlabs[methlabId].Purchase.Type == 'society' then
-        local onlinePlayersJob = ESX.GetExtendedPlayers('job', response)
-        for _, player in pairs(onlinePlayersJob) do
+    local methlabId = tostring(methlabId)
+    local ownerType, owner = database[methlabId].Purchase.Type, database[methlabId].Owner
+
+    if Config.Framework == 'ESX' then
+        if ownerType == 2 or 0 then
+            local onlinePlayersJob = ESX.GetExtendedPlayers('job', owner)
+            for _, player in pairs(onlinePlayersJob) do
+                Config.Notification(player.source, Config.Noti.warning, "RAID!")
+                TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
+            end
+        else
+            local player = ESX.GetPlayerFromIdentifier(owner)
             Config.Notification(player.source, Config.Noti.warning, "RAID!")
             TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
         end
-    else
-        local player = ESX.GetPlayerFromIdentifier(response)
-        Config.Notification(player.source, Config.Noti.warning, "RAID!")
-        TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
     end
 end
 
@@ -94,4 +87,42 @@ function canRaidLabOwner(methlabId, secLevel)
         returnval = false
     end
     return returnval
+end
+
+
+---@param inSplitPattern string
+---@param outResults string
+---@return table
+function string:splitToNumbers(inSplitPattern, outResults)
+    if not outResults then
+        outResults = { }
+    end
+    local theStart = 1
+    local theSplitStart, theSplitEnd = string.find(self, inSplitPattern, theStart)
+    while theSplitStart do
+        local part = string.sub(self, theStart, theSplitStart-1)
+        table.insert(outResults, tonumber(part))
+        theStart = theSplitEnd + 1
+        theSplitStart, theSplitEnd = string.find(self, inSplitPattern, theStart)
+    end
+    table.insert(outResults, tonumber(string.sub(self, theStart)))
+    return outResults
+end
+
+---@param inSplitPattern string
+---@param outResults string
+---@return table
+function string:split( inSplitPattern, outResults )
+    if not outResults then
+      outResults = { }
+    end
+    local theStart = 1
+    local theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
+    while theSplitStart do
+      table.insert( outResults, string.sub( self, theStart, theSplitStart-1 ) )
+      theStart = theSplitEnd + 1
+      theSplitStart, theSplitEnd = string.find( self, inSplitPattern, theStart )
+    end
+    table.insert( outResults, string.sub( self, theStart ) )
+    return outResults
 end

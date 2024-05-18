@@ -1,73 +1,63 @@
+---1 = owned, 0 = unowned
+---@param source string
+---@param methlabId string
+---@return integer
 lib.callback.register('unr3al_methlab:server:isLabOwned', function(source, methlabId)
-    local returnval = 0
-    local response = MySQL.single.await('SELECT `owned` FROM `unr3al_methlab` WHERE `id` = ?', {methlabId})
-    if response then
-        if response.owned == 1 then
-            returnval = 1
-        end
-    end
-    return returnval
+    return database[methlabId].Owned
 end)
 
+---comment
+---@param source string
+---@param methlabId string
+---@param netId integer
+---@param type integer
 lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId, type)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-    local jobName, playerIdentifier = getPlayerJobName(src), getPlayerIdentifier(src)
-	if not DoesEntityExist(entity) or currentlab[src] ~= nil or not jobName or not playerIdentifier then return end
+    local src, methlabId = source, tostring(methlabId)
+	local entity, jobName, playerIdentifier = NetworkGetEntityFromNetworkId(netId), getPlayerJobName(src), getPlayerIdentifier(src)
+    local methlabId = getLabPlayerIsIn(playerIdentifier)
+
+	if not DoesEntityExist(entity) or not methlabId or not jobName or not playerIdentifier then return end
     
-    local canBuy = true
-    local missingItems = {}
-    for itenName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-        local item = exports.ox_inventory:GetItemCount(src, itenName, false, false)
-        if item < itemCount then
-            canBuy = false
-            table.insert(missingItems, {itenName, itemCount - item})
-        end
-    end
+    local canBuy, missingItems = true, {}
+
+    canBuy, missingItems = canBuyNormal(src, database[methlabId].Purchase.Price, missingItems)
+
     if canBuy then
-        local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {jobName, playerIdentifier})
-        if response[1]["COUNT(id)"] < Config.MaxLabs then
-            for itemName, itemCount in pairs(Config.Methlabs[methlabId].Purchase.Price) do
-                exports.ox_inventory:RemoveItem(src, itemName, itemCount, false, false, true)
+        local labCount = 0
+        for methlabId, labData in pairs(database) do
+            if labData.Owner == jobName or labData.Owner == playerIdentifier then
+                labCount = labCount +1
             end
-            local newOwner
-            if Config.Methlabs[methlabId].Purchase.Type == 'society' or (Config.Methlabs[methlabId].Purchase.Type == 'both' and type == 2) then
+        end
+        if labCount < Config.MaxLabs then
+            removeNormal(source, database[methlabId].Purchase.Price)
+
+            local newOwner = nil
+            if database[methlabId].Purchase.Type == 1 or (database[methlabId].Purchase.Type == 0 and type == 1) then
                 newOwner = jobName
-            elseif Config.Methlabs[methlabId].Purchase.Type == 'player' or (Config.Methlabs[methlabId].Purchase.Type == 'both' and type == 1) then
+            elseif database[methlabId].Purchase.Type == 2 or (database[methlabId].Purchase.Type == 0 and type == 2) then
                 newOwner = playerIdentifier
+            else
+                Config.Notification(src, Config.Noti.error, 'Error, talk to your server owner')
             end
-            local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET owned = 1, locked = 0, owner = ? WHERE id = ?', {
-                newOwner, methlabId
-            })
-            if updateOwner == 1 then
-                Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
-                TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
-                lib.logger(playerIdentifier, 'Bought methlab id: '..methlabId, 'Bought for: '..newOwner)
-            end
+            database[methlabId].Owned = 1
+            database[methlabId].Owner = newOwner
+            database[methlabId].Upgrades = {
+                Storage = 1,
+                Security = 1
+            }
+            database[methlabId].Locked = 0
+
+            saveDatabase(database)
+            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
+            TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
+            lib.logger(playerIdentifier, 'Bought methlab id: '..methlabId, 'Bought for: '..newOwner)
+
         else
             Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
         end
     else
-        local itemarray = {}
-        for i, item in ipairs(missingItems) do
-            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-            local itemString = string.format("%sx %s", item[2], itemData)
-            table.insert(itemarray, itemString)
-        end
-        local joinedItems = table.concat(itemarray, ", ")
-        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        Config.Notification(src, Config.Noti.error, notification)
-    end
-end)
-
-lib.callback.register('unr3al_methlab:server:canBuyAnotherLab', function(source)
-    local src = source
-    local jobName, playerIdentifier = getPlayerJobName(src), getPlayerIdentifier(src)
-    local response = MySQL.query.await('SELECT COUNT(id) FROM unr3al_methlab WHERE owner = ? OR owner = ?', {jobName, playerIdentifier})
-    if response[1]["COUNT(id)"] < Config.MaxLabs then
-        return true
-    else
-        return false
+        notifyMissingItems(src, missingItems)
     end
 end)
 
@@ -75,22 +65,29 @@ end)
 ---@param netId integer
 ---@return integer | nil
 lib.callback.register('unr3al_methlab:server:getStorage', function(source, netId)
-    local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
-    return database[tostring(currentlab[src])].Upgrades.Storage
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or not currentlab then return end
+    return database[currentlab].Upgrades.Storage
 end)
 
 ---@param source string
 ---@param netId integer
 ---@return integer | nil
 lib.callback.register('unr3al_methlab:server:getSecurity', function(source, netId)
-    local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then return end
-    return database[tostring(currentlab[src])].Upgrades.Security
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+	if not DoesEntityExist(entity) or not currentlab then return end
+    return database[currentlab].Upgrades.Security
 end)
 
 lib.callback.register('unr3al_methlab:server:getConfig', function(source)
     return Config, Locales
+end)
+
+---@param source string
+---@return table
+lib.callback.register('unr3al_methlab:server:getDatabase', function(source)
+    return database
 end)

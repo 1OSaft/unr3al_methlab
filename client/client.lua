@@ -8,12 +8,19 @@ RegisterNetEvent('unr3al_methlab:client:getConfig', function()
     Config, Locales = lib.callback.await('unr3al_methlab:server:getConfig', false)
 end)
 
---------------------------------------------------------------------------------------------------------------
+RegisterNetEvent('unr3al_methlab:client:getConfig', function()
+    database = lib.callback.await('unr3al_methlab:server:getDatabase', false)
+end)
 
+--------------------------------------------------------------------------------------------------------------
+local locale = Locales[Config.Locale]
 currentLab = nil
 local cam = nil
 local objects = {}
 
+---Finished
+---@param netId integer
+---@return boolean
 lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	if not DoesEntityExist(entity) then return end
@@ -57,7 +64,7 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
     
     if lib.progressBar({
         duration = 150000,
-        label = Locales[Config.Locale]['ChemicalPouringProgress'],
+        label = locale['ChemicalPouringProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -94,6 +101,10 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
     end
 end)
 
+---Finished
+---@param netId integer
+---@param recipe string
+---@return string | nil
 lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recipe)
     local recipeType = recipe
 	local entity = NetworkGetEntityFromNetworkId(netId)
@@ -104,8 +115,8 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(Locales[Config.Locale]['RecipeDialogHeader'], {
-		{type = 'select', label = Locales[Config.Locale]['SelectRecipeDialog'], description = Locales[Config.Locale]['SelectRecipeDialogDesc'], required = true, options = options},
+	local methType = lib.inputDialog(locale['RecipeDialogHeader'], {
+		{type = 'select', label = locale['SelectRecipeDialog'], description = locale['SelectRecipeDialogDesc'], required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
@@ -117,6 +128,10 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
 	return returnvalv
 end)
 
+---Finished
+---@param netId integer
+---@param recipe string
+---@return string | nil
 lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, recipe)
     local recipeType = recipe
 	local entity = NetworkGetEntityFromNetworkId(netId)
@@ -127,8 +142,8 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(Locales[Config.Locale]['SlurryDialogHeader'], {
-		{type = 'select', label = Locales[Config.Locale]['SelectSlurryRecipeDialog'], description = Locales[Config.Locale]['SelectSlurryRecipeDialogDesc'], required = true, options = options},
+	local methType = lib.inputDialog(locale['SlurryDialogHeader'], {
+		{type = 'select', label = locale['SelectSlurryRecipeDialog'], description = locale['SelectSlurryRecipeDialogDesc'], required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
@@ -140,6 +155,9 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
 	return returnvalv
 end)
 
+---Finished
+---@param netId integer
+---@return boolean
 lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
     local entity = NetworkGetEntityFromNetworkId(netId)
 	if not DoesEntityExist(entity) then return end
@@ -148,7 +166,7 @@ lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
 
     if lib.progressBar({
         duration = 30000,
-        label = Locales[Config.Locale]['SlurryRefineryProgress'],
+        label = locale['SlurryRefineryProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -178,6 +196,11 @@ lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
     end
 end)
 
+---Finished
+---@param netId integer
+---@param duration integer
+---@param coords vector4
+---@return boolean
 lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, duration, coords)
     local entity = NetworkGetEntityFromNetworkId(netId)
 	if not DoesEntityExist(entity) then return end
@@ -185,10 +208,9 @@ lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, du
     Wait(500)
 
     TaskStartScenarioAtPosition(cache.ped, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z+1, coords.w, duration, false, true)
-    local returnvalv
     if lib.progressBar({
         duration = duration,
-        label = Locales[Config.Locale]['RaidProgress'],
+        label = locale['RaidProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -210,8 +232,10 @@ lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, du
     end
 end)
 
+---Finished
+---@param methlabId string
 RegisterNetEvent('unr3al_methlab:client:raidBlip', function(methlabId)
-    local coords = Config.Methlabs[methlabId].Coords
+    local coords = database[tostring(methlabId)].Coords
     local blip = AddBlipForCoord(coords.x, coords.y, coords.z)
     SetBlipSprite(blip, 119)
     SetBlipScale(blip, 1.0)
@@ -222,7 +246,7 @@ RegisterNetEvent('unr3al_methlab:client:raidBlip', function(methlabId)
     SetBlipScale(blipBack, 2.0)
     SetBlipColour(blipBack, 1)
 
-    AddTextEntry('methlabRaidBlip', Locales[Config.Locale]['BlipText'])
+    AddTextEntry('methlabRaidBlip', locale['BlipText'])
     BeginTextCommandSetBlipName('methlabRaidBlip')
     EndTextCommandSetBlipName(blipBack)
 
@@ -325,7 +349,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                 description = Locales[Config.Locale]['LeaveLabDesc'],
                 icon = 'door-open',
                 onSelect = function()
-                    TriggerServerEvent('unr3al_methlab:server:leave', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                    TriggerServerEvent('unr3al_methlab:server:leave', NetworkGetNetworkIdFromEntity(PlayerPedId()))
                     currentLab = nil
                 end
             },
@@ -356,20 +380,3 @@ Citizen.CreateThread(function()
     BikerMethLab.Details.Enable(BikerMethLab.Details.production, true)
     RefreshInterior(BikerMethLab.interiorId)
 end)
-
-if Config.Debug then
-    Citizen.CreateThread(function()
-        Wait(5000)
-        for k,v in pairs(Config.Methlabs) do
-            local blip = AddBlipForCoord(v.Coords.x, v.Coords.y, v.Coords.z)
-            SetBlipSprite(blip, 499)
-            SetBlipScale(blip, 0.5)
-            SetBlipColour(blip, 1)
-            SetBlipAsShortRange(blip, false)
-            AddTextEntry('MethlabDebugLOL', 'Methlab (~a~)')
-            BeginTextCommandSetBlipName('MethlabDebugLOL')
-            AddTextComponentSubstringPlayerName('Debug only')
-            EndTextCommandSetBlipName(blip)
-        end
-    end)
-end

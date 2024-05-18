@@ -1,15 +1,17 @@
 Citizen.CreateThread(function()
     Wait(5000)
+    locale = Locales[Config.Locale]
     if not Config.OXTarget then
-        for methlabID, methlabMarker in pairs(Config.Methlabs) do
-            local coords = methlabMarker.Coords
+        local marker = Config.Marker
+
+        for methlabID in pairs(database) do
+            local coords = database[methlabID].Coords
             local enterMarker = lib.points.new({
                 coords = coords,
                 distance = 20,
                 interactPoint = nil,
                 nearby = function()
                     if not Config.UsePed.Enabled then
-                        local marker = Config.Marker
                         DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
                     end
                 end,
@@ -17,7 +19,7 @@ Citizen.CreateThread(function()
                     if self.interactPoint then return end
                     if Config.UsePed.Enabled then
                         lib.requestModel(Config.UsePed.Model)
-                        local ped = CreatePed(CIVMALE, GetHashKey(Config.UsePed.Model), coords.x, coords.y, coords.z - 1, methlabMarker.HeadingPed, false, true)
+                        local ped = CreatePed(CIVMALE, GetHashKey(Config.UsePed.Model), coords.x, coords.y, coords.z - 1, coords.r, false, true)
                         FreezeEntityPosition(ped, true)
                         SetEntityInvincible(ped, true)
                         SetBlockingOfNonTemporaryEvents(ped, true)
@@ -27,11 +29,11 @@ Citizen.CreateThread(function()
                         distance = 1,
                         nearby = function()
                             if IsControlJustReleased(0, 51) then
-                                TriggerEvent('unr3al_methlab:client:doEnterStuff', methlabID)
+                                TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
                             end
                         end,
                         onEnter = function()
-                            lib.showTextUI(Locales[Config.Locale]['NormalMenuTextUI'])
+                            lib.showTextUI(locale['NormalMenuTextUI'])
                         end,
                         onExit = function()
                             lib.hideTextUI()
@@ -55,7 +57,6 @@ Citizen.CreateThread(function()
             distance = 20,
             interactPoint = nil,
             nearby = function()
-                local marker = Config.Marker
                 DrawMarker(marker.type, exitCoords.x, exitCoords.y, exitCoords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
             end,
             onEnter = function(self)
@@ -69,7 +70,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(Locales[Config.Locale]['NormalMenuTextUI'])
+                        lib.showTextUI(locale['NormalMenuTextUI'])
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -89,7 +90,6 @@ Citizen.CreateThread(function()
             distance = 20,
             interactPoint = nil,
             nearby = function()
-                local marker = Config.Marker
                 DrawMarker(marker.type, storageCoords.x, storageCoords.y, storageCoords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
             end,
             onEnter = function(self)
@@ -103,7 +103,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(Locales[Config.Locale]['StorageTextUI'])
+                        lib.showTextUI(locale['StorageTextUI'])
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -124,7 +124,6 @@ Citizen.CreateThread(function()
             interactPoint = nil,
             nearby = function()
                 if not cam then
-                    local marker = Config.Marker
                     DrawMarker(marker.type, methCoords.x, methCoords.y, methCoords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
                 end
             end,
@@ -140,7 +139,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(Locales[Config.Locale]['PouringTextUI'])
+                        lib.showTextUI(locale['PouringTextUI'])
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -160,7 +159,6 @@ Citizen.CreateThread(function()
             distance = 20,
             interactPoint = nil,
             nearby = function()
-                local marker = Config.Marker
                 if not cam then
                     DrawMarker(marker.type, refineryCoords.x, refineryCoords.y, refineryCoords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
                 end
@@ -177,7 +175,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(Locales[Config.Locale]['RefineryTextUI'])
+                        lib.showTextUI(locale['RefineryTextUI'])
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -191,19 +189,19 @@ Citizen.CreateThread(function()
             end,
         })
     else
-        for methlabID, methlabMarker in pairs(Config.Methlabs) do
+        for methlabID in pairs(database) do
             exports.ox_target:addSphereZone({
-                coords = methlabMarker.Coords,
+                coords = database[methlabID].Coords,
                 radius = Config.Target.EnterPoint.TargetSize,
                 debug = Config.Debug,
                 drawSprite = Config.Debug,
                 options = {
                     {
                         name = 'methLabEnterPoint'..methlabID,
-                        label = Locales[Config.Locale]['NormalMenuTextUI'],
+                        label = locale['NormalMenuTextUI'],
                         distance = Config.Target.EnterPoint.InteractDistance,
                         onSelect = function(data)
-                            TriggerEvent('unr3al_methlab:client:doEnterStuff', methlabID)
+                            TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
                         end,
                     }
                 }
@@ -217,7 +215,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methExitPoint',
-                    label = Locales[Config.Locale]['NormalMenuTextUI'],
+                    label = locale['NormalMenuTextUI'],
                     distance = Config.Target.ExitPoint.InteractDistance,
                     onSelect = function(data)
                         lib.showContext("methlab_Menu_Leave")
@@ -233,7 +231,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methMakerPoint',
-                    label = Locales[Config.Locale]['PouringTextUI'],
+                    label = locale['PouringTextUI'],
                     distance = Config.Target.MethPoint.InteractDistance,
 
                     onSelect = function(data)
@@ -251,7 +249,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methSlurryPoint',
-                    label = Locales[Config.Locale]['RefineryTextUI'],
+                    label = locale['RefineryTextUI'],
                     distance = Config.Target.SlurryPoint.InteractDistance,
 
                     onSelect = function(data)
@@ -268,7 +266,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methStoragePoint',
-                    label = Locales[Config.Locale]['StorageTextUI'],
+                    label = locale['StorageTextUI'],
                     distance = Config.Target.StoragePoint.InteractDistance,
 
                     onSelect = function(data)
@@ -281,33 +279,34 @@ Citizen.CreateThread(function()
 end)
 
 
-
+---Finished
+---@param methlabID string
 RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
-    currentLab = methlabID
-    local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, currentLab)
+    local methlabID = tostring(methlabID)
+    local owned = lib.callback.await('unr3al_methlab:server:isLabOwned', false, methlabID)
     if owned == 1 then
+        currentLab = methlabID
         lib.showContext("methlab_Menu_Enter")
     else
-        if Config.Methlabs[methlabID].Purchase.Type == 'both' then
-            local methType = lib.inputDialog(Locales[Config.Locale]['AlertDialogHeader'], {
-                {type = 'select', label = Locales[Config.Locale]['AlertDialogHeaderBuy'], required = true, options = {
-                    { label = Locales[Config.Locale]['BuyOptionPlayer'], value = 1},
-                    { label = Locales[Config.Locale]['BuyOptionSociety'], value = 2}
+        if database[methlabID].Purchase.Type == 0 then
+            local ownerType = lib.inputDialog(locale['AlertDialogHeader'], {
+                {type = 'select', label = locale['AlertDialogHeaderBuy'], required = true, options = {
+                    { label = locale['BuyOptionPlayer'], value = 1},
+                    { label = locale['BuyOptionSociety'], value = 2}
                 }},
             })
-            if methType ~= null then
-                lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped), methType[1])
+            if ownerType ~= null then
+                lib.callback.await('unr3al_methlab:server:buyLab', false, methlabID, NetworkGetNetworkIdFromEntity(cache.ped), ownerType[1])
             end
-            print(json.encode(methType, {indent=true}))
         else
             local alert = lib.alertDialog({
-                header = Locales[Config.Locale]['AlertDialogHeader'],
-                content = Locales[Config.Locale]['AlertDialogHeaderDesc'],
+                header = locale['AlertDialogHeader'],
+                content = locale['AlertDialogHeaderDesc'],
                 centered = true,
                 cancel = true
             })
             if alert == 'confirm' then
-                local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
+                local buyLab = lib.callback.await('unr3al_methlab:server:buyLab', false, methlabID, NetworkGetNetworkIdFromEntity(cache.ped))
             end
         end
     end

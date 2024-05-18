@@ -16,68 +16,6 @@ Config.MaxLabs = 2
 
 Config.RaidCooldown = 100000 -- in ms
 
-Config.Methlabs = {
-    [1] = { --Routingbucket id, standart Routingbucket is 0, so dont use it. first lab is 1, second 2, third 3 and so on!
-        Coords = vector3(-57.60, -1228.61, 28.79),
-        HeadingPed = 45.5, --For ped if you use it
-        Purchase = {
-            Type = 'both', --"society" owned or "player" owned, "both" if the player can decide
-            Price = {
-                ['money'] = 100000,
-                ['metal'] = 100,
-            },
-            Raidable = true,
-            RaidCoords = vector4(-56.61, -1229.14, 27.79, 223.43)
-        },
-        Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
-    },
-
-    [2] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
-        Coords = vector3(-65.40, -1226.72, 28.79),
-        HeadingPed = 233, --For ped if you use it
-        Purchase = {
-            Type = 'player', --"society" owned or "player" owned, "both" if the player can decide
-            Price = {
-                ['money'] = 100000,
-                ['metal'] = 100,
-            },
-            Raidable = true,
-            RaidCoords = vector4(-66.18, -1226.12, 27.82, 47.81)
-        },
-        Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
-    },
-
-    [3] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
-    Coords = vector3(-61.07, -1233.11, 28.79),
-    HeadingPed = 45.5, --For ped if you use it
-    Purchase = {
-        Type = 'society', --"society" owned or "player" owned, "both" if the player can decide
-        Price = {
-            ['money'] = 100000,
-            ['metal'] = 100,
-        },
-        Raidable = true,
-        RaidCoords = vector4(-60.63, -1233.32, 27.89, 224.11)
-    },
-    Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
-    },
-    
-    [4] = { --Routingbucket id, standart Routingbucket is 0, so dont use it
-    Coords = vector3(-66.53, -1239.11, 28.79),
-    HeadingPed = 45.5, --For ped if you use it
-    Purchase = {
-        Type = 'society', --"society" owned or "player" owned, "both" if the player can decide
-        Price = {
-            ['money'] = 100000,
-            ['metal'] = 100,
-        },
-        Raidable = true,
-        RaidCoords = vector4(-65.99, -1239.20, 28.03, 241.67)
-    },
-    Recipes = 'standard' -- standard for Config.Recipes or custom for custom recipes for this exact lab
-    },
-}
-
 Config.Recipes = {
     ['standard'] = {
         ['Ammonia and sodium (simple)'] = { --Needs to be unique, is also the label shown ingame

@@ -12,61 +12,64 @@ ox_inventory = exports.ox_inventory
 ---@param netId integer
 ---@param source string
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] ~= nil then
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or currentlab then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
-    if database[methlabId] == 0 then
-        SetPlayerRoutingBucket(src, database[labid].routingBucket)
+    if database[methlabId].Locked == 0 then
+        SetPlayerRoutingBucket(src, database[methlabId].routingBucket)
         SetEntityCoords(entity, 997.24, -3200.67, -36.39, true, false, false, false)
-        currentlab[src] = methlabId
+        setLabPlayerIsIn(getPlayerIdentifier(src), methlabId)
     else
         Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['LabLocked'])
     end
 end)
 
---Finished
----@param methlabId string | integer
+---Finished
 ---@param netId integer
-RegisterNetEvent('unr3al_methlab:server:leave', function(methlabId, netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to leave Lab'..methlabId..' without perms')
+RegisterNetEvent('unr3al_methlab:server:leave', function(netId)
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or not currentlab then
+        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to leave Lab'..currentlab..' without perms')
         return
     end
     SetPlayerRoutingBucket(src, 0)
-    local coords = database[methlabId].Coords
+    local coords = database[currentlab].Coords
     SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
-    currentlab[src] = nil
+    removeLabPlayerIsIn(getPlayerIdentifier(src), currentlab)
 end)
 
 --Finished
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or not currentlab then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to open storage without perms')
         return
     end
-    exports.ox_inventory:forceOpenInventory(src, 'stash', 'Methlab_Storage_'..currentlab[src])
+    exports.ox_inventory:forceOpenInventory(src, 'stash', 'Methlab_Storage_'..currentlab)
 end)
 
 --Finished
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then
+    local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or not currentlab then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade storage of Lab '..methlabId..' without perms')
         return
     end
 
-    local storageLevel = database[tostring(currentlab[src])].Upgrades.Storage
+    local storageLevel = database[tostring(methlabId)].Upgrades.Storage
     if storageLevel >= #Config.Upgrades.Storage then return end
 
     local canBuy, missingItems = true, {}
@@ -87,14 +90,15 @@ end)
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil then
+    local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or not currentlab then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade security of Lab '..methlabId..' without perms')
         return
     end
 
-    local securityLevel = database[tostring(currentlab[src])].Upgrades.Security
+    local securityLevel = database[methlabId].Upgrades.Security
     if securityLevel >= #Config.Upgrades.Security then return end
 
     local canBuy, missingItems = true, {}
@@ -144,10 +148,13 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     end
 end)
 
+---@param methlabId string | integer
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] ~= nil then
+    local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+
+	if not DoesEntityExist(entity) or currentlab then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to raid lab without perms')
         return
     end
@@ -160,9 +167,7 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     end
     currentLabRaid[methlabId] = true
 
-    local secLevel = MySQL.single.await('SELECT security FROM unr3al_methlab WHERE id = @methlabId', {
-        ['@methlabId'] = methlabId
-    }).security
+    local secLevel = database[methlabId].Upgrades.Security
     local canRaidLab = canRaidLabOwner(methlabId, secLevel)
     if not canRaidLab then
         return
@@ -175,16 +180,17 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     if canBuy then
         removeNormal(src, Config.Upgrades.Security[securityLevel+1].Price)
 
-        local coords = Config.Methlabs[methlabId].Purchase.RaidCoords
+        local coords = database[methlabId].RaidCoords
         SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
-        SetEntityHeading(entity, coords.w)
+        SetEntityHeading(entity, coords.r)
         FreezeEntityPosition(entity, true)
         local animationReturn = lib.callback.await('unr3al_methlab:client:startRaidAnima', src, netId, Config.Upgrades.Security[secLevel].Time, coords)
         FreezeEntityPosition(entity, false)
         if animationReturn == true then
-            local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 0 WHERE id = @methlabId', {['@methlabId'] = methlabId})
+            database[methlabId].Locked = 0
+            saveDatabase(database)
             Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['SuccessfullyRaided'])
-            lib.logger(getPlayerIdentifier(src), 'Raided methlab id: '..methlabId, 'Time of complete: '..os.time)
+            lib.logger(getPlayerIdentifier(src), 'Raided methlab id: '..methlabId, 'Time of completion: '..os.time)
         else
             Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['FailedRaid'])
         end
@@ -197,15 +203,15 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
 end)
 
 --Finished
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
-	local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil or currentMethProduction[currentlab[src]] ~= nil then return end
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
 
-    
-    local lab = currentlab[src]
-    local recipe = Config.Methlabs[lab].Recipes
-    currentMethProduction[lab] = true
+	if not DoesEntityExist(entity) or not currentlab or currentMethProduction[currentlab] ~= nil then return end
+
+    local recipe = database[currentlab].Recipes
+    currentMethProduction[currentlab] = true
 
     local input = lib.callback.await('unr3al_methlab:client:getMethType', src, netId, recipe)
     if not input then currentMethProduction[lab] = nil return end
@@ -330,34 +336,24 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                 Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
             end
         else
-            local itemarray = {}
-            for i, item in ipairs(missingItems) do
-                local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-                local itemString = string.format("%sx %s", item[2], itemData)
-                table.insert(itemarray, itemString)
-            end
-            local joinedItems = table.concat(itemarray, ", ")
-            local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-            Config.Notification(src, Config.Noti.error, notification)
+            notifyMissingItems(src, missingItems)
         end
     end
-    currentMethProduction[currentlab[src]] = nil
+    currentMethProduction[currentlab] = nil
 end)
 
+---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
-    local entity = NetworkGetEntityFromNetworkId(netId)
-	local src = source
-	if not DoesEntityExist(entity) or currentlab[src] == nil or currentSlurryProduction[currentlab[src]] ~= nil then return end
+    local src, entity = source, NetworkGetEntityFromNetworkId(netId)
+    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
 
-    currentSlurryProduction[currentlab[src]] = true
-    local recipe = Config.Methlabs[currentlab[src]].Recipes
+	if not DoesEntityExist(entity) or not currentlab or currentSlurryProduction[currentlab] ~= nil then return end
+
+    currentSlurryProduction[currentlab], recipe = true, database[currentlab].Recipes
     local input = lib.callback.await('unr3al_methlab:client:getSlurryType', src, netId, recipe)
-    if not input then
-        currentSlurryProduction[currentlab[src]] = nil
-        return
-    end
-    local canBuy = true
-    local missingItems = {}
+    if not input then currentSlurryProduction[currentlab] = nil return end
+
+    local canBuy, missingItems = true, {}
 
     for itemName, itemCount in pairs(Config.Refinery[recipe][input].Ingredients) do
         local hasEnoughAlready = false
@@ -368,17 +364,11 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
             for i, itemData in ipairs(item) do
                 if not hasEnoughAlready then
                     local chemicalName = itemData.metadata['chemicalname']
-                    print(chemicalName)
                     local chemicalLevel = itemData.metadata['chemicalfill']
-                    print(chemicalLevel)
-                    --local itemString = itemName:lower():gsub("^%l", string.upper)
                     if chemicalName == 'Methslurry' then
-                        print("Opfer")
                         if (chemicalLevel - itemCount) >= 0 then
-                            print('Opfer 2')
                             canBuy, hasEnoughAlready, chemcount = true, true, chemicalLevel
                         else
-                            print('Opfer 3')
                             chemcount = chemcount + chemicalLevel
                         end
                     end
@@ -424,199 +414,108 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
             Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
         end
     else
-        local itemarray = {}
-        for i, item in ipairs(missingItems) do
-            local itemData = exports.ox_inventory:GetItem(src, item[1], nil, false).label
-            local itemString = string.format("%sx %s", item[2], itemData)
-            table.insert(itemarray, itemString)
-        end
-        local joinedItems = table.concat(itemarray, ", ")
-        local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-        Config.Notification(src, Config.Noti.error, notification)
+        notifyMissingItems(src, missingItems)
     end
-    currentSlurryProduction[currentlab[src]] = nil
+    currentSlurryProduction[currentlab] = nil
 end)
 
-
-lib.addCommand('setlab', {
-    help = 'Sets you in a specific lab',
-    params = {
-        {
-            name = 'methlabId',
-            type = 'number',
-            help = 'Target id of the lab',
-        },
-    },
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    if args.methlabId then
-        currentlab[source] = args.methlabId
-    end
-end)
-
-lib.addCommand('resetlab', {
-    help = 'Resets a lab back to its orgininal state',
-    params = {
-        {
-            name = 'methlabId',
-            type = 'number',
-            help = 'Target id of the lab',
-        },
-    },
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    if args.methlabId then
-        local updateOwner = MySQL.update.await('UPDATE unr3al_methlab SET locked = 1, security = 1, storage = 1, owned = 0, owner = NULL WHERE id = @methlabId', {['@methlabId'] = args.methlabId})
-    end
-end)
-
-lib.addCommand('createlab', {
-    help = 'Creates a new lab',
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    local src = source
-    local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff', src)
-end)
 
 
 
 
 AddEventHandler('onResourceStart', function(resourceName)
     if (GetCurrentResourceName() == resourceName) then
-        if Config.Debug then
-            local allItems = {}
-            for item, data in pairs(exports.ox_inventory:Items()) do
-                allItems[item] = data.name
-            end
-            for labID, labData in pairs(Config.Methlabs) do
-                local purchasePrice = labData.Purchase and labData.Purchase.Price or {}
-                for itemName in pairs(purchasePrice) do
-                    if not lib.table.contains(allItems, itemName) then
-                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for lab: ' .. labID .. ' doesn\'t exist!')
-                    end
-                end
-            end
+        -- if Config.Debug then
+        --     local allItems, labItems = {}, {}
+        --     for item, data in pairs(exports.ox_inventory:Items()) do
+        --         allItems[item] = data.name
+        --     end
+        --     for labID, labData in pairs(database) do
+        --         local purchasePrice = labData.Purchase.Price
+        --         for itemName in pairs(purchasePrice) do
+        --             if not lib.table.contains(labItems, itemName) then
+        --                 table.insert(labItems, itemName)
+        --             end
+        --         end
+        --     end
+        --     for recipeType in pairs(Config.Recipes) do
+        --         for recipeName in pairs(Config.Recipes[recipeType]) do
+        --             for itemName in pairs(Config.Recipes[recipeType][recipeName]) do
+        --                 if itemName ~= 'Ingredients' and itemName ~= 'Meth' then
+        --                     if not lib.table.contains(labItems, itemName) then
+        --                         table.insert(labItems, itemName)
+        --                     end
+        --                 end
+        --             end
+        --             if not lib.table.contains(labItems, Config.Recipes[recipeType][recipeName].Meth.ItemName) then
+        --                 table.insert(labItems, itemName)
+        --             end
+        --         end
+        --     end
+        --     for slurryType in pairs(Config.Refinery) do
+        --         for recipeName in pairs(Config.Refinery[slurryType]) do
+        --             for itemName in pairs(Config.Refinery[slurryType][recipeName].Ingredients) do
+        --                 if not lib.table.contains(labItems, itemName) then
+        --                     table.insert(labItems, itemName)
+        --                 end
+        --             end
+        --             if not lib.table.contains(labItems, Config.Refinery[slurryType][recipeName].Output.ItemName) then
+        --                 table.insert(labItems, itemName)
+        --             end
+        --         end
+        --     end
+        --     for upgradeLevel, upgradeData in pairs(Config.Upgrades.Storage) do
+        --         for itemName in pairs(upgradeData.Price) do
+        --             if not lib.table.contains(labItems, itemName) then
+        --                 table.insert(labItems, itemName)
+        --             end
+        --         end
+        --     end
+        --     for upgradeLevel, upgradeData in pairs(Config.Upgrades.Security) do
+        --         for itemName in pairs(upgradeData.Price) do
+        --             if not lib.table.contains(labItems, itemName) then
+        --                 table.insert(labItems, itemName)
+        --             end
+        --         end
+        --     end
+        --     print(ESX.DumpTable(labItems))
+        --     for i, itemName in ipairs(labItems) do
+        --         if not lib.table.contains(allItems, labItems[i]) then
+        --             print(itemName)
+        --         end
+        --         --print(itemName)
+        --     end
 
-            for recipeType in pairs(Config.Recipes) do
-                for recipeName in pairs(Config.Recipes[recipeType]) do
-                    for itemName in pairs(Config.Recipes[recipeType][recipeName]) do
-                        if itemName ~= 'Ingredients' and itemName ~= 'Meth' then
-                            if not lib.table.contains(allItems, itemName) then
-                                Unr3al.Logging('error', 'Ingredient item ('..itemName..') for recipe: '..recipeName..' doesnt exist!')
-                            end
-                        end
-                    end
-                    local itemexists = lib.table.contains(allItems, Config.Recipes[recipeType][recipeName].Meth.ItemName)
-                    if not itemexists then
-                        Unr3al.Logging('error', 'Product item ('..Config.Recipes[recipeType][recipeName].Meth.ItemName..') for recipe: '..recipeName..' doesnt exist!')
-                    end
-                end
-            end
-            
-            for slurryType in pairs(Config.Refinery) do
-                for recipeName in pairs(Config.Refinery[slurryType]) do
-                    for itemName in pairs(Config.Refinery[slurryType][recipeName].Ingredients) do
-                        if not lib.table.contains(allItems, itemName) then
-                            Unr3al.Logging('error', 'Ingredient item ('..itemName..') for slurry recipe: '..recipeName..' doesnt exist!')
-                        end
-                    end
-                    local itemexists = lib.table.contains(allItems, Config.Refinery[slurryType][recipeName].Output.ItemName)
-                    if not itemexists then
-                        Unr3al.Logging('error', 'Product item ('..Config.Refinery[slurryType][recipeName].Output.ItemName..') for slurry recipe: '..recipeName..' doesnt exist!')
-                    end
-                end
-            end
-
-            for upgradeLevel, upgradeData in pairs(Config.Upgrades.Storage) do
-                for itemName in pairs(upgradeData.Price) do
-                    if not lib.table.contains(allItems, itemName) then
-                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for storage upgrade: ' .. upgradeLevel .. ' doesn\'t exist!')
-                    end
-                end
-            end
-            for upgradeLevel, upgradeData in pairs(Config.Upgrades.Security) do
-                for itemName in pairs(upgradeData.Price) do
-                    if not lib.table.contains(allItems, itemName) then
-                        Unr3al.Logging('error', 'Purchase item (' .. itemName .. ') for security upgrade: ' .. upgradeLevel .. ' doesn\'t exist!')
-                    end
-                end
-            end
-
-        end
-        if LoggingService.Discord.Enabled then
-            Unr3al.Logging('error', 'Dont use discord as a logging service :D')
-        end
+        -- end
+    end
+    if LoggingService.Discord.Enabled then
+        Unr3al.Logging('error', 'Dont use discord as a logging service :D')
     end
 end)
 
 
 
--- lib.addCommand('testoutput', {
---     help = 'nono',
---     restricted = 'group.admin',
---     params = {
---         {
---             name = 'count',
---             type = 'number',
---             help = 'Amount of slurry',
---         },
---     },
--- }, function(source, args, raw)
---     local src = source
---     local count = args.count or 3
---     local itemName = Config.Recipes['standard']['Ammonia and sodium'].Meth.ItemName
---     local hasEnoughAlready = false
-    
---     local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
---     local chemcount = 0
---     for i, itemData in ipairs(item) do
---         local chemicalLevel = itemData.metadata['chemicalfill'] or 0
---         if not hasEnoughAlready and chemicalLevel < Config.Items[itemName].MaxFillage then
---             local chemicalName = itemData.metadata['chemicalname']
---             local itemString = itemName:lower():gsub("^%l", string.upper)
---             if chemicalName == chemicalName or chemicalName == 'Empty' then
---                 if (chemicalLevel + count - chemcount) <= Config.Items[itemName].MaxFillage then
---                     exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
---                     exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = itemData.metadata.chemicalfill + count - chemcount, weight = itemData.weight+count*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
-    
---                     hasEnoughAlready, chemcount = true, chemicalLevel + count - chemcount
---                 else
---                     exports.ox_inventory:RemoveItem(src, itemName, 1, itemData.metadata, itemData.slot, true)
---                     exports.ox_inventory:AddItem(src, itemName, 1, {chemicalname = 'Methslurry', chemicalfill = Config.Items[itemName].MaxFillage, weight = Config.Items[itemName].MaxFillage*Config.Items[itemName].WeightPerFillage, label = itemString}, itemData.slot)
---                     chemcount = chemcount + (Config.Items[itemName].MaxFillage - chemicalLevel)
---                 end
---             end
---         end
+
+-- function DiscordLogs(name, title, color, fields)
+--     local webHook = Config.DiscordLogs.Webhooks[name]
+--     if webHook ~= 'WEEBHOCKED' then
+--         local embedData = {{
+--             ['title'] = title,
+--             ['color'] = Config.DiscordLogs.Colors[color],
+--             ['footer'] = {
+--                 ['text'] = "| Unr3al Meth | " .. os.date(),
+--                 ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
+--             },
+--             ['fields'] = fields,
+--             ['author'] = {
+--                 ['name'] = "Meth Car",
+--                 ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
+--             }
+--         }}
+--         PerformHttpRequest(webHook, nil, 'POST', json.encode({
+--             embeds = embedData
+--         }), {
+--             ['Content-Type'] = 'application/json'
+--         })
 --     end
---     if chemcount >= count then
---         print('yay enough')
---     else
---         print('nope not enough')
---     end
--- end)
-
-
-
-function DiscordLogs(name, title, color, fields)
-    local webHook = Config.DiscordLogs.Webhooks[name]
-    if webHook ~= 'WEEBHOCKED' then
-        local embedData = {{
-            ['title'] = title,
-            ['color'] = Config.DiscordLogs.Colors[color],
-            ['footer'] = {
-                ['text'] = "| Unr3al Meth | " .. os.date(),
-                ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
-            },
-            ['fields'] = fields,
-            ['author'] = {
-                ['name'] = "Meth Car",
-                ['icon_url'] = "https://cdn.discordapp.com/attachments/1091344078924435456/1091458999020425349/OSaft-Logo.png"
-            }
-        }}
-        PerformHttpRequest(webHook, nil, 'POST', json.encode({
-            embeds = embedData
-        }), {
-            ['Content-Type'] = 'application/json'
-        })
-    end
-end
+-- end
