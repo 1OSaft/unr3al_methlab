@@ -11,33 +11,124 @@
 
 
 ---Finished
----@param netId integer
----@return boolean
-lib.callback.register('unr3al_methlab:client:getLabCreationstuff', function(netId)
+---@return table | boolean
+lib.callback.register('unr3al_methlab:client:getLabCreationstuff', function()
     local recipeList = {}
+    data = {}
+    finished = false
     for recipe in pairs(Config.Recipes) do
         table.insert(recipeList, {label = recipe, value = recipe})
     end
-    local input = lib.inputDialog('Methlab creation menu', {
-        {type = 'input', label = 'Enter coords', description = 'Entry coords always needs to be 3 coords, (x, y, z)', required = true, default = '-57.60, -1228.61, 28.79'},
 
-        {type = 'number', label = 'NPC heading', description = 'if you use peds, input the rotation here', required = true, default = 123.0},
 
-        {type = 'select', label = 'Owner', description = 'select can own the lab after purchase', required = true, options = {
-            { label = 'Player owned', value = 1},
-            { label = 'Society owned', value = 2},
-            { label = 'Decide on purchase', value = 0},
-        }, default = 0},
 
-        {type = 'checkbox', label = 'Raidable?'},
-        {type = 'input', label = 'Enter raid coords', description = 'Raid coords need to be 4 coords, (x, y, z, rotation)', required = true, default = '-56.61, -1229.14, 27.79, 223.43'},
-        {type = 'textarea', label = 'Enter purchase price', description = 'Please be smart enough to understand it, itemspawnname = itemcount the latest count cant have a ,', required = true, default = "money = 100000, metal = 100", min = 5},
 
-        {type = 'select', label = 'Recipe', description = 'Which recipe should the lab have, see Config.Recipes', required = true, options = recipeList},
 
+
+
+
+    local function OpenCreate()
+      lib.registerContext({
+        id = 'methlab_creator_menu',
+        title = 'Methlab Creator Menu',
+        options = {
+          {
+            title = 'Enter coords',
+            description = 'Enter the entry coords',
+            icon = 'map',
+            onSelect = function()
+              while true do
+                Wait(0)
+                if IsControlJustPressed(0, 38) then
+                  local pos = GetEntityCoords(cache.ped)
+                  local heading = GetEntityHeading(cache.ped)
+    
+                  data[1] = {x = pos[1], y = pos[2], z = pos[3], w = heading}
+                  lib.hideContext(false)
+                  OpenCreate()
+                  break
+                end
+              end
+            end,
+          },
+          {
+            title = 'Lab buy type',
+            description = 'Who should own this lab?',
+            onSelect = function()
+              local input = lib.inputDialog('Methlab creation menu', {
+                {type = 'select', label = 'Owner', description = 'select can own the lab after purchase', required = true, options = {
+                    { label = 'Player owned', value = 1},
+                    { label = 'Society owned', value = 2},
+                    { label = 'Decide on purchase', value = 0},
+                }, default = 0},
+              }, {allowCancel = false})
+              data[2] = input[1]
+              lib.hideContext(false)
+              OpenCreate()
+            end,
+          },
+          {
+            title = 'Raid Settings',
+            description = 'General raid settings?',
+            onSelect = function()
+              data[3] = lib.inputDialog('Methlab creation menu', {
+                {type = 'checkbox', label = 'Raidable?'},
+              }, {allowCancel = false})
+              if data[3] ~= nil then
+                while true do
+                  Wait(0)
+                  if IsControlJustPressed(0, 38) then
+                    local pos = GetEntityCoords(cache.ped)
+                    local heading = GetEntityHeading(cache.ped)
+      
+                    data[4] = {x = pos[1], y = pos[2], z = pos[3], w = heading}
+                    lib.hideContext(false)
+                    OpenCreate()
+                    break
+                  end
+                end
+              else
+                data[4] = nil
+                lib.hideContext(false)
+                OpenCreate()
+              end
+            end,
+          },
+          {
+            title = 'Recipe',
+            description = 'The recipe the lab can do',
+            onSelect = function()
+              local input = lib.inputDialog('Methlab creation menu', {
+                {type = 'select', label = 'Recipe', description = 'Which recipe should the lab have, see Config.Recipes', required = true, options = recipeList},
+              }, {allowCancel = false})
+    
+              data[5] = input[1]
+              lib.hideContext(false)
+              OpenCreate()
+            end
+          },
+          {
+            title = 'Purchase price',
+            description = 'Price of the lab',
+            disabled = true
+          },
+          {
+            title = 'Finish',
+            description = 'Test',
+            disabled = false,
+            onSelect = function()
+              print(json.encode(data))
+            end
+          },
+        }
       })
-      if input == nil then
-        return false
-      end
-      return input
+      lib.showContext('methlab_creator_menu')
+    end
+    OpenCreate()
+
+    while not finished do
+      Wait(1000)
+    end
+
+    return data
 end)

@@ -15,7 +15,7 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
     local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
 
-	if not DoesEntityExist(entity) or currentlab then
+	if not DoesEntityExist(entity) or currentlab == true then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
@@ -121,7 +121,6 @@ end)
 RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
-    local xPlayer = player(src)
     if not DoesEntityExist(entity) then
         Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to lock Lab'..methlabId..' without perms')
         return

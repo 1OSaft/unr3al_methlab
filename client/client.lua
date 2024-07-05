@@ -318,7 +318,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                 description = Locales[Config.Locale]['EnterLabelDesc'],
                 icon = 'door-open',
                 onSelect = function()
-                    TriggerServerEvent('unr3al_methlab:server:enter', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()), GetPlayerServerId(PlayerId()))
+                    TriggerServerEvent('unr3al_methlab:server:enter', currentLab, NetworkGetNetworkIdFromEntity(cache.ped), GetPlayerServerId(PlayerId()))
                 end,
             },
             {
@@ -326,7 +326,7 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                 description = Locales[Config.Locale]['LockLabelDesc'],
                 icon = 'key',
                 onSelect = function()
-                    TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
+                    TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
                 end
             },
             {

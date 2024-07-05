@@ -82,8 +82,73 @@ lib.addCommand('createlab', {
         Recipes = data[7]
     }
     saveDatabase(database)
+    if database[labidstring].Purchase.Price == nil then
+        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab, wrong purchase price format')
+        database[labidstring] = nil
+        saveDatabase(database)
+    else
+        TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
+    end
+    print(database[labidstring].Purchase.Price)
 end)
 
+
+lib.addCommand('createlab2', {
+    help = 'Creates a new lab',
+    restricted = 'group.admin'
+}, function(source, args, raw)
+    local src = source
+    local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff2', src)
+
+    local routingBucket = genRoutingBucket()
+    local labidstring = "lab_"..tostring(genRoutingBucket())
+
+    if not database[labidstring] then
+        database[labidstring] = {}
+    end
+
+    local labCoords = data[1]:splitToNumbers(", ")
+    local labRaidCoords = data[5]:splitToNumbers(", ")
+
+    database[labidstring] = {
+        Coords = {
+            x = labCoords[1],
+            y = labCoords[2],
+            z = labCoords[3],
+            r = data[2]
+        },
+        Raidable = data[4],
+        RaidCoords = {
+            x = labRaidCoords[1],
+            y = labRaidCoords[2],
+            z = labRaidCoords[3],
+            r = labRaidCoords[4],
+        },
+        Purchase = {
+            Type = data[3],
+            Price = finaltable
+        },
+        Upgrades = {
+            Storage = 1,
+            Security = 1
+        },
+
+        Owner = 0,
+        Owned = 0,
+        Locked = 1,
+        routingBucket = routingBucket,
+        Recipes = data[7]
+    }
+    saveDatabase(database)
+    if database[labidstring].Purchase.Price == nil then
+        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab, wrong purchase price format')
+        database[labidstring] = nil
+        saveDatabase(database)
+    else
+        TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
+    end
+    print(database[labidstring].Purchase.Price)
+end)
 
 lib.addCommand('savelabdata', {
     help = 'saves the current database',

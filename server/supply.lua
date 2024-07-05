@@ -1,0 +1,7 @@
+-- local coords = xPlayer.getCoords(true)
+-- local PlayerPed = GetPlayerPed(xPlayer.source)
+-- ESX.OneSync.SpawnVehicle(args.car, coords - vector3(0,0, 0.9), GetEntityHeading(PlayerPed), upgrades, function(networkId)
+--     local vehicle = NetworkGetEntityFromNetworkId(networkId)
+--     Wait(250)
+--     TaskWarpPedIntoVehicle(PlayerPed, vehicle, -1)
+-- end)

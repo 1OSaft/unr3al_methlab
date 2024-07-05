@@ -33,12 +33,17 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
             removeNormal(source, database[methlabId].Purchase.Price)
 
             local newOwner = nil
-            if database[methlabId].Purchase.Type == 1 or (database[methlabId].Purchase.Type == 0 and type == 1) then
+            if database[methlabId].Purchase.Type == 1 then
                 newOwner = jobName
-            elseif database[methlabId].Purchase.Type == 2 or (database[methlabId].Purchase.Type == 0 and type == 2) then
+            elseif database[methlabId].Purchase.Type == 0 and type == 2 then
+                newOwner = jobName
+            elseif database[methlabId].Purchase.Type == 2 then
+                newOwner = playerIdentifier
+            elseif database[methlabId].Purchase.Type == 0 and type == 1 then
                 newOwner = playerIdentifier
             else
                 Config.Notification(src, Config.Noti.error, 'Error, talk to your server owner')
+                return
             end
             database[methlabId].Owned = 1
             database[methlabId].Owner = newOwner

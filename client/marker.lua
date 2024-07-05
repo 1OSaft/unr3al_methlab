@@ -1,55 +1,9 @@
 Citizen.CreateThread(function()
     Wait(5000)
     locale = Locales[Config.Locale]
+    TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
     if not Config.OXTarget then
         local marker = Config.Marker
-
-        for methlabID in pairs(database) do
-            local coords = database[methlabID].Coords
-            local enterMarker = lib.points.new({
-                coords = coords,
-                distance = 20,
-                interactPoint = nil,
-                nearby = function()
-                    if not Config.UsePed.Enabled then
-                        DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
-                    end
-                end,
-                onEnter = function(self)
-                    if self.interactPoint then return end
-                    if Config.UsePed.Enabled then
-                        lib.requestModel(Config.UsePed.Model)
-                        local ped = CreatePed(CIVMALE, GetHashKey(Config.UsePed.Model), coords.x, coords.y, coords.z - 1, coords.r, false, true)
-                        FreezeEntityPosition(ped, true)
-                        SetEntityInvincible(ped, true)
-                        SetBlockingOfNonTemporaryEvents(ped, true)
-                    end
-                    self.interactPoint = lib.points.new({
-                        coords = coords,
-                        distance = 1,
-                        nearby = function()
-                            if IsControlJustReleased(0, 51) then
-                                TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
-                            end
-                        end,
-                        onEnter = function()
-                            lib.showTextUI(locale['NormalMenuTextUI'])
-                        end,
-                        onExit = function()
-                            lib.hideTextUI()
-                        end
-                    })
-                end,
-                onExit = function(self)
-                    if not self.interactPoint then return end
-                    if Config.UsePed.Enabled then
-                        DeletePed(ped)
-                    end
-                    self.interactPoint:remove()
-                    self.interactPoint = nil
-                end,
-            })
-        end
 
         local exitCoords = vector3(997.24, -3200.67, -36.39)
         local exitmarker = lib.points.new({
@@ -189,24 +143,6 @@ Citizen.CreateThread(function()
             end,
         })
     else
-        for methlabID in pairs(database) do
-            exports.ox_target:addSphereZone({
-                coords = database[methlabID].Coords,
-                radius = Config.Target.EnterPoint.TargetSize,
-                debug = Config.Debug,
-                drawSprite = Config.Debug,
-                options = {
-                    {
-                        name = 'methLabEnterPoint'..methlabID,
-                        label = locale['NormalMenuTextUI'],
-                        distance = Config.Target.EnterPoint.InteractDistance,
-                        onSelect = function(data)
-                            TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
-                        end,
-                    }
-                }
-            })
-        end
         exports.ox_target:addBoxZone({
             coords = vector3(996.5, -3200.67, -36.39),
             size = vec3(1.2, 1.2, 2.5),
@@ -278,6 +214,78 @@ Citizen.CreateThread(function()
     end
 end)
 
+RegisterNetEvent('unr3al_methlab:client:refreshEnterMarker', function()
+    locale = Locales[Config.Locale]
+    if not Config.OXTarget then
+        local marker = Config.Marker
+        for methlabID in pairs(database) do
+            local coords = database[methlabID].Coords
+            local enterMarker = lib.points.new({
+                coords = coords,
+                distance = 20,
+                interactPoint = nil,
+                nearby = function()
+                    if not Config.UsePed.Enabled then
+                        DrawMarker(marker.type, coords.x, coords.y, coords.z, 0.0, 0.0, 0.0 , 0.0, 0.0, 0.0, marker.sizeX, marker.sizeY, marker.sizeZ, marker.r, marker.b, marker.g, marker.a, false, false, 0, marker.rotate, false, false, false)
+                    end
+                end,
+                onEnter = function(self)
+                    if self.interactPoint then return end
+                    if Config.UsePed.Enabled then
+                        lib.requestModel(Config.UsePed.Model)
+                        local ped = CreatePed(CIVMALE, GetHashKey(Config.UsePed.Model), coords.x, coords.y, coords.z - 1, coords.r, false, true)
+                        FreezeEntityPosition(ped, true)
+                        SetEntityInvincible(ped, true)
+                        SetBlockingOfNonTemporaryEvents(ped, true)
+                    end
+                    self.interactPoint = lib.points.new({
+                        coords = coords,
+                        distance = 1,
+                        nearby = function()
+                            if IsControlJustReleased(0, 51) then
+                                TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
+                            end
+                        end,
+                        onEnter = function()
+                            lib.showTextUI(locale['NormalMenuTextUI'])
+                        end,
+                        onExit = function()
+                            lib.hideTextUI()
+                        end
+                    })
+                end,
+                onExit = function(self)
+                    if not self.interactPoint then return end
+                    if Config.UsePed.Enabled then
+                        DeletePed(ped)
+                    end
+                    self.interactPoint:remove()
+                    self.interactPoint = nil
+                end,
+            })
+        end
+
+    else
+        for methlabID in pairs(database) do
+            exports.ox_target:addSphereZone({
+                coords = database[methlabID].Coords,
+                radius = Config.Target.EnterPoint.TargetSize,
+                debug = Config.Debug,
+                drawSprite = Config.Debug,
+                options = {
+                    {
+                        name = 'methLabEnterPoint'..methlabID,
+                        label = locale['NormalMenuTextUI'],
+                        distance = Config.Target.EnterPoint.InteractDistance,
+                        onSelect = function(data)
+                            TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
+                        end,
+                    }
+                }
+            })
+        end
+    end
+end)
 
 ---Finished
 ---@param methlabID string
