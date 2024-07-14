@@ -35,124 +35,76 @@ lib.addCommand('resetlab', {
     end
 end)
 
-lib.addCommand('createlab', {
+lib.addCommand('methlab:create', {
     help = 'Creates a new lab',
     restricted = 'group.admin'
 }, function(source, args, raw)
     local src = source
     local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff', src)
+    if data then
+        local routingBucket = genRoutingBucket()
+        local labidstring = "lab_"..tostring(genRoutingBucket())
+    
+        --[[
+            data 1 entry        F
+            data 2 owner type   F
+            data 3 raidable     F
+            data 4 raidcoords   F
+            data 5 recipe       F
+            data 6 price        F
+            data 7 garage
 
-    local routingBucket = genRoutingBucket()
-    local labidstring = "lab_"..tostring(genRoutingBucket())
+        ]]
 
-    if not database[labidstring] then
-        database[labidstring] = {}
-    end
-
-    local labCoords = data[1]:splitToNumbers(", ")
-    local labRaidCoords = data[5]:splitToNumbers(", ")
-
-    database[labidstring] = {
-        Coords = {
-            x = labCoords[1],
-            y = labCoords[2],
-            z = labCoords[3],
-            r = data[2]
-        },
-        Raidable = data[4],
-        RaidCoords = {
-            x = labRaidCoords[1],
-            y = labRaidCoords[2],
-            z = labRaidCoords[3],
-            r = labRaidCoords[4],
-        },
-        Purchase = {
-            Type = data[3],
-            Price = finaltable
-        },
-        Upgrades = {
-            Storage = 1,
-            Security = 1
-        },
-
-        Owner = 0,
-        Owned = 0,
-        Locked = 1,
-        routingBucket = routingBucket,
-        Recipes = data[7]
-    }
-    saveDatabase(database)
-    if database[labidstring].Purchase.Price == nil then
-        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab, wrong purchase price format')
-        database[labidstring] = nil
+        database[labidstring] = {
+            Coords = {
+                x = data[1].x,
+                y = data[1].y,
+                z = data[1].z,
+                r = data[1].w
+            },
+            Purchase = {
+                Type = data[2],
+                Price = data[6]
+            },
+            Raidable = data[3],
+            RaidCoords = {
+                x = data[4].x,
+                y = data[4].y,
+                z = data[4].z,
+                r = data[4].w,
+            },
+            Recipes = data[5],
+            GarageCoords = {
+                x = data[7].x,
+                y = data[7].y,
+                z = data[7].z,
+                r = data[7].w,
+            },
+            Upgrades = {
+                Storage = 1,
+                Security = 1
+            },
+            Owner = nil,
+            Owned = 0,
+            Locked = 1,
+            routingBucket = routingBucket
+        }
         saveDatabase(database)
+        Config.Notification(src, Config.Noti.success, 'Successfully created a new lab, please restart the script')
+        TriggerClientEvent('unr3al_methlab:client:refreshEnterMarker', -1)
     else
-        TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
+        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab')
     end
-    print(database[labidstring].Purchase.Price)
 end)
 
-
-lib.addCommand('createlab2', {
-    help = 'Creates a new lab',
+lib.addCommand('methlab:edit', {
+    help = 'Resets a lab back to its orgininal state',
     restricted = 'group.admin'
 }, function(source, args, raw)
     local src = source
-    local data = lib.callback.await('unr3al_methlab:client:getLabCreationstuff2', src)
-
-    local routingBucket = genRoutingBucket()
-    local labidstring = "lab_"..tostring(genRoutingBucket())
-
-    if not database[labidstring] then
-        database[labidstring] = {}
+    local data = lib.callback.await('unr3al_methlab:client:getLabMenustuff', src, database)
+    if data then
+        
     end
-
-    local labCoords = data[1]:splitToNumbers(", ")
-    local labRaidCoords = data[5]:splitToNumbers(", ")
-
-    database[labidstring] = {
-        Coords = {
-            x = labCoords[1],
-            y = labCoords[2],
-            z = labCoords[3],
-            r = data[2]
-        },
-        Raidable = data[4],
-        RaidCoords = {
-            x = labRaidCoords[1],
-            y = labRaidCoords[2],
-            z = labRaidCoords[3],
-            r = labRaidCoords[4],
-        },
-        Purchase = {
-            Type = data[3],
-            Price = finaltable
-        },
-        Upgrades = {
-            Storage = 1,
-            Security = 1
-        },
-
-        Owner = 0,
-        Owned = 0,
-        Locked = 1,
-        routingBucket = routingBucket,
-        Recipes = data[7]
-    }
-    saveDatabase(database)
-    if database[labidstring].Purchase.Price == nil then
-        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab, wrong purchase price format')
-        database[labidstring] = nil
-        saveDatabase(database)
-    else
-        TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
-    end
-    print(database[labidstring].Purchase.Price)
-end)
-
-lib.addCommand('savelabdata', {
-    help = 'saves the current database',
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    saveDatabase(database)
 end)

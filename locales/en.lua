@@ -17,7 +17,7 @@ Locales ['en'] = {
     ['CantLockWhileRaid'] = 'You cant just lock the lab while its being raided',
 
     ['BlipText'] = 'Your lab is currently being raided',
-
+ 
 ----------------------------------------------------------------
     --AlertDialog
     ['AlertDialogHeader'] = 'Buy methlab',

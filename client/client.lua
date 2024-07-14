@@ -64,7 +64,7 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
     
     if lib.progressBar({
         duration = 150000,
-        label = locale['ChemicalPouringProgress'],
+        label = Locales[Config.Locale]['ChemicalPouringProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -115,8 +115,8 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(locale['RecipeDialogHeader'], {
-		{type = 'select', label = locale['SelectRecipeDialog'], description = locale['SelectRecipeDialogDesc'], required = true, options = options},
+	local methType = lib.inputDialog(Locales[Config.Locale]['RecipeDialogHeader'], {
+		{type = 'select', label = Locales[Config.Locale]['SelectRecipeDialog'], description = Locales[Config.Locale]['SelectRecipeDialogDesc'], required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
@@ -142,8 +142,8 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(locale['SlurryDialogHeader'], {
-		{type = 'select', label = locale['SelectSlurryRecipeDialog'], description = locale['SelectSlurryRecipeDialogDesc'], required = true, options = options},
+	local methType = lib.inputDialog(Locales[Config.Locale]['SlurryDialogHeader'], {
+		{type = 'select', label = Locales[Config.Locale]['SelectSlurryRecipeDialog'], description = Locales[Config.Locale]['SelectSlurryRecipeDialogDesc'], required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
@@ -166,7 +166,7 @@ lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
 
     if lib.progressBar({
         duration = 30000,
-        label = locale['SlurryRefineryProgress'],
+        label = Locales[Config.Locale]['SlurryRefineryProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -210,7 +210,7 @@ lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, du
     TaskStartScenarioAtPosition(cache.ped, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z+1, coords.w, duration, false, true)
     if lib.progressBar({
         duration = duration,
-        label = locale['RaidProgress'],
+        label = Locales[Config.Locale]['RaidProgress'],
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -246,7 +246,7 @@ RegisterNetEvent('unr3al_methlab:client:raidBlip', function(methlabId)
     SetBlipScale(blipBack, 2.0)
     SetBlipColour(blipBack, 1)
 
-    AddTextEntry('methlabRaidBlip', locale['BlipText'])
+    AddTextEntry('methlabRaidBlip', Locales[Config.Locale]['BlipText'])
     BeginTextCommandSetBlipName('methlabRaidBlip')
     EndTextCommandSetBlipName(blipBack)
 
