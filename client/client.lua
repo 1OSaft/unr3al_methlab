@@ -18,14 +18,17 @@ currentLab = nil
 local cam = nil
 local objects = {}
 
+
+
+
 ---Finished
 ---@param netId integer
 ---@return boolean
 lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
-	if not DoesEntityExist(entity) then return end
-    TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
-    local ped = PlayerPedId()
+	if not DoesEntityExist(entity) then return false end
+    local ped = cache.ped
+    TriggerEvent('ox_inventory:disarm', GetPlayerServerId(ped), true)
     SetEntityCoords(ped, 1005.773, -3200.402, -38.524, 0, 0, 0, 0)
 
     cam = CreateCamWithParams("DEFAULT_SCRIPTED_CAMERA", 1008.0, -3199.0, -36.5, -20.0, 0.0, 120.0, 70.0)
@@ -56,12 +59,14 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
 
     local scenePos, sceneRot = vector3(1010.656, -3198.445, -38.925), vector3(0.0, 0.0, 0.0) -- 353200l
     local scene = CreateSynchronizedScene(scenePos.x, scenePos.y, scenePos.z, sceneRot.x, sceneRot.y, sceneRot.z, 2)
-    TaskSynchronizedScene(PlayerPedId(), scene, anim, 'chemical_pour_long_cooker', 1.5, -4.0, 1, 16, 1148846080, 0)
+
+    TaskSynchronizedScene(ped, scene, anim, 'chemical_pour_long_cooker', 1.5, -4.0, 1, 16, 1148846080, 0)
     PlaySynchronizedEntityAnim(sacid, scene, 'chemical_pour_long_sacid', anim, 4.0, -8.0, 1, 1148846080)
     PlaySynchronizedEntityAnim(ammonia, scene, 'chemical_pour_long_ammonia', anim, 4.0, -8.0, 1, 1148846080)
     PlaySynchronizedEntityAnim(clipboard, scene, 'chemical_pour_long_clipboard', anim, 4.0, -8.0, 1, 1148846080)
     PlaySynchronizedEntityAnim(pencil, scene, 'chemical_pour_long_pencil', anim, 4.0, -8.0, 1, 1148846080)
     
+    local returnValv = false
     if lib.progressBar({
         duration = 150000,
         label = Locales[Config.Locale]['ChemicalPouringProgress'],
@@ -77,28 +82,21 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
             mouse = true
         }
     }) then
-        for i=1, #objects do
-            DeleteObject(objects[i])
-        end
-        objects = {}
-        DetachSynchronizedScene(scene)
-        ClearPedTasksImmediately(PlayerPedId())
-        RenderScriptCams(false, true, 0, true, false)
-        DestroyCam(cam, false)
-        cam = nil
-        return true
+        returnValv = true
     else
-        for i=1, #objects do
-            DeleteObject(objects[i])
-        end
-        objects = {}
-        DetachSynchronizedScene(scene)
-        ClearPedTasksImmediately(PlayerPedId())
-        RenderScriptCams(false, true, 0, true, false)
-        DestroyCam(cam, false)
-        cam = nil
-        return false
+        returnValv = false
     end
+
+    for i=1, #objects do
+        DeleteObject(objects[i])
+    end
+    objects = {}
+    DetachSynchronizedScene(scene)
+    ClearPedTasksImmediately(ped)
+    RenderScriptCams(false, true, 0, true, false)
+    DestroyCam(cam, false)
+    cam = nil
+    return returnValv
 end)
 
 ---Finished

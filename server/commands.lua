@@ -108,3 +108,18 @@ lib.addCommand('methlab:edit', {
         
     end
 end)
+
+lib.addCommand('methlab:convertlanguage', {
+    help = 'Resets a lab back to its orgininal state',
+    params = {
+        {
+            name = 'locale',
+            type = 'string',
+            help = 'Locale to convert',
+        }
+    },
+    restricted = 'group.admin'
+}, function(source, args, raw)
+    options = Locales[args.locale]
+    saveOptions(options)
+end)

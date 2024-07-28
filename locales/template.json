@@ -1,0 +1,65 @@
+{
+    "LabLocked":"",
+    "BoughtLab":"",
+    "CantBuy":"",
+
+    "MissingResources":"",
+    "ToMuchLabsBought":"",
+    "CanceledProduction":"",
+
+    "SuccessfullyRaided":"",
+    "FailedRaid":"",
+    "CantRaid":"",
+    "CantLockWhileRaid":"",
+    "BlipText":"",
+
+    "AlertDialogHeader":"",
+    "AlertDialogHeaderDesc":"",
+    "AlertDialogHeaderBuy":"",
+    "BuyOptionPlayer":"",
+    "BuyOptionSociety":"",
+
+    "PouringTextUI":"",
+    "RefineryTextUI":"",
+    "NormalMenuTextUI":"",
+    "StorageTextUI":"",
+
+    "RecipeDialogHeader":"",
+    "SelectRecipeDialog":"",
+    "SelectRecipeDialogDesc":"",
+
+    "SlurryDialogHeader":"",
+    "SelectSlurryRecipeDialog":"",
+    "SelectSlurryRecipeDialogDesc":"",
+
+    "ChemicalPouringProgress":"",
+    "SlurryRefineryProgress":"",
+    "RaidProgress":"",
+
+    "EnterContextmarker":"",
+    "EnterLabel":"",
+    "EnterLabelDesc":"",
+
+    "LockLabel":"",
+    "LockLabelDesc":"",
+    "CantLockLab":"",
+    "UnlockedLab":"",
+    "LockedLab":"",
+
+    "RaidLabel":"",
+    "RaidLabelDesc":"",
+
+    "LeaveLab":"",
+    "LeaveLabDesc":"",
+
+    "UpgradeLab":"",
+    "UpgradeLabDesc":"",
+
+    "UpgradeStorage":"",
+    "UpgradedStorage":"",
+    "UpgradeSecurity":"",
+    "UpgradedSecurity":"",
+    "CurrentLevel":"",
+
+    "_comment":"translated by Chifu"
+}

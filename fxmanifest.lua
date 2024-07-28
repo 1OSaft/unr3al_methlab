@@ -14,7 +14,7 @@ server_scripts {
     '@ox_lib/init.lua',
     'config.lua',
     'config.target.lua',
-    'locales/*.*',
+    'locales2/*.*',
     'bridge/server.lua',
     'server/*.lua',
     'config.logs.lua',
@@ -33,4 +33,5 @@ shared_scripts {
 files {
     'database.json',
     'options.json',
+    'locales/*.*',
 }

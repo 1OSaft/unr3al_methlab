@@ -1,89 +1,49 @@
 {
-    "1": {
-        "Locked": 0,
+    "lab_78958020": {
         "Upgrades": {
             "Security": 1,
             "Storage": 1
         },
-        "Raidable": true,
-        "RaidCoords": {
-            "z": 27.79,
-            "x": -56.61,
-            "y": -1229.14,
-            "r": 223.43
-        },
-        "PeopleInLab": [],
         "Purchase": {
             "Type": 0,
-            "Price": {
-                "metal": 100,
-                "money": 100000
-            }
+            "Price": [
+                {
+                    "money": 100
+                }
+            ]
         },
-        "Owned": 1,
-        "Coords": {
-            "z": 28.79,
-            "x": -57.6,
-            "y": -1228.61,
-            "r": 45.5
-        },
-        "routingBucket": 51541478,
-        "Recipes": "standard"
-    },
-    "2": {
-        "Owner": "char2:22a0c8902a1c4acab61fa1b0302614dcdaef83c1",
-        "Upgrades": {
-            "Security": 1,
-            "Storage": 1
-        },
-        "Raidable": true,
+        "Owned": 0,
         "RaidCoords": {
-            "z": 27.81999969482422,
-            "x": -66.18000030517578,
-            "y": -1226.1199951171876,
-            "r": 47.81000137329101
+            "z": 28.51088142395019,
+            "r": 316.2239685058594,
+            "x": -56.02849197387695,
+            "y": -1210.73974609375
         },
-        "Owned": 1,
-        "PeopleInLab": [],
-        "Purchase": {
-            "Type": 1,
-            "Price": {
-                "metal": 100,
-                "money": 100000
-            }
-        },
-        "Coords": {
-            "z": 28.79000091552734,
-            "x": -65.4000015258789,
-            "y": -1226.719970703125,
-            "r": 233
-        },
-        "Locked": 0,
-        "routingBucket": 51541478,
-        "Recipes": "standard"
-    },
-    "lab_89066442": {
         "Owner": 0,
-        "Upgrades": {
-            "Security": 1,
-            "Storage": 1
+        "Locked": 1,
+        "routingBucket": 65619744,
+        "Coords": {
+            "z": 28.5196475982666,
+            "r": 310.3847961425781,
+            "x": -56.87426376342773,
+            "y": -1211.095947265625
         },
         "Raidable": [
             true
         ],
-        "RaidCoords": {
-            "z": 28.70589828491211,
-            "x": -53.00993728637695,
-            "y": -1216.27197265625,
-            "r": 271.121826171875
-        },
+        "Recipes": "special",
         "GarageCoords": {
-            "z": 28.70589828491211,
-            "x": -53.00993728637695,
-            "y": -1216.27197265625,
-            "r": 271.121826171875
+            "z": 28.58196830749511,
+            "r": 41.89334106445312,
+            "x": -58.96215438842773,
+            "y": -1212.5596923828126
+        }
+    },
+    "lab_89066442": {
+        "Upgrades": {
+            "Security": 1,
+            "Storage": 1
         },
-        "Owned": 0,
         "Purchase": {
             "Type": 0,
             "Price": [
@@ -95,34 +55,132 @@
                 }
             ]
         },
+        "Owned": 0,
+        "RaidCoords": {
+            "z": 28.70589828491211,
+            "r": 271.121826171875,
+            "x": -53.00993728637695,
+            "y": -1216.27197265625
+        },
+        "Owner": 0,
+        "Locked": 1,
+        "routingBucket": 49904221,
         "Coords": {
             "z": 28.70589828491211,
+            "r": 271.121826171875,
             "x": -53.00993728637695,
-            "y": -1216.27197265625,
-            "r": 271.121826171875
+            "y": -1216.27197265625
         },
-        "routingBucket": 49904221,
-        "Locked": 1,
-        "Recipes": "standard"
+        "Raidable": [
+            true
+        ],
+        "Recipes": "standard",
+        "GarageCoords": {
+            "z": 28.70589828491211,
+            "r": 271.121826171875,
+            "x": -53.00993728637695,
+            "y": -1216.27197265625
+        }
     },
-    "4": {
-        "Locked": 1,
+    "1": {
+        "Locked": 0,
+        "Purchase": {
+            "Type": 0,
+            "Price": {
+                "metal": 100,
+                "money": 100000
+            }
+        },
+        "Owned": 1,
+        "Raidable": true,
+        "PeopleInLab": [
+            "char1:22a0c8902a1c4acab61fa1b0302614dcdaef83c1"
+        ],
+        "RaidCoords": {
+            "z": 27.79,
+            "r": 223.43,
+            "x": -56.61,
+            "y": -1229.14
+        },
+        "Coords": {
+            "z": 28.79,
+            "r": 45.5,
+            "x": -57.6,
+            "y": -1228.61
+        },
+        "routingBucket": 51541478,
+        "Recipes": "standard",
+        "Upgrades": {
+            "Security": 1,
+            "Storage": 1
+        }
+    },
+    "2": {
         "Upgrades": {
             "Security": 1,
             "Storage": 1
         },
+        "Purchase": {
+            "Type": 1,
+            "Price": {
+                "metal": 100,
+                "money": 100000
+            }
+        },
+        "Owned": 1,
+        "RaidCoords": {
+            "z": 27.81999969482422,
+            "r": 47.81000137329101,
+            "x": -66.18000030517578,
+            "y": -1226.1199951171876
+        },
+        "Owner": "char2:22a0c8902a1c4acab61fa1b0302614dcdaef83c1",
+        "PeopleInLab": [],
+        "routingBucket": 51541478,
         "Coords": {
             "z": 28.79000091552734,
-            "x": -66.52999877929688,
-            "y": -1239.1099853515626,
-            "r": 45.5
+            "r": 233,
+            "x": -65.4000015258789,
+            "y": -1226.719970703125
         },
+        "Locked": 0,
+        "Recipes": "standard",
+        "Raidable": true
+    },
+    "3": {
+        "Upgrades": {
+            "Security": 1,
+            "Storage": 1
+        },
+        "Purchase": {
+            "Type": 1,
+            "Price": {
+                "metal": 100,
+                "money": 100000
+            }
+        },
+        "Owned": 1,
         "RaidCoords": {
-            "z": 28.0300006866455,
-            "x": -65.98999786376953,
-            "y": -1239.199951171875,
-            "r": 241.6699981689453
+            "z": 27.88999938964843,
+            "r": 224.11000061035157,
+            "x": -60.63000106811523,
+            "y": -1233.3199462890626
         },
+        "Owner": "char1:22a0c8902a1c4acab61fa1b0302614dcdaef83c1",
+        "PeopleInLab": [],
+        "routingBucket": 74466384,
+        "Coords": {
+            "z": 28.79000091552734,
+            "r": 45.5,
+            "x": -61.06999969482422,
+            "y": -1233.1099853515626
+        },
+        "Locked": 0,
+        "Recipes": "standard",
+        "Raidable": true
+    },
+    "4": {
+        "routingBucket": 87496178,
         "Purchase": {
             "Type": 2,
             "Price": {
@@ -132,79 +190,23 @@
         },
         "Owned": 0,
         "Raidable": true,
-        "routingBucket": 87496178,
-        "Recipes": "standard"
-    },
-    "lab_78958020": {
-        "Owner": 0,
-        "Upgrades": {
-            "Security": 1,
-            "Storage": 1
-        },
-        "Raidable": [
-            true
-        ],
-        "RaidCoords": {
-            "z": 28.51088142395019,
-            "x": -56.02849197387695,
-            "y": -1210.73974609375,
-            "r": 316.2239685058594
-        },
-        "GarageCoords": {
-            "z": 28.58196830749511,
-            "x": -58.96215438842773,
-            "y": -1212.5596923828126,
-            "r": 41.89334106445312
-        },
-        "Owned": 0,
-        "Purchase": {
-            "Type": 0,
-            "Price": [
-                {
-                    "money": 100
-                }
-            ]
-        },
-        "Coords": {
-            "z": 28.5196475982666,
-            "x": -56.87426376342773,
-            "y": -1211.095947265625,
-            "r": 310.3847961425781
-        },
-        "routingBucket": 65619744,
-        "Locked": 1,
-        "Recipes": "special"
-    },
-    "3": {
-        "Owner": "char1:22a0c8902a1c4acab61fa1b0302614dcdaef83c1",
-        "Upgrades": {
-            "Security": 1,
-            "Storage": 1
-        },
-        "Raidable": true,
-        "RaidCoords": {
-            "z": 27.88999938964843,
-            "x": -60.63000106811523,
-            "y": -1233.3199462890626,
-            "r": 224.11000061035157
-        },
-        "Owned": 1,
-        "PeopleInLab": [],
-        "Purchase": {
-            "Type": 1,
-            "Price": {
-                "metal": 100,
-                "money": 100000
-            }
-        },
         "Coords": {
             "z": 28.79000091552734,
-            "x": -61.06999969482422,
-            "y": -1233.1099853515626,
-            "r": 45.5
+            "r": 45.5,
+            "x": -66.52999877929688,
+            "y": -1239.1099853515626
         },
-        "Locked": 0,
-        "routingBucket": 74466384,
-        "Recipes": "standard"
+        "RaidCoords": {
+            "z": 28.0300006866455,
+            "r": 241.6699981689453,
+            "x": -65.98999786376953,
+            "y": -1239.199951171875
+        },
+        "Upgrades": {
+            "Security": 1,
+            "Storage": 1
+        },
+        "Recipes": "standard",
+        "Locked": 1
     }
 }
