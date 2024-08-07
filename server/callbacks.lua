@@ -13,7 +13,7 @@ end)
 ---@param type integer
 lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId, type)
     local src, methlabId = source, tostring(methlabId)
-	local entity, jobName, playerIdentifier = NetworkGetEntityFromNetworkId(netId), getPlayerJobName(src), getPlayerIdentifier(src)
+	local entity, jobName, playerIdentifier = NetworkGetEntityFromNetworkId(netId), qtm.Framework.GetJob.name(src), qtm.Framework.GetIdentifier(src)
     local methlabId = getLabPlayerIsIn(playerIdentifier)
 
 	if not DoesEntityExist(entity) or not methlabId or not jobName or not playerIdentifier then return end
@@ -42,7 +42,7 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
             elseif database[methlabId].Purchase.Type == 0 and type == 1 then
                 newOwner = playerIdentifier
             else
-                Config.Notification(src, Config.Noti.error, 'Error, talk to your server owner')
+                qtm.Notification(src, locale('NotifyTitle'), 'error', 'Error, talk to your server owner')
                 return
             end
             database[methlabId].Owned = 1
@@ -52,14 +52,14 @@ lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId
                 Security = 1
             }
             database[methlabId].Locked = 0
-
+            
             saveDatabase(database)
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['BoughtLab'])
+            qtm.Notification(src, locale('NotifyTitle'), 'success', locale('BoughtLab'))
             TriggerEvent('unr3al_methlab:server:enter', methlabId, netId, src)
             lib.logger(playerIdentifier, 'Bought methlab id: '..methlabId, 'Bought for: '..newOwner)
 
         else
-            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['ToMuchLabsBought'])
+            qtm.Notification(src, locale('NotifyTitle'), 'error', locale('ToMuchLabsBought'))
         end
     else
         notifyMissingItems(src, missingItems)
@@ -71,7 +71,7 @@ end)
 ---@return integer | nil
 lib.callback.register('unr3al_methlab:server:getStorage', function(source, netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then return end
     return database[currentlab].Upgrades.Storage
@@ -82,13 +82,13 @@ end)
 ---@return integer | nil
 lib.callback.register('unr3al_methlab:server:getSecurity', function(source, netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 	if not DoesEntityExist(entity) or not currentlab then return end
     return database[currentlab].Upgrades.Security
 end)
 
 lib.callback.register('unr3al_methlab:server:getConfig', function(source)
-    return Config, Locales
+    return Config
 end)
 
 ---@param source string

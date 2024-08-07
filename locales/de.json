@@ -1,0 +1,66 @@
+{
+    "NotifyTitle":"Methlabor",
+    "LabLocked":"Du kannst dieses Labor nicht betreten, es ist verschlossen",
+    "BoughtLab":"'Du hast gerade das Meth-Labor gekauft",
+    "CantBuy":"Du konntest dieses Labor nicht kaufen!",
+
+    "MissingResources":"Dir fehlen: ",
+    "ToMuchLabsBought":"Du kannst nicht noch mehr Labore kaufen",
+    "CanceledProduction":"Produktion abgebrochen",
+
+    "SuccessfullyRaided":"Du hast das Schoss durchgeschnitten",
+    "FailedRaid":"Du hast das Werkzeug kaputt gemacht, Idiot",
+    "CantRaid":"Das Labor kann aktuell nicht ausgeraubt werden, versuchs später!",
+    "CantLockWhileRaid":"Wer bist du? Abschließen während eines Raides geht nicht...",
+    "BlipText":"Dein Labor wird gerade hochgenommen",
+
+    "AlertDialogHeader":"Meth-Labor kaufen",
+    "AlertDialogHeaderDesc":"Möchtest du dieses Labor kaufen?",
+    "AlertDialogHeaderBuy":"Wer ist der neue Besitzer?",
+    "BuyOptionPlayer":"Ich natürlich",
+    "BuyOptionSociety":"Meine Fraktion ist der besitzer",
+
+    "PouringTextUI":"[E] Chemikalien gießen",
+    "RefineryTextUI":"[E] Meth-Schlamm raffinieren",
+    "NormalMenuTextUI":"[E] Methlabor-Menü öffnen",
+    "StorageTextUI":"[E] Lager öffnen",
+
+    "RecipeDialogHeader":"Chemikalienmischer",
+    "SelectRecipeDialog":"Wähle Meth Rezept",
+    "SelectRecipeDialogDesc":"",
+
+    "SlurryDialogHeader":"Raffenerie",
+    "SelectSlurryRecipeDialog":"Wähle Raffenerie Rezept",
+    "SelectSlurryRecipeDialogDesc":"",
+
+    "ChemicalPouringProgress":"Chemikalien gießen",
+    "SlurryRefineryProgress":"Temperatur überprüfen",
+    "RaidProgress":"Schneide das Schloss durch...",
+
+    "EnterContextmarker":"Meth-Labor-Menü",
+    "EnterLabel":"Labor betreten",
+    "EnterLabelDesc":"",
+
+    "LockLabel":"Labor abschließen",
+    "LockLabelDesc":"",
+    "CantLockLab":"Du kannst ein Labor nicht abschließen, ohne den Schlüssel!",
+    "UnlockedLab":"Labor aufgeschlossen",
+    "LockedLab":"Labor verschlossen",
+
+    "RaidLabel":"Labor überfallen",
+    "RaidLabelDesc":"",
+
+    "LeaveLab":"Labor verlassen",
+    "LeaveLabDesc":"",
+
+    "UpgradeLab":"Labor aufrüsten",
+    "UpgradeLabDesc":"",
+
+    "UpgradeStorage":"Lager aufrüsten",
+    "UpgradedStorage":"Dein Lager wurde erfolgreich aufgerüstet",
+    "UpgradeSecurity":"Sicherheit aufrüsten",
+    "UpgradedSecurity":"Deine Sicherheit wurde erfolgreich aufgerüstet",
+    "CurrentLevel":"Aktuelles Level: ",
+
+    "_comment":"translated by X"
+}

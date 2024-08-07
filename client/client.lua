@@ -1,27 +1,20 @@
-Config, Locales = {}, {}
-
+Config = {}
+lib.locale()
 CreateThread(function()
     TriggerEvent('unr3al_methlab:client:getConfig')
 end)
 
 RegisterNetEvent('unr3al_methlab:client:getConfig', function()
-    Config, Locales = lib.callback.await('unr3al_methlab:server:getConfig', false)
-end)
-
-RegisterNetEvent('unr3al_methlab:client:getConfig', function()
+    Config = lib.callback.await('unr3al_methlab:server:getConfig', false)
     database = lib.callback.await('unr3al_methlab:server:getDatabase', false)
 end)
 
 --------------------------------------------------------------------------------------------------------------
-local locale = Locales[Config.Locale]
 currentLab = nil
 local cam = nil
 local objects = {}
 
-
-
-
----Finished
+---comment:
 ---@param netId integer
 ---@return boolean
 lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
@@ -69,7 +62,7 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
     local returnValv = false
     if lib.progressBar({
         duration = 150000,
-        label = Locales[Config.Locale]['ChemicalPouringProgress'],
+        label = locale('ChemicalPouringProgress'),
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -83,8 +76,6 @@ lib.callback.register('unr3al_methlab:client:startAnimation', function(netId)
         }
     }) then
         returnValv = true
-    else
-        returnValv = false
     end
 
     for i=1, #objects do
@@ -113,13 +104,14 @@ lib.callback.register('unr3al_methlab:client:getMethType', function(netId, recip
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(Locales[Config.Locale]['RecipeDialogHeader'], {
-		{type = 'select', label = Locales[Config.Locale]['SelectRecipeDialog'], description = Locales[Config.Locale]['SelectRecipeDialogDesc'], required = true, options = options},
+    
+	local methType = lib.inputDialog(locale('RecipeDialogHeader'), {
+		{type = 'select', label = locale('SelectRecipeDialog'), description = locale('SelectRecipeDialogDesc'), required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
         returnvalv = methType[1]
-        Unr3al.Logging('debug', 'Meth type: '..returnvalv)
+        qtm.Logging('debug', 'Meth type: '..returnvalv)
     else
         returnvalv = nil
     end
@@ -140,13 +132,14 @@ lib.callback.register('unr3al_methlab:client:getSlurryType', function(netId, rec
         options[i] = { label = methTypes, value = methTypes}
         i=i+1
 	end
-	local methType = lib.inputDialog(Locales[Config.Locale]['SlurryDialogHeader'], {
-		{type = 'select', label = Locales[Config.Locale]['SelectSlurryRecipeDialog'], description = Locales[Config.Locale]['SelectSlurryRecipeDialogDesc'], required = true, options = options},
+    
+	local methType = lib.inputDialog(locale('SlurryDialogHeader'), {
+		{type = 'select', label = locale('SelectSlurryRecipeDialog'), description = locale('SelectSlurryRecipeDialogDesc'), required = true, options = options},
 	})
     local returnvalv = nil
     if methType then
         returnvalv = methType[1]
-        Unr3al.Logging('debug', 'Slurry type: '..returnvalv)
+        qtm.Logging('debug', 'Slurry type: '..returnvalv)
     else
         returnvalv = nil
     end
@@ -155,16 +148,16 @@ end)
 
 ---Finished
 ---@param netId integer
----@return boolean
+---@return boolean | nil
 lib.callback.register('unr3al_methlab:client:startSlurryAnima', function(netId)
     local entity = NetworkGetEntityFromNetworkId(netId)
 	if not DoesEntityExist(entity) then return end
     TriggerEvent('ox_inventory:disarm', GetPlayerServerId(cache.ped), true)
     SetEntityCoords(cache.ped, 1006.43, -3197.65, -40.0, 0, 0, 0, 0)
-
+    
     if lib.progressBar({
         duration = 30000,
-        label = Locales[Config.Locale]['SlurryRefineryProgress'],
+        label = locale('SlurryRefineryProgress'),
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -208,7 +201,7 @@ lib.callback.register('unr3al_methlab:client:startRaidAnima', function(netId, du
     TaskStartScenarioAtPosition(cache.ped, 'WORLD_HUMAN_WELDING', coords.x, coords.y, coords.z+1, coords.w, duration, false, true)
     if lib.progressBar({
         duration = duration,
-        label = Locales[Config.Locale]['RaidProgress'],
+        label = locale('RaidProgress'),
         useWhileDead = false,
         allowRagdoll = false,
         allowCuffed = false,
@@ -244,7 +237,7 @@ RegisterNetEvent('unr3al_methlab:client:raidBlip', function(methlabId)
     SetBlipScale(blipBack, 2.0)
     SetBlipColour(blipBack, 1)
 
-    AddTextEntry('methlabRaidBlip', Locales[Config.Locale]['BlipText'])
+    AddTextEntry('methlabRaidBlip', locale('BlipText'))
     BeginTextCommandSetBlipName('methlabRaidBlip')
     EndTextCommandSetBlipName(blipBack)
 
@@ -267,12 +260,12 @@ RegisterNetEvent('unr3al_methlab:client:updateUpgradeMenu', function()
     end
     lib.registerContext({
         id = 'methlab_Menu_Upgrade',
-        title = Locales[Config.Locale]['UpgradeLab'],
+        title = locale('UpgradeLab'),
         menu = 'methlab_Menu_Leave',
         options = {
             {
-                title = Locales[Config.Locale]['UpgradeStorage'],
-                description = Locales[Config.Locale]['CurrentLevel']..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
+                title = locale('UpgradeStorage'),
+                description = locale('CurrentLevel')..tostring(methStorage)..'/'..tostring(#Config.Upgrades.Storage),
                 icon = 'box',
                 disabled = storageMax,
                 onSelect = function()
@@ -280,8 +273,8 @@ RegisterNetEvent('unr3al_methlab:client:updateUpgradeMenu', function()
                 end,
             },
             {
-                title = Locales[Config.Locale]['UpgradeSecurity'],
-                description = Locales[Config.Locale]['CurrentLevel']..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
+                title = locale('UpgradeSecurity'),
+                description = locale('CurrentLevel')..tostring(methSecurity)..'/'..tostring(#Config.Upgrades.Security),
                 icon = 'box',
                 disabled = securityMax,
                 onSelect = function()
@@ -299,52 +292,48 @@ AddEventHandler('onClientResourceStart', function (resourceName)
     end
     
     Wait(5000)
-    local isnotESX = true
-    if Config.Framework == 'ESX' then
-        isnotESX = false
-    end
     exports.ox_inventory:displayMetadata({
         chemicalname = 'Chemical',
         chemicalfill = 'Liters'
     })
+    
     lib.registerContext({
         id = 'methlab_Menu_Enter',
-        title = Locales[Config.Locale]['EnterContextmarker'],
+        title = locale('EnterContextmarker'),
         options = {
             {
-                title = Locales[Config.Locale]['EnterLabel'],
-                description = Locales[Config.Locale]['EnterLabelDesc'],
+                title = locale('EnterLabel'),
+                description = locale('EnterLabelDesc'),
                 icon = 'door-open',
                 onSelect = function()
                     TriggerServerEvent('unr3al_methlab:server:enter', currentLab, NetworkGetNetworkIdFromEntity(cache.ped), GetPlayerServerId(PlayerId()))
                 end,
             },
             {
-                title = Locales[Config.Locale]['LockLabel'],
-                description = Locales[Config.Locale]['LockLabelDesc'],
+                title = locale('LockLabel'),
+                description = locale('LockLabelDesc'),
                 icon = 'key',
                 onSelect = function()
                     TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
                 end
             },
             {
-                title = Locales[Config.Locale]['RaidLabel'],
-                description = Locales[Config.Locale]['RaidLabelDesc'],
+                title = locale('RaidLabel'),
+                description = locale('RaidLabelDesc'),
                 icon = 'screwdriver-wrench',
                 onSelect = function()
                     TriggerServerEvent('unr3al_methlab:server:raidlab', currentLab, NetworkGetNetworkIdFromEntity(cache.ped))
                 end,
-                disabled = isnotESX
             },
         }
     })
     lib.registerContext({
         id = 'methlab_Menu_Leave',
-        title = Locales[Config.Locale]['EnterContextmarker'],
+        title = locale('EnterContextmarker'),
         options = {
             {
-                title = Locales[Config.Locale]['LeaveLab'],
-                description = Locales[Config.Locale]['LeaveLabDesc'],
+                title = locale('LeaveLab'),
+                description = locale('LeaveLabDesc'),
                 icon = 'door-open',
                 onSelect = function()
                     TriggerServerEvent('unr3al_methlab:server:leave', NetworkGetNetworkIdFromEntity(PlayerPedId()))
@@ -352,16 +341,16 @@ AddEventHandler('onClientResourceStart', function (resourceName)
                 end
             },
             {
-                title = Locales[Config.Locale]['LockLabel'],
-                description = Locales[Config.Locale]['LockLabelDesc'],
+                title = locale('LockLabel'),
+                description = locale('LockLabelDesc'),
                 icon = 'key',
                 onSelect = function()
                     TriggerServerEvent('unr3al_methlab:server:locklab', currentLab, NetworkGetNetworkIdFromEntity(PlayerPedId()))
                 end
             },
             {
-                title = Locales[Config.Locale]['UpgradeLab'],
-                description = Locales[Config.Locale]['UpgradeLabDesc'],
+                title = locale('UpgradeLab'),
+                description = locale('UpgradeLabDesc'),
                 icon = 'wrench',
                 event = 'unr3al_methlab:client:updateUpgradeMenu',
                 arrow = true,

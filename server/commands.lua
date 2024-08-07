@@ -10,7 +10,7 @@ lib.addCommand('setlab', {
     restricted = 'group.admin'
 }, function(source, args, raw)
     if args.methlabId then
-        setLabPlayerIsIn(getPlayerIdentifier(src), tostring(args.methlabId))
+        setLabPlayerIsIn(qtm.Framework.GetIdentifier(src), tostring(args.methlabId))
     end
 end)
 
@@ -91,10 +91,10 @@ lib.addCommand('methlab:create', {
             routingBucket = routingBucket
         }
         saveDatabase(database)
-        Config.Notification(src, Config.Noti.success, 'Successfully created a new lab, please restart the script')
+        qtm.Notification(src, locale('NotifyTitle'), 'success', 'Successfully created a new lab, please restart the script')
         TriggerClientEvent('unr3al_methlab:client:refreshEnterMarker', -1)
     else
-        Config.Notification(src, Config.Noti.error, 'Error, couldnt generate a new lab')
+        qtm.Notification(src, locale('NotifyTitle'), 'error', 'Error, couldnt generate a new lab')
     end
 end)
 
@@ -109,17 +109,13 @@ lib.addCommand('methlab:edit', {
     end
 end)
 
-lib.addCommand('methlab:convertlanguage', {
+lib.addCommand('methlab:test', {
     help = 'Resets a lab back to its orgininal state',
-    params = {
-        {
-            name = 'locale',
-            type = 'string',
-            help = 'Locale to convert',
-        }
-    },
     restricted = 'group.admin'
 }, function(source, args, raw)
-    options = Locales[args.locale]
-    saveOptions(options)
+    local src = source
+
+    
+
+    print(qtm.Framework.GetJob.name(src))
 end)

@@ -4,8 +4,7 @@ currentSlurryProduction = {}
 currentLabRaid = {}
 player = nil
 ox_inventory = exports.ox_inventory
-
-
+lib.locale()
 
 --Finished
 ---@param methlabId string | integer
@@ -13,18 +12,18 @@ ox_inventory = exports.ox_inventory
 ---@param source string
 RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, source)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or currentlab == true then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to enter Lab'..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to enter Lab'..methlabId..' without perms')
         return
     end
     if database[methlabId].Locked == 0 then
         SetPlayerRoutingBucket(src, database[methlabId].routingBucket)
         SetEntityCoords(entity, 997.24, -3200.67, -36.39, true, false, false, false)
-        setLabPlayerIsIn(getPlayerIdentifier(src), methlabId)
+        setLabPlayerIsIn(qtm.Framework.GetIdentifier(src), methlabId)
     else
-        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['LabLocked'])
+        qtm.Notification(src, locale('NotifyTitle'), 'error', locale('LabLocked'))
     end
 end)
 
@@ -32,26 +31,26 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:leave', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to leave Lab'..currentlab..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to leave Lab'..methlabId..' without perms')
         return
     end
     SetPlayerRoutingBucket(src, 0)
     local coords = database[currentlab].Coords
     SetEntityCoords(entity, coords.x, coords.y, coords.z, true, false, false, false)
-    removeLabPlayerIsIn(getPlayerIdentifier(src), currentlab)
+    removeLabPlayerIsIn(qtm.Framework.GetIdentifier(src), currentlab)
 end)
 
 --Finished
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to open storage without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to open storage without perms')
         return
     end
     exports.ox_inventory:forceOpenInventory(src, 'stash', 'Methlab_Storage_'..currentlab)
@@ -62,10 +61,10 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, netId)
     local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade storage of Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to upgrade storage of Lab '..methlabId..' without perms')
         return
     end
 
@@ -79,7 +78,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
         removeNormal(src, Config.Upgrades.Storage[storageLevel+1].Price)
         database[methlabId].Upgrades.Storage = storageLevel+1
         saveDatabase(database)
-        Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedStorage'])
+        qtm.Notification(src, locale('NotifyTitle'), 'success', locale('UpgradedStorage'))
         TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
     else
         notifyMissingItems(src, missingItems)
@@ -91,10 +90,10 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, netId)
     local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to upgrade security of Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to upgrade security of Lab '..methlabId..' without perms')
         return
     end
 
@@ -108,7 +107,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
         removeNormal(src, Config.Upgrades.Security[securityLevel+1].Price)
         database[methlabId].Upgrades.Security = securityLevel+1
         saveDatabase(database)
-        Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UpgradedSecurity'])
+        qtm.Notification(src, locale('NotifyTitle'), 'success', locale('UpgradedSecurity'))
         TriggerClientEvent('unr3al_methlab:client:updateUpgradeMenu', src)
     else
         notifyMissingItems(src, missingItems)
@@ -122,28 +121,28 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
     if not DoesEntityExist(entity) then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to lock Lab'..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to lock Lab '..methlabId..' without perms')
         return
     end
     if currentLabRaid[methlabId] ~= nil then
-        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockWhileRaid'])
+        qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantLockWhileRaid'))
         return
     end
-
+    
     local labOwner = database[tostring(methlabId)].owner
-    local jobName = getPlayerJobName(src)
-    local playerIdentifier = getPlayerIdentifier(src)
+    local jobName = qtm.Framework.GetJob.name(src)
+    local playerIdentifier = qtm.Framework.GetIdentifier(src)
 
     if jobName == labOwner or playerIdentifier == labOwner then
         if database[tostring(methlabId)].locked == 0 then -- 0 = unlocked, 1 = locked
             database[tostring(methlabId)].locked = 1
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['LockedLab'])
+            qtm.Notification(src, locale('NotifyTitle'), 'success', locale('LockedLab'))
         else
             database[tostring(methlabId)].locked = 0
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['UnlockedLab'])
+            qtm.Notification(src, locale('NotifyTitle'), 'success', locale('UnlockedLab'))
         end
     else
-        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantLockLab'])
+        qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantLockLab'))
     end
 end)
 
@@ -151,26 +150,21 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     local src, entity, methlabId = source, NetworkGetEntityFromNetworkId(netId), tostring(methlabId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or currentlab then
-        Unr3al.Logging('info', 'Player '..getPlayerName(src)..' tried to raid lab without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to raid Lab '..methlabId..' without perms')
         return
     end
     if currentLabRaid[methlabId] ~= nil then
-        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
-        return
-    end
-    if not Config.Framework == 'ESX' then
+        qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantRaid'))
         return
     end
     currentLabRaid[methlabId] = true
 
     local secLevel = database[methlabId].Upgrades.Security
     local canRaidLab = canRaidLabOwner(methlabId, secLevel)
-    if not canRaidLab then
-        return
-    end
+    if not canRaidLab then return end
 
     local canBuy, missingItems = true, {}
     canBuy, missingItems = canBuyNormal(src, Config.Upgrades.Security[securityLevel+1].Price, missingItems)
@@ -188,10 +182,10 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
         if animationReturn == true then
             database[methlabId].Locked = 0
             saveDatabase(database)
-            Config.Notification(src, Config.Noti.success, Locales[Config.Locale]['SuccessfullyRaided'])
-            lib.logger(getPlayerIdentifier(src), 'Raided methlab id: '..methlabId, 'Time of completion: '..os.time)
+            qtm.Notification(src, locale('NotifyTitle'), 'success', locale('SuccessfullyRaided'))
+            lib.logger(qtm.Framework.GetIdentifier(src), 'Raided methlab id: '..methlabId, 'Time of completion: '..os.time)
         else
-            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['FailedRaid'])
+            qtm.Notification(src, locale('NotifyTitle'), 'error', locale('FailedRaid'))
         end
         Wait(Config.RaidCooldown)
         currentLabRaid[methlabId] = nil
@@ -205,7 +199,7 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab or currentMethProduction[currentlab] ~= nil then return end
 
@@ -220,34 +214,33 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
         local canBuy, missingItems = true, {}
 
         for itemName, itemCount in pairs(Config.Recipes[recipe][input].Ingredients) do
-            local hasEnoughAlready = false
-            local item = exports.ox_inventory:GetItemCount(src, itemName, false, false)
-            if item >= itemCount then
-                local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
-                local chemcount = 0
-                for i, itemData in ipairs(item) do
-                    if not hasEnoughAlready then
+            if canBuy then
+                local item = exports.ox_inventory:GetItemCount(src, itemName, false, false)
+                if item >= itemCount then
+                    local item = exports.ox_inventory:GetSlotsWithItem(source, itemName, nil, false)
+                    local chemcount = 0
+                    for i, itemData in ipairs(item) do
                         local chemicalName = itemData.metadata['chemicalname']
                         local chemicalLevel = itemData.metadata['chemicalfill']
                         local itemString = itemName:lower():gsub("^%l", string.upper)
                         if chemicalName == itemString then
                             if (chemicalLevel - itemCount) >= 0 then
-                                hasEnoughAlready, chemcount = true, chemicalLevel
+                                chemcount = chemicalLevel
                             else
                                 chemcount = chemcount + chemicalLevel
                             end
                         end
                     end
-                end
-                if chemcount >= itemCount then
-                    canBuy = true
+                    if chemcount >= itemCount then
+                        canBuy = true
+                    else
+                        table.insert(missingItems, {itemName, itemCount - chemcount})
+                        canBuy = false
+                    end
                 else
-                    table.insert(missingItems, {itemName, 1})
                     canBuy = false
+                    table.insert(missingItems, {itemName, itemCount})
                 end
-            else
-                canBuy = false
-                table.insert(missingItems, {itemName, itemCount - item})
             end
         end
         if canBuy then
@@ -274,12 +267,12 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                 end
                 if chemcount <= count then
                 else
-                    table.insert(missingItems, {itemName, 1})
+                    table.insert(missingItems, {itemName, count-chemcount})
                     canBuy = false
                 end
             else
                 canBuy = false
-                table.insert(missingItems, {itemName, itemCount - item})
+                table.insert(missingItems, {itemName, count})
             end
         end
 
@@ -332,7 +325,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
                     end
                 end
             else
-                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
+                qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CanceledProduction'))
             end
         else
             notifyMissingItems(src, missingItems)
@@ -344,7 +337,7 @@ end)
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
-    local currentlab = tostring(getLabPlayerIsIn(getPlayerIdentifier(src)))
+    local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab or currentSlurryProduction[currentlab] ~= nil then return end
 
@@ -376,7 +369,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
             if chemcount >= itemCount then
                 canBuy = true
             else
-                table.insert(missingItems, {itemName, 1})
+                table.insert(missingItems, {itemName, itemCount - chemcount})
                 canBuy = false
             end
         else
@@ -410,7 +403,7 @@ RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
             local count = math.random(Config.Refinery[recipe][input].Output.Chance.Min, Config.Refinery[recipe][input].Output.Chance.Max)
             exports.ox_inventory:AddItem(src, Config.Refinery[recipe][input].Output.ItemName, count)
         else
-            Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CanceledProduction'])
+            qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CanceledProduction'))
         end
     else
         notifyMissingItems(src, missingItems)
@@ -488,7 +481,7 @@ AddEventHandler('onResourceStart', function(resourceName)
         -- end
     end
     if LoggingService.Discord.Enabled then
-        Unr3al.Logging('error', 'Dont use discord as a logging service :D')
+        qtm.Logging('error', 'Dont use discord as a logging service :D')
     end
 end)
 

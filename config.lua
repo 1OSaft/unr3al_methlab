@@ -1,4 +1,4 @@
-Config, Locales = {}, {}
+Config = {}
 ----------------------------------------------------------------
 Config.Locale = 'en' --choices: en - English; cs - Czech; de - German; fr - French; pl - Polish; sk - Slovakia;
 Config.checkForUpdates = true
@@ -201,29 +201,3 @@ Config.Upgrades = {
         },
     }
 }
-
-Config.Noti = {
-    --Notifications types:
-    success = 'success',
-    error = 'error',
-    info = 'inform',
-    warning = 'warning',
-}
-
-Config.Notification = function(source, notitype, message)
-    if IsDuplicityVersion() then -- serverside
-        TriggerClientEvent('ox_lib:notify', source, {
-            title = 'Meth lab',
-            description = message,
-            type = notitype,
-            duration = 5000
-        })
-    else -- clientside
-        lib.notify({
-            title = 'Meth lab',
-            description = message,
-            type = notitype,
-            duration = 5000
-        })
-    end
-end

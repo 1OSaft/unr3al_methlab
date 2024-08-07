@@ -18,6 +18,7 @@ end
 saveDatabase = function(data)
     SaveResourceFile(GetCurrentResourceName(), "database.json", json.encode(data, { indent = true }), -1)
 end
+
 ---@param data table
 saveOptions = function(data)
     SaveResourceFile(GetCurrentResourceName(), "options.json", json.encode(data, { indent = true }), -1)
@@ -74,6 +75,18 @@ removeLabPlayerIsIn = function(identifier, labId)
     database[labId].PeopleInLab = labTable
     saveDatabase(database)
 end
+
+AddEventHandler('onResourceStop', function(resource)
+    if GetCurrentResourceName() ~= resource then return end
+    saveDatabase(database)
+end)
+
+AddEventHandler('txAdmin:events:scheduledRestart', function(eventData)
+    if eventData.secondsRemaining == 60 then
+        Wait(50000)
+        saveDatabase(database) -- save 10 seconds bevor server restart
+    end
+end)
 
 lib.addCommand('convertlab', {
     help = 'Converts old sql database into json',
@@ -160,50 +173,3 @@ lib.addCommand('convertlab', {
 
     print("Convertion completed, delete Config.Methlabs and follow the docs")
 end)
-
--- lib.addCommand('getolddatabase', {
---     help = 'Converts old sql database into json',
---     restricted = 'group.admin'
--- }, function(source, args, raw)
---     local mainTableBuild = MySQL.query.await([[CREATE TABLE IF NOT EXISTS unr3al_methlab (
---         `id` int(11) NOT NULL,
---         `owned` int(11) NOT NULL DEFAULT 0,
---         `owner` varchar(46) DEFAULT NULL,
---         `locked` int(11) DEFAULT 1,
---         `storage` int(11) NOT NULL DEFAULT 1,
---         `security` int(11) NOT NULL DEFAULT 1
---         )]])
---         if mainTableBuild.warningStatus == 0 then
---             Unr3al.Logging('info', 'Database Build for Lab table complete')
---         else if mainTableBuild.warningStatus ~= 1 then
---             Unr3al.Logging('error', 'Couldnt build Lab table')
---         end end
---         local response = MySQL.query.await('SELECT * FROM unr3al_methlab')
---         for i, methlabId in ipairs(Config.Methlabs) do
---             if not response[i] then
---                 local id = MySQL.insert.await('INSERT INTO unr3al_methlab (id) VALUES (?)', {
---                     i
---                 })
---                 if id then
---                     Unr3al.Logging('debug', 'Inserted data for lab '..i..' into Database')
---                 else
---                     Unr3al.Logging('error', 'Couldnt insert data. Lab: '..i)
---                 end
---             end
---             local inventory = exports.ox_inventory:GetInventory('Methlab_Storage_'..i, false)
---             if not inventory then
---                 local methLab = MySQL.single.await('SELECT storage FROM unr3al_methlab WHERE id = ?', {i})
---                 exports.ox_inventory:RegisterStash('Methlab_Storage_'..i, 'Methlab storage', Config.Upgrades.Storage[methLab.storage].Slots, Config.Upgrades.Storage[methLab.storage].MaxWeight, false)
---                 Unr3al.Logging('debug', 'Registered stash for lab:'..i)
---             end
---         end
---         local secondaryTableBuild = MySQL.query.await([[CREATE TABLE IF NOT EXISTS unr3al_methlab_people (
---         `id` int(11) NOT NULL,
---         `identifier` varchar(46) DEFAULT NULL
---         )]])
---         if secondaryTableBuild.warningStatus == 0 then
---             Unr3al.Logging('info', 'Database Build for secondary table complete')
---         elseif secondaryTableBuild.warningStatus ~= 1 then
---             Unr3al.Logging('error', 'Couldnt build secondary table')
---         end
--- end)

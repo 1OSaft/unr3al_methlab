@@ -8,8 +8,8 @@ function notifyMissingItems(src, missingItems)
         table.insert(itemarray, itemString)
     end
     local joinedItems = table.concat(itemarray, ", ")
-    local notification = Locales[Config.Locale]['MissingResources']..joinedItems
-    Config.Notification(src, Config.Noti.error, notification)
+    local notification = locale('MissingResources')..joinedItems
+    qtm.Notification(src, locale('NotifyTitle'), 'error', notification)
 end
 
 ---@param src string
@@ -41,18 +41,20 @@ function NotifyPeople(methlabId)
     local methlabId = tostring(methlabId)
     local ownerType, owner = database[methlabId].Purchase.Type, database[methlabId].Owner
 
-    if Config.Framework == 'ESX' then
-        if ownerType == 2 or 0 then
-            local onlinePlayersJob = ESX.GetExtendedPlayers('job', owner)
-            for _, player in pairs(onlinePlayersJob) do
-                Config.Notification(player.source, Config.Noti.warning, "RAID!")
-                TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
+    if not owner then return end
+
+    if qtm.Framework.GetJob.exists(owner) then
+        local players = qtm.Framework.GetPlayers()
+        for playerID, _ in pairs(players) do
+            if qtm.Framework.GetJob(playerID) == owner then
+                qtm.Notification(playerID, 'warning', "RAID!")
+                TriggerClientEvent('unr3al_methlab:client:raidBlip', playerID, methlabId)
             end
-        else
-            local player = ESX.GetPlayerFromIdentifier(owner)
-            Config.Notification(player.source, Config.Noti.warning, "RAID!")
-            TriggerClientEvent('unr3al_methlab:client:raidBlip', player.source, methlabId)
         end
+    else
+        local player = qtm.Framework.GetIdentifierID(owner)
+        qtm.Notification(player, 'warning', "RAID!")
+        TriggerClientEvent('unr3al_methlab:client:raidBlip', player, methlabId)
     end
 end
 
@@ -64,27 +66,21 @@ function canRaidLabOwner(methlabId, secLevel)
     
     if database[tostring(methlabId)].Raidable then
         local labOwner = database[tostring(methlabId)].owner
-
-        if labOwner == getPlayerIdentifier(src) then
-            local player = ESX.GetPlayerFromIdentifier(labOwner)
-            if player ~= nil then
+        if qtm.Framework.GetJob.exists(labOwner) then
+            if qtm.Framework.GetJobOnlineMembers(labOwner) >= Config.Upgrades.Security[secLevel].NeedOnline then
                 returnval = true
             else
-                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
-                returnval = false
+                qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantRaid'))
             end
         else
-            local onlinePlayersJob = #ESX.GetExtendedPlayers('job', labOwner)
-            if onlinePlayersJob >= Config.Upgrades.Security[secLevel].NeedOnline then
-                returnval = true
+            if not qtm.Framework.GetIdentifierID(labOwner) then
+                qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantRaid'))
             else
-                Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
-                returnval = false
+                returnval = true
             end
         end
     else
-        Config.Notification(src, Config.Noti.error, Locales[Config.Locale]['CantRaid'])
-        returnval = false
+        qtm.Notification(src, locale('NotifyTitle'), 'error', locale('CantRaid'))
     end
     return returnval
 end

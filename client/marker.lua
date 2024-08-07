@@ -1,6 +1,5 @@
 Citizen.CreateThread(function()
     Wait(5000)
-    locale = Locales[Config.Locale]
     TriggerEvent('unr3al_methlab:client:refreshEnterMarker')
     if not Config.OXTarget then
         local marker = Config.Marker
@@ -24,7 +23,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(locale['NormalMenuTextUI'])
+                        lib.showTextUI(locale('NormalMenuTextUI'))
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -57,7 +56,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(locale['StorageTextUI'])
+                        lib.showTextUI(locale('StorageTextUI'))
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -93,7 +92,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(locale['PouringTextUI'])
+                        lib.showTextUI(locale('PouringTextUI'))
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -129,7 +128,7 @@ Citizen.CreateThread(function()
                         end
                     end,
                     onEnter = function()
-                        lib.showTextUI(locale['RefineryTextUI'])
+                        lib.showTextUI(locale('RefineryTextUI'))
                     end,
                     onExit = function()
                         lib.hideTextUI()
@@ -151,7 +150,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methExitPoint',
-                    label = locale['NormalMenuTextUI'],
+                    label = locale('NormalMenuTextUI'),
                     distance = Config.Target.ExitPoint.InteractDistance,
                     onSelect = function(data)
                         lib.showContext("methlab_Menu_Leave")
@@ -167,7 +166,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methMakerPoint',
-                    label = locale['PouringTextUI'],
+                    label =locale('PouringTextUI'),
                     distance = Config.Target.MethPoint.InteractDistance,
 
                     onSelect = function(data)
@@ -185,7 +184,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methSlurryPoint',
-                    label = locale['RefineryTextUI'],
+                    label = locale('RefineryTextUI'),
                     distance = Config.Target.SlurryPoint.InteractDistance,
 
                     onSelect = function(data)
@@ -202,7 +201,7 @@ Citizen.CreateThread(function()
             options = {
                 {
                     name = 'methStoragePoint',
-                    label = locale['StorageTextUI'],
+                    label = locale('StorageTextUI'),
                     distance = Config.Target.StoragePoint.InteractDistance,
 
                     onSelect = function(data)
@@ -215,7 +214,6 @@ Citizen.CreateThread(function()
 end)
 
 RegisterNetEvent('unr3al_methlab:client:refreshEnterMarker', function()
-    locale = Locales[Config.Locale]
     if not Config.OXTarget then
         local marker = Config.Marker
         for methlabID in pairs(database) do
@@ -247,7 +245,7 @@ RegisterNetEvent('unr3al_methlab:client:refreshEnterMarker', function()
                             end
                         end,
                         onEnter = function()
-                            lib.showTextUI(locale['NormalMenuTextUI'])
+                            lib.showTextUI(locale('NormalMenuTextUI'))
                         end,
                         onExit = function()
                             lib.hideTextUI()
@@ -264,7 +262,6 @@ RegisterNetEvent('unr3al_methlab:client:refreshEnterMarker', function()
                 end,
             })
         end
-
     else
         for methlabID in pairs(database) do
             exports.ox_target:addSphereZone({
@@ -275,7 +272,7 @@ RegisterNetEvent('unr3al_methlab:client:refreshEnterMarker', function()
                 options = {
                     {
                         name = 'methLabEnterPoint'..methlabID,
-                        label = locale['NormalMenuTextUI'],
+                        label = locale('NormalMenuTextUI'),
                         distance = Config.Target.EnterPoint.InteractDistance,
                         onSelect = function(data)
                             TriggerEvent('unr3al_methlab:client:doEnterStuff', tostring(methlabID))
@@ -297,10 +294,10 @@ RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
         lib.showContext("methlab_Menu_Enter")
     else
         if database[methlabID].Purchase.Type == 0 then
-            local ownerType = lib.inputDialog(locale['AlertDialogHeader'], {
-                {type = 'select', label = locale['AlertDialogHeaderBuy'], required = true, options = {
-                    { label = locale['BuyOptionPlayer'], value = 1},
-                    { label = locale['BuyOptionSociety'], value = 2}
+            local ownerType = lib.inputDialog(locale('AlertDialogHeader'), {
+                {type = 'select', label = locale('AlertDialogHeaderBuy'), required = true, options = {
+                    { label = locale('BuyOptionPlayer'), value = 1},
+                    { label = locale('BuyOptionSociety'), value = 2}
                 }},
             })
             if ownerType ~= null then
@@ -308,8 +305,8 @@ RegisterNetEvent('unr3al_methlab:client:doEnterStuff', function(methlabID)
             end
         else
             local alert = lib.alertDialog({
-                header = locale['AlertDialogHeader'],
-                content = locale['AlertDialogHeaderDesc'],
+                header = locale('AlertDialogHeader'),
+                content = locale('AlertDialogHeaderDesc'),
                 centered = true,
                 cancel = true
             })
