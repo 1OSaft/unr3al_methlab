@@ -42,8 +42,8 @@ function NotifyPeople(methlabId)
     local ownerType, owner = database[methlabId].Purchase.Type, database[methlabId].Owner
 
     if not owner then return end
-
-    if qtm.Framework.GetJob.exists(owner) then
+    
+    if qtm.FrameworkESX.DoesJobExist(owner) then
         local players = qtm.Framework.GetPlayers()
         for playerID, _ in pairs(players) do
             if qtm.Framework.GetJob(playerID) == owner then
@@ -66,7 +66,7 @@ function canRaidLabOwner(methlabId, secLevel)
     
     if database[tostring(methlabId)].Raidable then
         local labOwner = database[tostring(methlabId)].owner
-        if qtm.Framework.GetJob.exists(labOwner) then
+        if qtm.FrameworkESX.DoesJobExist(labOwner) then
             if qtm.Framework.GetJobOnlineMembers(labOwner) >= Config.Upgrades.Security[secLevel].NeedOnline then
                 returnval = true
             else

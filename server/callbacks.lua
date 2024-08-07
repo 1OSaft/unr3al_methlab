@@ -13,9 +13,9 @@ end)
 ---@param type integer
 lib.callback.register('unr3al_methlab:server:buyLab', function(source, methlabId, netId, type)
     local src, methlabId = source, tostring(methlabId)
-	local entity, jobName, playerIdentifier = NetworkGetEntityFromNetworkId(netId), qtm.Framework.GetJob.name(src), qtm.Framework.GetIdentifier(src)
+	local entity, jobName, playerIdentifier = NetworkGetEntityFromNetworkId(netId), qtm.Framework.GetJob(src).name, qtm.Framework.GetIdentifier(src)
     local methlabId = getLabPlayerIsIn(playerIdentifier)
-
+    
 	if not DoesEntityExist(entity) or not methlabId or not jobName or not playerIdentifier then return end
     
     local canBuy, missingItems = true, {}

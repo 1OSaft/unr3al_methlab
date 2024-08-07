@@ -155,8 +155,14 @@ lib.callback.register('unr3al_methlab:client:getLabCreationstuff', function()
                                 { type = 'number',   label = 'Item count',        description = 'Item amount requiered to buy the lab',      required = true, min = 1 },
                                 { type = 'checkbox', label = 'Add another item?', description = 'Check = add another item',                  checked = true },
                             }, { allowCancel = false })
-                            repeatInput = input[3]
-                            table.insert(data[6], { [input[1]] = input[2] })
+                            local item = exports.ox_inventory:Items(input[1])
+                            if item then
+                                repeatInput = input[3]
+                                table.insert(data[6], { [input[1]] = input[2] })
+                            else
+                                repeatInput = true
+                                qtm.Notification(nil, 'Item not found', 'error')
+                            end
                         end
                         titles[5] = '[Already set] '
                         lib.hideContext(false)

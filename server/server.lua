@@ -1,12 +1,9 @@
-currentlab = {}
-currentMethProduction = {}
-currentSlurryProduction = {}
-currentLabRaid = {}
+currentlab, currentLabRaid, currentMethProduction, currentSlurryProduction = {}, {}, {}, {}
 player = nil
 ox_inventory = exports.ox_inventory
 lib.locale()
 
---Finished
+---comment: Enter lab
 ---@param methlabId string | integer
 ---@param netId integer
 ---@param source string
@@ -15,7 +12,7 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or currentlab == true then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to enter Lab'..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to enter Lab'..methlabId..' without perms')
         return
     end
     if database[methlabId].Locked == 0 then
@@ -27,14 +24,14 @@ RegisterNetEvent('unr3al_methlab:server:enter', function(methlabId, netId, sourc
     end
 end)
 
----Finished
+---comment: Leave lab
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:leave', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to leave Lab'..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to leave Lab'..methlabId..' without perms')
         return
     end
     SetPlayerRoutingBucket(src, 0)
@@ -43,20 +40,20 @@ RegisterNetEvent('unr3al_methlab:server:leave', function(netId)
     removeLabPlayerIsIn(qtm.Framework.GetIdentifier(src), currentlab)
 end)
 
---Finished
+---comment: Open storage
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:openStorage', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to open storage without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to open storage without perms')
         return
     end
     exports.ox_inventory:forceOpenInventory(src, 'stash', 'Methlab_Storage_'..currentlab)
 end)
 
---Finished
+---comment: Upgrade storage
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, netId)
@@ -64,7 +61,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to upgrade storage of Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to upgrade storage of Lab '..methlabId..' without perms')
         return
     end
 
@@ -85,7 +82,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeStorage', function(methlabId, net
     end
 end)
 
---Finished
+---comment: Upgrade security
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, netId)
@@ -93,7 +90,7 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or not currentlab then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to upgrade security of Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to upgrade security of Lab '..methlabId..' without perms')
         return
     end
 
@@ -114,14 +111,14 @@ RegisterNetEvent('unr3al_methlab:server:upgradeSecurity', function(methlabId, ne
     end
 end)
 
---Finished
+---comment: Lock a lab
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
 	local entity = NetworkGetEntityFromNetworkId(netId)
 	local src = source
     if not DoesEntityExist(entity) then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to lock Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to lock Lab '..methlabId..' without perms')
         return
     end
     if currentLabRaid[methlabId] ~= nil then
@@ -130,7 +127,7 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     end
     
     local labOwner = database[tostring(methlabId)].owner
-    local jobName = qtm.Framework.GetJob.name(src)
+    local jobName = qtm.Framework.GetJob(src).name
     local playerIdentifier = qtm.Framework.GetIdentifier(src)
 
     if jobName == labOwner or playerIdentifier == labOwner then
@@ -146,6 +143,7 @@ RegisterNetEvent('unr3al_methlab:server:locklab', function(methlabId, netId)
     end
 end)
 
+---comment: Raid a lab
 ---@param methlabId string | integer
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
@@ -153,7 +151,7 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     local currentlab = tostring(getLabPlayerIsIn(qtm.Framework.GetIdentifier(src)))
 
 	if not DoesEntityExist(entity) or currentlab then
-        qtm.Logging('info', 'Player '..qtm.Framework.GetChar.fullname(src)..' tried to raid Lab '..methlabId..' without perms')
+        qtm.Logging('info', 'Player '..qtm.Framework.GetChar(src).fullname..' tried to raid Lab '..methlabId..' without perms')
         return
     end
     if currentLabRaid[methlabId] ~= nil then
@@ -195,7 +193,7 @@ RegisterNetEvent('unr3al_methlab:server:raidlab', function(methlabId, netId)
     end
 end)
 
---Finished
+---comment: Start production
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)
@@ -334,6 +332,7 @@ RegisterNetEvent('unr3al_methlab:server:startprod', function(netId)
     currentMethProduction[currentlab] = nil
 end)
 
+---comment: Start slurry production
 ---@param netId integer
 RegisterNetEvent('unr3al_methlab:server:startSlurryRefinery', function(netId)
     local src, entity = source, NetworkGetEntityFromNetworkId(netId)

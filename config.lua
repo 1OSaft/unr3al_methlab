@@ -1,15 +1,7 @@
 Config = {}
 ----------------------------------------------------------------
-Config.Locale = 'en' --choices: en - English; cs - Czech; de - German; fr - French; pl - Polish; sk - Slovakia;
 Config.checkForUpdates = true
 Config.Debug = true
-Config.Framework = 'ESX' --Currently only ESX and qb
-----------------------------------------------------------------
-Config.LoggingTypes = {
-    ['info'] = '[^4Info^0]',
-    ['debug'] = '[^3DEBUG^0]',
-    ['error'] = '[^1ERROR^0]',
-}
 ----------------------------------------------------------------
 
 Config.MaxLabs = 2

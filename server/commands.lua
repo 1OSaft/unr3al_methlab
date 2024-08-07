@@ -108,14 +108,3 @@ lib.addCommand('methlab:edit', {
         
     end
 end)
-
-lib.addCommand('methlab:test', {
-    help = 'Resets a lab back to its orgininal state',
-    restricted = 'group.admin'
-}, function(source, args, raw)
-    local src = source
-
-    
-
-    print(qtm.Framework.GetJob.name(src))
-end)
