@@ -1,4 +1,8 @@
+<<<<<<< Updated upstream
 Config = {}
+=======
+Config, database = {}, {}
+>>>>>>> Stashed changes
 lib.locale()
 CreateThread(function()
     TriggerEvent('unr3al_methlab:client:getConfig')

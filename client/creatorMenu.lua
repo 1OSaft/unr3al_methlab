@@ -221,6 +221,7 @@ end)
 
 lib.callback.register('unr3al_methlab:client:getLabMenustuff', function(database_new)
     local methlabList = {}
+<<<<<<< Updated upstream
 
     finished = false
     for methlabId_int in pairs(database_new) do
@@ -245,6 +246,220 @@ lib.callback.register('unr3al_methlab:client:getLabMenustuff', function(database
     lib.registerContext({
         id = 'methlab_edit_menu',
         title = 'Methlab Creator Menu',
+=======
+    local data = {
+        [1] = { x = nil, y = nil, z = nil, w = nil },
+        [2] = nil,
+        [3] = nil,
+        [4] = { x = nil, y = nil, z = nil, w = nil },
+        [5] = nil,
+        [6] = {},
+        [7] = { x = nil, y = nil, z = nil, w = nil },
+    }
+    
+
+    finished = false
+    for methlabId_int, labData in pairs(database_new) do
+        table.insert(methlabList, {
+            title = 'Edit ' ..tostring(methlabId_int),
+            onSelect = function()
+                print(methlabId_int)
+                data = {
+                    [1] = { x = labData.Coords.x, y = labData.Coords.y, z = labData.Coords.z, w = labData.Coords.r },
+                    [2] = labData.Purchase.Type,
+                    [3] = labData.Raidable,
+                    [4] = { x = labData.RaidCoords.x, y = labData.RaidCoords.y, z = labData.RaidCoords.z, w = labData.RaidCoords.r },
+                    [5] = labData.Recipes,
+                    [6] = labData.Purchase.Price,
+                    [7] = { x = nil, y = nil, z = nil, w = nil },
+                }
+                local function OpenCreate()
+                    local menuOptions = {
+                        {
+                            title = 'Enter coords',
+                            description = 'Enter the entry coords',
+                            icon = 'map',
+                            onSelect = function()
+                                lib.showTextUI("[E] Enter coords")
+                                while true do
+                                    Wait(0)
+                                    if IsControlJustPressed(0, 38) then
+                                        local pos = GetEntityCoords(cache.ped)
+                                        local heading = GetEntityHeading(cache.ped)
+                
+                                        data[1] = { x = pos[1], y = pos[2], z = pos[3], w = heading }
+                                        lib.hideContext(false)
+                                        lib.hideTextUI()
+                                        OpenCreate()
+                                        break
+                                    end
+                                end
+                            end,
+                            metadata = {
+                                { label = 'X', value = data[1].x or "X" },
+                                { label = 'Y', value = data[1].y or "X" },
+                                { label = 'Z', value = data[1].z or "X" },
+                                { label = 'R', value = data[1].w or "X" },
+                            }
+                        },
+                        {
+                            title ='Lab buy type',
+                            description = 'Who should own this lab?',
+                            onSelect = function()
+                                local input = lib.inputDialog('Methlab creation menu', {
+                                    {
+                                        type = 'select',
+                                        label = 'Owner',
+                                        description = 'select can own the lab after purchase',
+                                        required = true,
+                                        options = {
+                                            { label = 'Player owned',       value = 1 },
+                                            { label = 'Society owned',      value = 2 },
+                                            { label = 'Decide on purchase', value = 0 },
+                                        },
+                                        default = 0
+                                    },
+                                }, { allowCancel = false })
+                                data[2] = input[1]
+                                lib.hideContext(false)
+                                OpenCreate()
+                            end
+                        },
+                        {
+                            title = 'Raid Settings',
+                            description = 'General raid settings?',
+                            onSelect = function()
+                                data[3] = lib.inputDialog('Methlab creation menu', {
+                                    { type = 'checkbox', label = 'Raidable?' },
+                                }, { allowCancel = false })
+                                if data[3] ~= nil then
+                                    lib.showTextUI("[E] Enter coords")
+                                    while true do
+                                        Wait(0)
+                                        if IsControlJustPressed(0, 38) then
+                                            local pos = GetEntityCoords(cache.ped)
+                                            local heading = GetEntityHeading(cache.ped)
+                
+                                            data[4] = { x = pos[1], y = pos[2], z = pos[3], w = heading }
+                                            lib.hideContext(false)
+                                            lib.hideTextUI()
+                                            OpenCreate()
+                                            break
+                                        end
+                                    end
+                                else
+                                    lib.hideContext(false)
+                                    OpenCreate()
+                                end
+                            end,
+                            metadata = {
+                            { label = 'Raidable', value = data[3]   or "X" },
+                            { label = 'X',        value = data[4].y or "X" },
+                            { label = 'Y',        value = data[4].y or "X" },
+                            { label = 'Z',        value = data[4].z or "X" },
+                            { label = 'R',        value = data[4].w or "X" },
+                            }
+                        },
+                        {
+                            title = 'Recipe',
+                            description = 'The recipe the lab can do',
+                            onSelect = function()
+                                local input = lib.inputDialog('Methlab creation menu', {
+                                    { type = 'select', label = 'Recipe', description = 'Which recipe should the lab have, see Config.Recipes', required = true, options = recipeList },
+                                }, { allowCancel = false })
+                
+                                data[5] = input[1]
+                                lib.hideContext(false)
+                                OpenCreate()
+                            end,
+                            metadata = {
+                                { label = 'Recipetype', value = data[5] or "X" },
+                            }
+                        },
+                        {
+                            title = 'Purchase price',
+                            description = 'Price of the lab',
+                            onSelect = function()
+                                local repeatInput = true
+                                while repeatInput do
+                                    local input = lib.inputDialog('Methlab creation menu', {
+                                        { type = 'input',    label = 'Itemname',          description = 'Item spawnname to have for buying the lab', required = true },
+                                        { type = 'number',   label = 'Item count',        description = 'Item amount requiered to buy the lab',      required = true, min = 1 },
+                                        { type = 'checkbox', label = 'Add another item?', description = 'Check = add another item',                  checked = true },
+                                    }, { allowCancel = false })
+                                    local item = exports.ox_inventory:Items(input[1])
+                                    if item then
+                                        repeatInput = input[3]
+                                        table.insert(data[6], { [input[1]] = input[2] })
+                                    else
+                                        repeatInput = true
+                                        qtm.Notification(nil, 'Item not found', 'error')
+                                    end
+                                end
+                                lib.hideContext(false)
+                                OpenCreate()
+                            end
+                        },
+                        {
+                            title = '[WIP] Garage coords',
+                            description = 'Enter the garage coords',
+                            icon = 'map',
+                            onSelect = function()
+                                lib.showTextUI("[E] Garage coords")
+                                while true do
+                                    Wait(0)
+                                    if IsControlJustPressed(0, 38) then
+                                        local pos = GetEntityCoords(cache.ped)
+                                        local heading = GetEntityHeading(cache.ped)
+                
+                                        data[7] = { x = pos[1], y = pos[2], z = pos[3], w = heading }
+                                        lib.hideContext(false)
+                                        lib.hideTextUI()
+                                        OpenCreate()
+                                        break
+                                    end
+                                end
+                            end,
+                            metadata = {
+                                { label = 'X', value = data[7].x or "X" },
+                                { label = 'Y', value = data[7].y or "X" },
+                                { label = 'Z', value = data[7].z or "X" },
+                                { label = 'R', value = data[7].w or "X" },
+                            }
+                        },
+                        {
+                            title = 'Finish',
+                            description = 'submit all informations for creation of the lab',
+                            onSelect = function()
+                                lib.hideContext(false)
+                                return methlabId, data
+                            end
+                        }
+                    }
+                    lib.registerContext({
+                        id = 'methlab_edit_menu2',
+                        title = 'Methlab Edit Menu',
+                        onExit = function()
+                            return false
+                        end,
+                        options = menuOptions
+                    })
+                    lib.showContext('methlab_edit_menu2')
+                end
+                OpenCreate()
+            end,
+            metadata = {
+                { label = 'Owner',  value = tostring(labData.Owner)     or "Unowned" },
+                { label = 'Locked', value = tostring(labData.Locked)    or "X" },
+            }
+        })
+    end
+
+    Wait(1000)
+    lib.registerContext({
+        id = 'methlab_edit_menu',
+        title = 'Methlab Edit Menu',
+>>>>>>> Stashed changes
         onExit = function()
             return false
         end,
